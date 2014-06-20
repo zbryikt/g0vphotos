@@ -6,6 +6,8 @@ html,body
   width: 100%
   height: 100%
 
+body
+  background: url(img/greyzz.png) fixed
 
 .layout
   margin-bottom: 150px
@@ -27,6 +29,9 @@ html,body
   .desc
     margin: 10px 5px 5px
     padding: 0 5px
+.thumbnail:hover
+  box-shadow: 0 2px 12px rgba(128,128,0,0.7)
+  margin-top: 9px
 #output
   position: fixed
   display: none
@@ -95,8 +100,6 @@ html,body
     height: 100%
     background: rgba(64,64,64,1) center center no-repeat fixed
     background-size: cover
-  .bk1
-    background-image: url(img/cover/1.jpg)
   .title, .subtitle
     width: 100%
     text-align: center
@@ -119,7 +122,6 @@ html,body
     position: relative
     top: 58%
     padding: 20px
-    background-image: url(img/cover/1.blur.jpg)
     background-attachment: fixed
     background-size: cover
     background-position: center center
@@ -129,11 +131,19 @@ html,body
     opacity: 1
   #headline.active
     top: 60%
+  .bk1
+    background-image: url(img/cover/1.jpg)
+  .bk5
+    background-image: url(img/cover/5.jpg)
+  #headline.bk1
+    background-image: url(img/cover/1.blur.jpg)
+  #headline.bk5
+    background-image: url(img/cover/5.blur.jpg)
 
 #footer
   position: fixed
   bottom: 0
-  background: rgba(255,255,255,0.8)
+  background: rgba(218,218,218,0.8)
   height: 30px
   padding: 5px
   box-shadow: 0 -3px 3px rgba(0,0,0,0.2)
@@ -161,3 +171,28 @@ html,body
     margin-top: 3.0em
     width: 100%
     color: #fff
+
+#menu
+  padding: 10px
+  width: 100%
+  border-top: 4px solid #a01
+  border-bottom: 4px solid #a01
+  background: #c23
+  a.item
+    padding: 10px
+    margin: 0 10px
+    color: #fff
+    font-family: "century gothic"
+    letter-spacing: 1px
+    font-size: 1.1em
+  a.logo
+    position: absolute
+    padding: 0
+    margin-top: -5px
+    right: 20px
+#menu.static
+  position: absolute
+#menu.fixed
+  position: fixed
+  top: 0
+  z-index: 9

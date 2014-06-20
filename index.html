@@ -13,16 +13,18 @@
     <link rel="icon" type="image/gif" href="favicon.png">
     <link rel="stylesheet" type="text/css" href="index.css">
     <script type="text/javascript" src="assets/isotope/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="skrollr.min.js"></script>
     <script type="text/javascript" src="index.js"></script>
   </head>
   <body ng-app ng-controller="main">
     <div id="banner">
-      <div class="bk bk1"></div>
-      <div id="headline" ng-class="{'active':hlActive}">
+      <div ng-class="bkno" class="bk"></div>
+      <div id="headline" ng-class="[{'active':hlActive},bkno]">
         <div ng-class="{'active':hlActive}" class="title">自己的活動自己拍</div>
         <div ng-class="{'active':hlActive}" class="subtitle">g0v hackath9n photo stream</div>
       </div>
-    </div><br style="clear:both">
+    </div>
+    <div id="menu" data-anchor-target="#banner" data-top-top="@class:static" data-top-bottom="@class:fixed"><a href="http://g0v.photos" target="_blank" class="item">g0v.photos</a><a href="http://g0v.tw" target="_blank" class="item">官方網站</a><a href="http://hack.g0v.tw" target="_blank" class="item">hackfolder</a><a href="http://g0v.hackpad.com" target="_blank" class="item">hackpad</a><a href="http://community.g0v.tw" target="_blank" class="item">新・後勤中心</a><a href="https://www.facebook.com/g0v.tw" target="_blank" class="item">粉絲團</a><a href="#" ng-click="gotop()" class="item">回頁首</a><a class="item logo"><img src="img/logo.gif"></a></div><br><br><br style="clear:both">
     <div id="output">
       <form class="row">
         <div class="col-xs-4">
@@ -86,6 +88,6 @@
       </div>
     </div>
     <div id="loading" ng-show="uploading"></div>
-    <div id="footer"><b>自己的活動自己拍 </b>/  <a id="attributions" data-container="body" data-toggle="popover" data-placement="top" data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS">attributions</a></div>
+    <div id="footer"><b>自己的活動自己拍 </b>/ g0v.photos / <a id="attributions" data-container="body" data-toggle="popover" data-placement="top" data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS">attributions</a></div>
   </body>
 </html>

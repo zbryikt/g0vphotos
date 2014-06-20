@@ -15,14 +15,25 @@ html(lang="en")
     link(rel="icon",type="image/gif",href="favicon.png")
     link(rel="stylesheet",type="text/css",href="index.css")
     script(type="text/javascript",src="assets/isotope/isotope.pkgd.min.js")
+    script(type="text/javascript",src="skrollr.min.js")
     script(type="text/javascript",src="index.js")
   body(ng-app,ng-controller="main")
     #banner
-      .bk.bk1
-      #headline(ng-class="{'active':hlActive}")
+      .bk(ng-class="bkno")
+      #headline(ng-class="[{'active':hlActive},bkno]")
         .title(ng-class="{'active':hlActive}") 自己的活動自己拍
         .subtitle(ng-class="{'active':hlActive}") g0v hackath9n photo stream
-    
+    #menu(data-anchor-target="#banner",data-top-top="@class:static",data-top-bottom="@class:fixed")
+      a.item(href="http://g0v.photos",target="_blank") g0v.photos
+      a.item(href="http://g0v.tw",target="_blank") 官方網站
+      a.item(href="http://hack.g0v.tw",target="_blank") hackfolder
+      a.item(href="http://g0v.hackpad.com",target="_blank") hackpad
+      a.item(href="http://community.g0v.tw",target="_blank") 新・後勤中心
+      a.item(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲團
+      a.item(href="#",ng-click="gotop()") 回頁首
+      a.item.logo: img(src="img/logo.gif")
+    br
+    br
     br(style="clear:both")
     #output
       form.row
@@ -72,5 +83,5 @@ html(lang="en")
     #loading(ng-show="uploading")
     #footer
       b 自己的活動自己拍 
-      | /  
+      | / g0v.photos / 
       a#attributions(data-container="body",data-toggle="popover",data-placement="top",data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS") attributions

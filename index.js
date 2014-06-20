@@ -17,6 +17,7 @@ main = function($scope, $timeout){
     }
   };
   import$($scope, {
+    bkno: ['bk1', 'bk5'][parseInt(Math.random() * 2)],
     cc: {
       sa: false,
       by: true,
@@ -240,7 +241,16 @@ main = function($scope, $timeout){
     };
     return upload(payloads);
   };
+  $scope.gotop = function(){
+    return $(document.body).animate({
+      scrollTop: 0
+    });
+  };
   $('#attributions').popover();
+  skrollr.init({
+    forceHeight: false,
+    render: function(){}
+  });
   return $scope.refresh();
 };
 function import$(obj, src){

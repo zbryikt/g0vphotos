@@ -4,6 +4,7 @@ main = ($scope,$timeout) ->
   dcd = -> if it => decodeURIComponent it else it
 
   $scope <<< do
+    bkno: <[bk1 bk5]>[parseInt(Math.random! * 2)]
     cc: sa: false, by: true, nd: false, nc: false
     license: "Public Domain"
     desc: ""
@@ -132,6 +133,10 @@ main = ($scope,$timeout) ->
         setTimeout (-> upload payloads), 0
       .error (e) -> finish false
     upload payloads
+
+  $scope.gotop = ->
+    $(document.body)animate scrollTop: 0
       
   $(\#attributions)popover!
+  skrollr.init({forceHeight: false, render: ->})
   $scope.refresh!

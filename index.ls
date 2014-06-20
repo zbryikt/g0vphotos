@@ -30,7 +30,9 @@ main = ($scope,$timeout) ->
       url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
     .done (data) ->
       data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
-      $scope.$apply -> $scope.list = data.items
+      $scope.$apply ->
+        $scope.list = data.items
+        $scope.list.reverse!
       $timeout ->
         if $scope.initlayout => $ \#layout .isotope \destroy
         $ \#layout .isotope do

@@ -69,7 +69,8 @@ main = function($scope, $timeout){
         });
       });
       $scope.$apply(function(){
-        return $scope.list = data.items;
+        $scope.list = data.items;
+        return $scope.list.reverse();
       });
       return $timeout(function(){
         if ($scope.initlayout) {

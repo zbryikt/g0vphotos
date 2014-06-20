@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8">
+    <title>template</title>
+    <!-- libraries-->
+    <script type="text/javascript" src="assets/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/d3js/3.3.11/d3.v3.min.js"></script>
+    <script type="text/javascript" src="assets/angular/1.2.3/angular.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/bootstrap/3.0.2/css/bootstrap.min.css">
+    <script type="text/javascript" src="assets/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <!-- custom files-->
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script type="text/javascript" src="assets/isotope/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+  </head>
+  <body ng-app ng-controller="main">
+    <div id="banner">
+      <div class="bk bk1"></div>
+      <div id="headline" ng-class="{'active':hlActive}">
+        <div ng-class="{'active':hlActive}" class="title">自己的活動自己拍</div>
+        <div ng-class="{'active':hlActive}" class="subtitle">g0v hackath9n photo stream</div>
+      </div>
+    </div><br style="clear:both">
+    <div id="output">
+      <form class="row">
+        <div class="col-xs-4">
+          <div class="preview"></div>
+        </div>
+        <div class="col-xs-8">
+          <div class="form-group">
+            <label>照片描述</label>
+            <textarea ng-model="desc" placeholder="解釋一下這張照片在拍什麼吧" class="form-control"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label>作者</label>
+                <input type="text" ng-model="author" placeholder="例如: 王大明" class="form-control">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label>標籤</label>
+                <input type="text" ng-model="tag" placeholder="用逗點分隔" class="form-control">
+              </div>
+            </div>
+          </div>
+          <div ng-click="submit()" class="btn btn-success">submit</div>
+        </div>
+      </form>
+    </div>
+    <div id="layout" class="layout">
+      <div class="thumbnail upload">
+        <div class="ib">
+          <div class="ib2">
+            <div ng-show="!chosen" class="img"></div>
+            <div id="upload-canvas" ng-class="{'default-height': !chosen}"></div>
+            <input id="file" type="file">
+          </div>
+        </div>
+      </div>
+      <div ng-repeat="item in list" class="thumbnail">
+        <div class="ib"><img ng-attr-src="http://g0vhackath9n_thumbnail.storage.googleapis.com/{{item.name}}">
+          <div class="desc">{{item.metadata.desc}} by {{item.metadata.author}}</div>
+        </div>
+      </div>
+    </div>
+    <div id="attribution">Cloud-Upload /  Chris Kerr / CC-BY 3.0 / http://thenounproject.com/term/cloud-upload/31197/</div>
+  </body>
+</html>

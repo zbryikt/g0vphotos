@@ -1,0 +1,128 @@
+@import basic
+
+html,body
+  margin: 0
+  padding: 0
+  width: 100%
+  height: 100%
+
+//.layout
+//  @include column(3,10px,auto)
+.thumbnail
+  //@include column-break-inside(avoid)
+  //display: inline-block
+  border: 1px solid #ccc
+  box-shadow: 0 2px 3px rgba(0,0,0,0.3)
+  margin: 10px
+  float: left
+  width: 30%
+  .ib
+    width: 100%
+    padding: 5px
+  img
+    width: 100%
+    border-radius: 3px
+  .desc
+    margin: 10px 5px 5px
+    padding: 0 5px
+#output
+  position: fixed
+  display: none
+  top: 5%
+  left: 0
+  width: 100%
+  height: 90%
+  z-index: 10
+  background: rgba(255,255,255,0.97)
+  box-shadow: 0 0 5px rgba(0,0,0,0.5)
+  .preview
+    padding: 20
+    canvas
+      width: 100%
+      border-radius: 10px
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.3)
+  form
+    max-width: 1200px
+    margin: 20px auto
+    textarea
+      min-height: 100px
+
+.thumbnail.upload
+  .ib2
+    width: 100%
+    position: relative
+  #file
+    position: absolute
+    z-index: 2
+    display: block
+    top: 0
+    opacity: 0.0
+    background: #f00
+    width: 100%
+    height: 100%
+    cursor: pointer
+  .img
+    position: absolute
+    z-index: 0
+    background: rgba(219,219,219,1) url(img/icon/upload-text.svg) center center no-repeat
+    background-size: 80px 80px
+    width: 100%
+    height: 400px
+    text-align: center
+    line-height: 3em
+    font-size: 2em
+    color: #fff
+  #upload-canvas
+    position: relative
+    z-index: 1
+    width: 100%
+    canvas
+      width: 100%
+  #upload-canvas.default-height
+    min-height: 400px
+
+    
+#banner
+  width: 100%
+  height: 100%
+  position: relative
+  .bk
+    position: absolute
+    width: 100%
+    height: 100%
+    background: rgba(64,64,64,1) center center no-repeat fixed
+    background-size: cover
+  .bk1
+    background-image: url(img/cover/1.jpg)
+  .title, .subtitle
+    width: 100%
+    text-align: center
+    font-size: 4em
+    color: #fff
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5)
+    font-family: 'Source Sans Pro', 'ヒラギノ角ゴ Pro', 'Hiragino Kaku Gothic Pro', 文泉驛微米黑, 'WenQuanYi Micro Hei Light', 微軟正黑體, 'Microsoft JhengHei', 'Helvetica Neue', Helvetica, Arial, sans-serif
+    font-weight: 800
+    @include transition(all 2s linear 0.5s)
+    opacity: 0
+  .subtitle
+    font-weight: 200
+    font-family: century gothic
+    font-size: 1.5em
+    padding: 0 0 10px
+    text-shadow: 0 0 4px rgba(0,0,0,1)
+  #headline
+    width: 100%
+    text-align: center
+    position: relative
+    top: 58%
+    padding: 20px
+    background-image: url(img/cover/1.blur.jpg)
+    background-attachment: fixed
+    background-size: cover
+    background-position: center center
+    box-shadow: 0 0 5px rgba(0,0,0,0.2)
+    @include transition(all 1s ease-out)
+  .title.active, .subtitle.active
+    opacity: 1
+  #headline.active
+    top: 60%

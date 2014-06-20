@@ -1,0 +1,19 @@
+@mixin column($count, $gap, $fill)
+  -webkit-column-count: $count
+  -webkit-column-gap: $gap
+  -webkit-column-fill: $fill
+  -moz-column-count: $count
+  -moz-column-gap: $gap
+  -moz-column-fill: $fill
+  column-count: $count
+  column-gap: $gap
+  column-fill: $fill
+
+@mixin column-break-inside($value)
+  -webkit-column-break-inside: $value
+  -moz-column-break-inside: $value
+  column-break-inside: $value
+
+@mixin transition($value)
+  -webkit-transition: $value
+  transition: $value

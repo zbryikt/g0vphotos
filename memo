@@ -1,0 +1,10 @@
+https://developers.google.com/storage/docs/json_api/v1/#Objects
+
+https://developers.google.com/storage/docs/concepts-techniques?csw=1
+
+https://console.developers.google.com/project/apps~g0vpics/storage/bucket20140615/
+
+
+https://www.googleapis.com/storage/v1/b/bucket20140615/o/bravo2
+  metadata: ...
+data: http://bucket20140615.storage.googleapis.com/bravo2

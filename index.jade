@@ -1,0 +1,54 @@
+doctype html
+//- basic libraries: jquery(1.10.2), d3js(3.3.11), angularjs(1.2.3), bootstrap(3.0)/semantic-ui(0.9.3/0.9.5)
+- var usecdn = false
+- var useog = false
+- var lib = { jquery: true, d3js: true, angular: true, bootstrap: true, semantic: false }
+- var assets = "assets"
+- var thumbnail = "http://dummy.thumbnail"
+html(lang="en")
+  head(prefix="og: http://ogp.me/ns#")
+    meta(charset="utf-8")
+    title template
+    // libraries
+    include library.jade
+    // custom files
+    link(rel="stylesheet",type="text/css",href="index.css")
+    script(type="text/javascript",src="assets/isotope/isotope.pkgd.min.js")
+    script(type="text/javascript",src="index.js")
+  body(ng-app,ng-controller="main")
+    #banner
+      .bk.bk1
+      #headline(ng-class="{'active':hlActive}")
+        .title(ng-class="{'active':hlActive}") 自己的活動自己拍
+        .subtitle(ng-class="{'active':hlActive}") g0v hackath9n photo stream
+    
+    br(style="clear:both")
+    #output
+      form.row
+        .col-xs-4
+          .preview
+        .col-xs-8
+          .form-group
+            label 照片描述
+            textarea.form-control(ng-model="desc",placeholder="解釋一下這張照片在拍什麼吧")
+          .row
+            .col-sm-6: .form-group
+              label 作者
+              input.form-control(type="text",ng-model="author",placeholder="例如: 王大明")
+            .col-sm-6: .form-group
+              label 標籤
+              input.form-control(type="text",ng-model="tag",placeholder="用逗點分隔")
+          .btn.btn-success(ng-click="submit()") submit
+
+    .layout#layout
+      div.thumbnail.upload: .ib
+        .ib2
+          .img(ng-show="!chosen")
+          #upload-canvas(ng-class="{'default-height': !chosen}")
+          input#file(type="file")
+
+      div.thumbnail(ng-repeat="item in list"): .ib
+        img(ng-attr-src="http://g0vhackath9n_thumbnail.storage.googleapis.com/{{item.name}}")
+        .desc {{item.metadata.desc}} by {{item.metadata.author}}
+    #attribution
+      | Cloud-Upload /  Chris Kerr / CC-BY 3.0 / http://thenounproject.com/term/cloud-upload/31197/

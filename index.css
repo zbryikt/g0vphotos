@@ -1,0 +1,124 @@
+@charset "UTF-8";
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%; }
+
+.thumbnail {
+  border: 1px solid #cccccc;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+  margin: 10px;
+  float: left;
+  width: 30%; }
+  .thumbnail .ib {
+    width: 100%;
+    padding: 5px; }
+  .thumbnail img {
+    width: 100%;
+    border-radius: 3px; }
+  .thumbnail .desc {
+    margin: 10px 5px 5px;
+    padding: 0 5px; }
+
+#output {
+  position: fixed;
+  display: none;
+  top: 5%;
+  left: 0;
+  width: 100%;
+  height: 90%;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
+  #output .preview {
+    padding: 20; }
+    #output .preview canvas {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); }
+  #output form {
+    max-width: 1200px;
+    margin: 20px auto; }
+    #output form textarea {
+      min-height: 100px; }
+
+.thumbnail.upload .ib2 {
+  width: 100%;
+  position: relative; }
+.thumbnail.upload #file {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  top: 0;
+  opacity: 0;
+  background: red;
+  width: 100%;
+  height: 100%;
+  cursor: pointer; }
+.thumbnail.upload .img {
+  position: absolute;
+  z-index: 0;
+  background: #dbdbdb url(img/icon/upload-text.svg) center center no-repeat;
+  background-size: 80px 80px;
+  width: 100%;
+  height: 400px;
+  text-align: center;
+  line-height: 3em;
+  font-size: 2em;
+  color: white; }
+.thumbnail.upload #upload-canvas {
+  position: relative;
+  z-index: 1;
+  width: 100%; }
+  .thumbnail.upload #upload-canvas canvas {
+    width: 100%; }
+.thumbnail.upload #upload-canvas.default-height {
+  min-height: 400px; }
+
+#banner {
+  width: 100%;
+  height: 100%;
+  position: relative; }
+  #banner .bk {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #404040 center center no-repeat fixed;
+    background-size: cover; }
+  #banner .bk1 {
+    background-image: url(img/cover/1.jpg); }
+  #banner .title, #banner .subtitle {
+    width: 100%;
+    text-align: center;
+    font-size: 4em;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    font-family: "Source Sans Pro", "ヒラギノ角ゴ Pro", "Hiragino Kaku Gothic Pro", 文泉驛微米黑, "WenQuanYi Micro Hei Light", 微軟正黑體, "Microsoft JhengHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    -webkit-transition: all 2s linear 0.5s;
+    transition: all 2s linear 0.5s;
+    opacity: 0; }
+  #banner .subtitle {
+    font-weight: 200;
+    font-family: century gothic;
+    font-size: 1.5em;
+    padding: 0 0 10px;
+    text-shadow: 0 0 4px black; }
+  #banner #headline {
+    width: 100%;
+    text-align: center;
+    position: relative;
+    top: 58%;
+    padding: 20px;
+    background-image: url(img/cover/1.blur.jpg);
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center center;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    -webkit-transition: all 1s ease-out;
+    transition: all 1s ease-out; }
+  #banner .title.active, #banner .subtitle.active {
+    opacity: 1; }
+  #banner #headline.active {
+    top: 60%; }

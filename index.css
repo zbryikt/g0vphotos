@@ -122,3 +122,8 @@ html, body {
     opacity: 1; }
   #banner #headline.active {
     top: 60%; }
+
+#footer {
+  position: absolute;
+  bottom: 0;
+  clear: both; }

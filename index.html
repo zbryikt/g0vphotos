@@ -79,11 +79,12 @@
         </div>
       </div>
       <div ng-repeat="item in list" class="thumbnail">
-        <div class="ib"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}">
+        <div class="ib"><a href="http://raw.g0v.photos/{{item.name}}"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}"></a>
           <div class="desc">{{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}}</div>
         </div>
       </div>
     </div>
+    <div id="loading" ng-show="uploading"></div>
     <div id="footer"><b>自己的活動自己拍 </b>/  <a id="attributions" data-container="body" data-toggle="popover" data-placement="top" data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS">attributions</a></div>
   </body>
 </html>

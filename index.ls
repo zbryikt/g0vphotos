@@ -1,4 +1,8 @@
 main = ($scope,$timeout) ->
+
+  ecd = -> if it => encodeURIComponent it else it
+  dcd = -> if it => decodeURIComponent it else it
+
   $scope <<< do
     cc: sa: false, by: true, nd: false, nc: false
     license: "Public Domain"
@@ -12,7 +16,7 @@ main = ($scope,$timeout) ->
       thumbnail: null
       canvas: null
   $scope.img.rawReader = new FileReader!
-    ..onload = -> $scope.$apply -> $scope.img.raw = new Uint8Array @result
+  $scope.img.rawReader.onload = -> $scope.$apply ~> $scope.img.raw = new Uint8Array @result
 
   license = (v, author) ->
     if !author or !(v.sa or v.by or v.nd or v.nc) => return "Public Domain"
@@ -23,6 +27,7 @@ main = ($scope,$timeout) ->
     url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
   .done (data) ->
     console.log data
+    data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
     $scope.$apply -> $scope.list = data.items
     $timeout ->
       $ \#layout .isotope do
@@ -37,7 +42,6 @@ main = ($scope,$timeout) ->
 
   resize = (img) ->
     r = 400 / img.width
-    console.log parseFloat($scope.rate)
     if r < parseFloat($scope.rate) => r = parseFloat($scope.rate)
     canvas = document.createElement \canvas
     canvas <<< {width: img.width * r, height: img.height * r}
@@ -79,12 +83,14 @@ main = ($scope,$timeout) ->
   $scope.submit = ->
     if $scope.uploading => return
     $scope.uploading = true
+    $timeout (->$scope._submit!), 0 # let uploading work
+  $scope._submit = ->
     hash = {
       "name": "pic#{new Date!getTime!}_#{parseInt(Math.random!*1000000000,16)}"
       metadata: {
-        "author": $scope.author
-        "desc": $scope.desc 
-        "tag": $scope.tag
+        "author": ecd $scope.author
+        "desc": ecd $scope.desc 
+        "tag": ecd $scope.tag
         "license": license($scope.cc, $scope.author)
       }
     }
@@ -95,7 +101,11 @@ main = ($scope,$timeout) ->
     payloads = [[$scope.img.raw, \raw.g0v.photos],[$scope.img.thumbnail, \thumb.g0v.photos]]
     url = \https://www.googleapis.com/upload/storage/v1/b
     arg = \o?uploadType=multipart&predefinedAcl=publicRead
-    for payload in payloads
+    finish = ->
+      $scope.$apply -> $scope.uploading = false
+      update-watcher false
+    upload = (payloads) ->
+      payload = payloads.splice(0,1)0
       data = payload.0
       size = head.length + tail.length + data.length
       ua = new Uint8Array size
@@ -109,11 +119,10 @@ main = ($scope,$timeout) ->
         contentType: "multipart/related; boundary=\"#sep\""
         data: ua.buffer
         processData: false
-      .done (e) ->
-        $scope.$apply -> $scope.uploading = false
-        update-watcher false
-      .error (e) ->
-        $scope.$apply -> $scope.uploading = false
-        update-watcher false
-
+      .done (e) -> 
+        if payloads.length == 0 => return finish!
+        setTimeout (-> upload payloads), 0
+      .error (e) -> finish!
+    upload payloads
+      
   $(\#attributions)popover!

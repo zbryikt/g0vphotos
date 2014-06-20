@@ -11,10 +11,9 @@ main = ($scope,$timeout) ->
   $scope.img.rawReader = new FileReader!
     ..onload = -> $scope.$apply -> $scope.img.raw = new Uint8Array @result
 
-  #$timeout (-> $(document.body)animate scrollTop: $(window)height!), 2000
 
   $.ajax do
-    url: \https://www.googleapis.com/storage/v1/b/g0vhackath9n_thumbnail/o
+    url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
   .done (data) ->
     console.log data
     $scope.$apply -> 
@@ -70,7 +69,7 @@ main = ($scope,$timeout) ->
   $scope.cancel = ->
     $scope.img <<< {raw: null, thumbnail: null, canvas: null}
     update-watcher false
-    
+
   $scope.submit = ->
     hash = {
       "name": "pic#{new Date!getTime!}_#{parseInt(Math.random!*1000000000,16)}"
@@ -84,7 +83,7 @@ main = ($scope,$timeout) ->
     head = "--#sep\nContent-Type: application/json; chartset=UTF-8\n\n#{JSON.stringify(hash)}\n\n" +
            "--#sep\nContent-Type: image/jpg\n\n"
     tail = "\n\n--#{sep}--"
-    payloads = [[$scope.img.raw, \g0vhackath9n_raw],[$scope.img.thumbnail, \g0vhackath9n_thumbnail]]
+    payloads = [[$scope.img.raw, \raw.g0v.photos],[$scope.img.thumbnail, \thumb.g0v.photos]]
     url = \https://www.googleapis.com/upload/storage/v1/b
     arg = \o?uploadType=multipart&predefinedAcl=publicRead
     for payload in payloads
@@ -102,15 +101,4 @@ main = ($scope,$timeout) ->
         data: ua.buffer
         processData: false
 
-  # only send image
-  /*
-    $.ajax do
-      #url: \/post #\https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o 
-      url: "https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o?uploadType=media&name=#{name}"
-      contentType: "image/jpg"
-      type: \POST
-      data: payload
-      processData: false
-  */
-  
   $(\#attributions)popover!

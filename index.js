@@ -20,7 +20,7 @@ main = function($scope, $timeout){
     });
   };
   $.ajax({
-    url: 'https://www.googleapis.com/storage/v1/b/g0vhackath9n_thumbnail/o'
+    url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'
   }).done(function(data){
     console.log(data);
     $scope.$apply(function(){
@@ -128,7 +128,7 @@ main = function($scope, $timeout){
     sep = "DULLSEPARATOR";
     head = ("--" + sep + "\nContent-Type: application/json; chartset=UTF-8\n\n" + JSON.stringify(hash) + "\n\n") + ("--" + sep + "\nContent-Type: image/jpg\n\n");
     tail = "\n\n--" + sep + "--";
-    payloads = [[$scope.img.raw, 'g0vhackath9n_raw'], [$scope.img.thumbnail, 'g0vhackath9n_thumbnail']];
+    payloads = [[$scope.img.raw, 'raw.g0v.photos'], [$scope.img.thumbnail, 'thumb.g0v.photos']];
     url = 'https://www.googleapis.com/upload/storage/v1/b';
     arg = 'o?uploadType=multipart&predefinedAcl=publicRead';
     for (i$ = 0, len$ = payloads.length; i$ < len$; ++i$) {
@@ -159,15 +159,6 @@ main = function($scope, $timeout){
     }
     return results$;
   };
-  /*
-    $.ajax do
-      #url: \/post #\https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o 
-      url: "https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o?uploadType=media&name=#{name}"
-      contentType: "image/jpg"
-      type: \POST
-      data: payload
-      processData: false
-  */
   return $('#attributions').popover();
 };
 function import$(obj, src){

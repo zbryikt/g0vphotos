@@ -6,8 +6,10 @@ html,body
   width: 100%
   height: 100%
 
-//.layout
-//  @include column(3,10px,auto)
+
+.layout
+  margin-bottom: 50px
+
 .thumbnail
   //@include column-break-inside(avoid)
   //display: inline-block
@@ -35,6 +37,7 @@ html,body
   z-index: 10
   background: rgba(255,255,255,0.97)
   box-shadow: 0 0 5px rgba(0,0,0,0.5)
+  @include transition(all 1s)
   .preview
     padding: 20
     canvas
@@ -126,3 +129,16 @@ html,body
     opacity: 1
   #headline.active
     top: 60%
+
+#footer
+  position: fixed
+  bottom: 0
+  background: rgba(255,255,255,0.8)
+  height: 30px
+  padding: 5px
+  box-shadow: 0 -3px 3px rgba(0,0,0,0.2)
+  border-top: 1px solid #999
+  width: 100%
+
+#attributions
+  cursor: pointer

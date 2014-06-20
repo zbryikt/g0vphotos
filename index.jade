@@ -38,7 +38,25 @@ html(lang="en")
             .col-sm-6: .form-group
               label 標籤
               input.form-control(type="text",ng-model="tag",placeholder="用逗點分隔")
-          .btn.btn-success(ng-click="submit()") submit
+          .form-group
+            label
+              | 授權 - {{license}}
+            br
+            .well
+              label.checkbox-inline
+                input(type="checkbox",ng-model="cc.by",ng-disabled="!author")
+                | BY / 姓名標示
+              label.checkbox-inline
+                input(type="checkbox",ng-model="cc.sa",ng-disabled="!author")
+                | SA / 相同方式分享
+              label.checkbox-inline
+                input(type="checkbox",ng-model="cc.nd",ng-disabled="!author")
+                | ND / 禁止改作
+              label.checkbox-inline
+                input(type="checkbox",ng-model="cc.nc",ng-disabled="!author")
+                | NC / 非商業性
+          .btn.btn-success(ng-click="submit()",ng-disabled="uploading") 上傳
+          .btn.btn-default(ng-click="cancel()",ng-disabled="uploading") 取消
 
     .layout#layout
       div.thumbnail.upload: .ib
@@ -48,7 +66,9 @@ html(lang="en")
           input#file(type="file")
 
       div.thumbnail(ng-repeat="item in list"): .ib
-        img(ng-attr-src="http://g0vhackath9n_thumbnail.storage.googleapis.com/{{item.name}}")
-        .desc {{item.metadata.desc}} by {{item.metadata.author}}
-    #attribution
-      | Cloud-Upload /  Chris Kerr / CC-BY 3.0 / http://thenounproject.com/term/cloud-upload/31197/
+        img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}")
+        .desc {{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}}
+    #footer
+      b 自己的活動自己拍 
+      | /  
+      a#attributions(data-container="body",data-toggle="popover",data-placement="top",data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS") attributions

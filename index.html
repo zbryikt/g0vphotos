@@ -46,7 +46,25 @@
               </div>
             </div>
           </div>
-          <div ng-click="submit()" class="btn btn-success">submit</div>
+          <div class="form-group">
+            <label>授權 - {{license}}</label><br>
+            <div class="well">
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="cc.by" ng-disabled="!author">BY / 姓名標示
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="cc.sa" ng-disabled="!author">SA / 相同方式分享
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="cc.nd" ng-disabled="!author">ND / 禁止改作
+              </label>
+              <label class="checkbox-inline">
+                <input type="checkbox" ng-model="cc.nc" ng-disabled="!author">NC / 非商業性
+              </label>
+            </div>
+          </div>
+          <div ng-click="submit()" ng-disabled="uploading" class="btn btn-success">上傳</div>
+          <div ng-click="cancel()" ng-disabled="uploading" class="btn btn-default">取消</div>
         </div>
       </form>
     </div>
@@ -61,11 +79,11 @@
         </div>
       </div>
       <div ng-repeat="item in list" class="thumbnail">
-        <div class="ib"><img ng-attr-src="http://g0vhackath9n_thumbnail.storage.googleapis.com/{{item.name}}">
-          <div class="desc">{{item.metadata.desc}} by {{item.metadata.author}}</div>
+        <div class="ib"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}">
+          <div class="desc">{{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}}</div>
         </div>
       </div>
     </div>
-    <div id="attribution">Cloud-Upload /  Chris Kerr / CC-BY 3.0 / http://thenounproject.com/term/cloud-upload/31197/</div>
+    <div id="footer"><b>自己的活動自己拍 </b>/  <a id="attributions" data-container="body" data-toggle="popover" data-placement="top" data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS">attributions</a></div>
   </body>
 </html>

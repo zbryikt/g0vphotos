@@ -20,7 +20,7 @@ main = function($scope, $timeout){
     });
   };
   $.ajax({
-    url: 'https://www.googleapis.com/storage/v1/b/g0vhackath9n_thumbnail/o'
+    url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'
   }).done(function(data){
     console.log(data);
     $scope.$apply(function(){
@@ -97,6 +97,14 @@ main = function($scope, $timeout){
     };
     return img.src = URL.createObjectURL(file.files[0]);
   });
+  $scope.cancel = function(){
+    var ref$;
+    ref$ = $scope.img;
+    ref$.raw = null;
+    ref$.thumbnail = null;
+    ref$.canvas = null;
+    return updateWatcher(false);
+  };
   return $scope.submit = function(){
     var hash, sep, head, tail, payloads, url, arg, i$, len$, payload, data, size, ua, j$, to$, i, results$ = [];
     hash = {
@@ -110,7 +118,7 @@ main = function($scope, $timeout){
     sep = "DULLSEPARATOR";
     head = ("--" + sep + "\nContent-Type: application/json; chartset=UTF-8\n\n" + JSON.stringify(hash) + "\n\n") + ("--" + sep + "\nContent-Type: image/jpg\n\n");
     tail = "\n\n--" + sep + "--";
-    payloads = [[$scope.img.raw, 'g0vhackath9n_raw'], [$scope.img.thumbnail, 'g0vhackath9n_thumbnail']];
+    payloads = [[$scope.img.raw, 'raw.g0v.photos'], [$scope.img.thumbnail, 'thumb.g0v.photos']];
     url = 'https://www.googleapis.com/upload/storage/v1/b';
     arg = 'o?uploadType=multipart&predefinedAcl=publicRead';
     for (i$ = 0, len$ = payloads.length; i$ < len$; ++i$) {

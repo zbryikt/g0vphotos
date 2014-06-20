@@ -66,7 +66,7 @@ html(lang="en")
           input#file(type="file")
 
       div.thumbnail(ng-repeat="item in list"): .ib
-        a(href="http://raw.g0v.photos/{{item.name}}"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}")
+        a(href="http://raw.g0v.photos/{{item.name}}",target="_blank"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}")
         .desc {{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}}
     #loading(ng-show="uploading")
     #footer

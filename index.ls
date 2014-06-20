@@ -10,6 +10,7 @@ main = ($scope,$timeout) ->
     rate: 0.5
     hlActive: true
     uploading: false
+    initlayout: false
     img: do
       chosen: false
       raw: null
@@ -21,18 +22,23 @@ main = ($scope,$timeout) ->
   license = (v, author) ->
     if !author or !(v.sa or v.by or v.nd or v.nc) => return "Public Domain"
     return "CC " + <[sa by nd nc]>filter(-> v[it])map(->it.toUpperCase!)join("-") + " 3.0"
-  $scope.$watch 'cc + author', (-> $scope.license = license $scope.cc, $scope.author), true
+  $scope.$watch 'cc', (-> $scope.license = license $scope.cc, $scope.author) , true
+  $scope.$watch 'author', (-> $scope.license = license $scope.cc, $scope.author) , true
 
-  $.ajax do
-    url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
-  .done (data) ->
-    console.log data
-    data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
-    $scope.$apply -> $scope.list = data.items
-    $timeout ->
-      $ \#layout .isotope do
-        itemSelector: \.thumbnail
-        layoutMode: \masonry
+  $scope.refresh = ->
+    $.ajax do
+      url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
+    .done (data) ->
+      data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
+      $scope.$apply -> $scope.list = data.items
+      #$('#layout .thumbnail.upload')css position: \static
+      $timeout ->
+        if $scope.initlayout => $ \#layout .isotope \destroy
+        $ \#layout .isotope do
+          itemSelector: \.thumbnail
+          layoutMode: \masonry
+        $scope.initlayout = true
+      , 500
 
   dup = (canvas) ->
     ret = document.createElement(\canvas) <<< {width: canvas.width, height: canvas.height}
@@ -101,9 +107,10 @@ main = ($scope,$timeout) ->
     payloads = [[$scope.img.raw, \raw.g0v.photos],[$scope.img.thumbnail, \thumb.g0v.photos]]
     url = \https://www.googleapis.com/upload/storage/v1/b
     arg = \o?uploadType=multipart&predefinedAcl=publicRead
-    finish = ->
+    finish = (refresh) ->
       $scope.$apply -> $scope.uploading = false
       update-watcher false
+      if refresh => $timeout (-> $scope.refresh!), 500
     upload = (payloads) ->
       payload = payloads.splice(0,1)0
       data = payload.0
@@ -120,9 +127,10 @@ main = ($scope,$timeout) ->
         data: ua.buffer
         processData: false
       .done (e) -> 
-        if payloads.length == 0 => return finish!
+        if payloads.length == 0 => return finish true
         setTimeout (-> upload payloads), 0
-      .error (e) -> finish!
+      .error (e) -> finish false
     upload payloads
       
   $(\#attributions)popover!
+  $scope.refresh!

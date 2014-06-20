@@ -28,6 +28,7 @@ main = function($scope, $timeout){
     rate: 0.5,
     hlActive: true,
     uploading: false,
+    initlayout: false,
     img: {
       chosen: false,
       raw: null,
@@ -52,28 +53,36 @@ main = function($scope, $timeout){
       return it.toUpperCase();
     }).join("-") + " 3.0";
   };
-  $scope.$watch('cc + author', function(){
+  $scope.$watch('cc', function(){
     return $scope.license = license($scope.cc, $scope.author);
   }, true);
-  $.ajax({
-    url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'
-  }).done(function(data){
-    console.log(data);
-    data.items.map(function(it){
-      return ['author', 'desc', 'tag'].map(function(k){
-        return it.metadata[k] = dcd(it.metadata[k]);
+  $scope.$watch('author', function(){
+    return $scope.license = license($scope.cc, $scope.author);
+  }, true);
+  $scope.refresh = function(){
+    return $.ajax({
+      url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'
+    }).done(function(data){
+      data.items.map(function(it){
+        return ['author', 'desc', 'tag'].map(function(k){
+          return it.metadata[k] = dcd(it.metadata[k]);
+        });
       });
-    });
-    $scope.$apply(function(){
-      return $scope.list = data.items;
-    });
-    return $timeout(function(){
-      return $('#layout').isotope({
-        itemSelector: '.thumbnail',
-        layoutMode: 'masonry'
+      $scope.$apply(function(){
+        return $scope.list = data.items;
       });
+      return $timeout(function(){
+        if ($scope.initlayout) {
+          $('#layout').isotope('destroy');
+        }
+        $('#layout').isotope({
+          itemSelector: '.thumbnail',
+          layoutMode: 'masonry'
+        });
+        return $scope.initlayout = true;
+      }, 500);
     });
-  });
+  };
   dup = function(canvas){
     var ret, ref$, ctx;
     ret = (ref$ = document.createElement('canvas'), ref$.width = canvas.width, ref$.height = canvas.height, ref$);
@@ -181,11 +190,16 @@ main = function($scope, $timeout){
     payloads = [[$scope.img.raw, 'raw.g0v.photos'], [$scope.img.thumbnail, 'thumb.g0v.photos']];
     url = 'https://www.googleapis.com/upload/storage/v1/b';
     arg = 'o?uploadType=multipart&predefinedAcl=publicRead';
-    finish = function(){
+    finish = function(refresh){
       $scope.$apply(function(){
         return $scope.uploading = false;
       });
-      return updateWatcher(false);
+      updateWatcher(false);
+      if (refresh) {
+        return $timeout(function(){
+          return $scope.refresh();
+        }, 500);
+      }
     };
     upload = function(payloads){
       var payload, data, size, ua, i$, to$, i;
@@ -214,18 +228,19 @@ main = function($scope, $timeout){
         processData: false
       }).done(function(e){
         if (payloads.length === 0) {
-          return finish();
+          return finish(true);
         }
         return setTimeout(function(){
           return upload(payloads);
         }, 0);
       }).error(function(e){
-        return finish();
+        return finish(false);
       });
     };
     return upload(payloads);
   };
-  return $('#attributions').popover();
+  $('#attributions').popover();
+  return $scope.refresh();
 };
 function import$(obj, src){
   var own = {}.hasOwnProperty;

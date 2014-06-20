@@ -31,7 +31,6 @@ main = ($scope,$timeout) ->
     .done (data) ->
       data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
       $scope.$apply -> $scope.list = data.items
-      #$('#layout .thumbnail.upload')css position: \static
       $timeout ->
         if $scope.initlayout => $ \#layout .isotope \destroy
         $ \#layout .isotope do

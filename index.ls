@@ -1,8 +1,11 @@
 main = ($scope,$timeout) ->
   $scope <<< do
+    cc: sa: false, by: true, nd: false, nc: false
+    license: "Public Domain"
     desc: ""
     rate: 0.5
     hlActive: true
+    uploading: false
     img: do
       chosen: false
       raw: null
@@ -11,17 +14,20 @@ main = ($scope,$timeout) ->
   $scope.img.rawReader = new FileReader!
     ..onload = -> $scope.$apply -> $scope.img.raw = new Uint8Array @result
 
+  license = (v, author) ->
+    if !author or !(v.sa or v.by or v.nd or v.nc) => return "Public Domain"
+    return "CC " + <[sa by nd nc]>filter(-> v[it])map(->it.toUpperCase!)join("-") + " 3.0"
+  $scope.$watch 'cc + author', (-> $scope.license = license $scope.cc, $scope.author), true
 
   $.ajax do
     url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
   .done (data) ->
     console.log data
-    $scope.$apply -> 
-      $scope.list = data.items
+    $scope.$apply -> $scope.list = data.items
     $timeout ->
       $ \#layout .isotope do
         itemSelector: \.thumbnail
-        layoutMode: \fitRows
+        layoutMode: \masonry
 
   dup = (canvas) ->
     ret = document.createElement(\canvas) <<< {width: canvas.width, height: canvas.height}
@@ -71,12 +77,15 @@ main = ($scope,$timeout) ->
     update-watcher false
 
   $scope.submit = ->
+    if $scope.uploading => return
+    $scope.uploading = true
     hash = {
       "name": "pic#{new Date!getTime!}_#{parseInt(Math.random!*1000000000,16)}"
       metadata: {
-        "author": $scope.author or "anonymous"
+        "author": $scope.author
         "desc": $scope.desc 
         "tag": $scope.tag
+        "license": license($scope.cc, $scope.author)
       }
     }
     sep = "DULLSEPARATOR"
@@ -100,5 +109,11 @@ main = ($scope,$timeout) ->
         contentType: "multipart/related; boundary=\"#sep\""
         data: ua.buffer
         processData: false
+      .done (e) ->
+        $scope.$apply -> $scope.uploading = false
+        update-watcher false
+      .error (e) ->
+        $scope.$apply -> $scope.uploading = false
+        update-watcher false
 
   $(\#attributions)popover!

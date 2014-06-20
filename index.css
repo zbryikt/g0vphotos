@@ -30,7 +30,9 @@ html, body {
   height: 90%;
   z-index: 10;
   background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); }
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  -webkit-transition: all 1s;
+  transition: all 1s; }
   #output .preview {
     padding: 20; }
     #output .preview canvas {
@@ -124,6 +126,14 @@ html, body {
     top: 60%; }
 
 #footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  clear: both; }
+  background: rgba(255, 255, 255, 0.8);
+  height: 30px;
+  padding: 5px;
+  box-shadow: 0 -3px 3px rgba(0, 0, 0, 0.2);
+  border-top: 1px solid #999999;
+  width: 100%; }
+
+#attribution {
+  cursor: pointer; }

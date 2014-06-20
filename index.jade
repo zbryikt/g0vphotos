@@ -38,7 +38,8 @@ html(lang="en")
             .col-sm-6: .form-group
               label 標籤
               input.form-control(type="text",ng-model="tag",placeholder="用逗點分隔")
-          .btn.btn-success(ng-click="submit()") submit
+          .btn.btn-success(ng-click="submit()") 上傳
+          .btn.btn-default(ng-click="cancel()") 取消
 
     .layout#layout
       div.thumbnail.upload: .ib
@@ -51,5 +52,6 @@ html(lang="en")
         img(ng-attr-src="http://g0vhackath9n_thumbnail.storage.googleapis.com/{{item.name}}")
         .desc {{item.metadata.desc}} by {{item.metadata.author}}
     #footer
-      #attribution
-        | Cloud-Upload /  Chris Kerr / CC-BY 3.0 / http://thenounproject.com/term/cloud-upload/31197/
+      b 自己的活動自己拍 
+      | /  
+      a#attributions(data-container="body",data-toggle="popover",data-placement="top",data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS") attributions

@@ -41,13 +41,15 @@ main = ($scope,$timeout) ->
     if canvas.width > 400 => return resize canvas
     return canvas
 
-  update-watcher = -> if $scope.img.raw and $scope.img.thumbnail and $scope.img.canvas =>
-    $(\#upload-canvas)html $($scope.img.canvas)
-    $('#output .preview')html $(dup $scope.img.canvas)
-    $(\#output)show!
+  update-watcher = (show)-> if !show or ($scope.img.raw and $scope.img.thumbnail and $scope.img.canvas) =>
+    setTimeout ->
+      $(\#upload-canvas)html if show => $($scope.img.canvas) else ""
+      $('#output .preview')html if show => $(dup $scope.img.canvas) else ""
+      if show => $(\#output)show! else $(\#output)hide!
+    , 0
 
-  $scope.$watch 'img.raw', update-watcher
-  $scope.$watch 'img.thumbnail', update-watcher
+  $scope.$watch 'img.raw', -> update-watcher true
+  $scope.$watch 'img.thumbnail', -> update-watcher true
     
   $(\#file)change ->
     file = document.getElementById("file")
@@ -65,6 +67,10 @@ main = ($scope,$timeout) ->
       $scope.$apply -> $scope.img <<< {thumbnail: ua, canvas: result}
     img.src = URL.createObjectURL file.files.0
 
+  $scope.cancel = ->
+    $scope.img <<< {raw: null, thumbnail: null, canvas: null}
+    update-watcher false
+    
   $scope.submit = ->
     hash = {
       "name": "pic#{new Date!getTime!}_#{parseInt(Math.random!*1000000000,16)}"
@@ -95,72 +101,9 @@ main = ($scope,$timeout) ->
         contentType: "multipart/related; boundary=\"#sep\""
         data: ua.buffer
         processData: false
-    /*
-    dimg = 0
-    dimg = image.byteLength
-    size = p1.length + p2.length + dimg + p4.length
-    ua = new Uint8Array size
-    for i from 0 til p1.length => ua[i] = p1.charCodeAt(i) .&. 0xff
-    for i from 0 til p2.length => ua[i + p1.length] = p2.charCodeAt(i) .&. 0xff
-    for i from 0 til dimg => ua[i + p1.length + p2.length] = image[i]
-    for i from 0 til p4.length => ua[i + p1.length + p2.length + dimg] = p4.charCodeAt(i) .&. 0xff
-    ab = ua.buffer
 
-    $.ajax do
-      #url: \/post
-      url: "https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o?uploadType=multipart&predefinedAcl=publicRead"
-      contentType: 'multipart/related; boundary="DULLSEPARATOR"'
-      type: \POST
-      data: ab
-      processData: false
-    */
+  # only send image
   /*
-  $scope.send = ->
-    file = document.getElementById("file")
-    if !file.files.length => return
-    payload = file.files[0]
-    fr = new FileReader!
-    fr.onload = ->
-      if $scope.resize-image => image = $scope.resize-image
-      else image = new Uint8Array fr.result
-      hash = {
-        "name": "pic#{new Date!getTime!}_#{parseInt(Math.random!*1000000000,16)}"
-        metadata: {
-          "author": $scope.author
-          "desc": $scope.desc
-          "tag": $scope.tag
-        }
-      }
-      sep = "DULLSEPARATOR"
-      p1 = "--DULLSEPARATOR\nContent-Type: application/json; chartset=UTF-8\n\n#{JSON.stringify(hash)}\n\n"
-      p2 = '--DULLSEPARATOR\nContent-Type: image/jpg\n\n'
-      p4 = '\n\n--DULLSEPARATOR--'
-      dimg = 0
-      dimg = image.byteLength
-      size = p1.length + p2.length + dimg + p4.length
-      ua = new Uint8Array size
-      for i from 0 til p1.length => ua[i] = p1.charCodeAt(i) .&. 0xff
-      for i from 0 til p2.length => ua[i + p1.length] = p2.charCodeAt(i) .&. 0xff
-      for i from 0 til dimg => ua[i + p1.length + p2.length] = image[i]
-      for i from 0 til p4.length => ua[i + p1.length + p2.length + dimg] = p4.charCodeAt(i) .&. 0xff
-      ab = ua.buffer
-
-      $.ajax do
-        #url: \/post
-        url: "https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o?uploadType=multipart&predefinedAcl=publicRead"
-        contentType: 'multipart/related; boundary="DULLSEPARATOR"'
-        type: \POST
-        data: ab
-        processData: false
-      
-
-    name = payload.name
-
-    # send with metadata
-    fr.readAsArrayBuffer payload
-
-    # only send image
-    /*
     $.ajax do
       #url: \/post #\https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o 
       url: "https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o?uploadType=media&name=#{name}"
@@ -170,3 +113,4 @@ main = ($scope,$timeout) ->
       processData: false
   */
   
+  $(\#attributions)popover!

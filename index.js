@@ -57,15 +57,25 @@ main = function($scope, $timeout){
     }
     return canvas;
   };
-  updateWatcher = function(){
-    if ($scope.img.raw && $scope.img.thumbnail && $scope.img.canvas) {
-      $('#upload-canvas').html($($scope.img.canvas));
-      $('#output .preview').html($(dup($scope.img.canvas)));
-      return $('#output').show();
+  updateWatcher = function(show){
+    if (!show || ($scope.img.raw && $scope.img.thumbnail && $scope.img.canvas)) {
+      return setTimeout(function(){
+        $('#upload-canvas').html(show ? $($scope.img.canvas) : "");
+        $('#output .preview').html(show ? $(dup($scope.img.canvas)) : "");
+        if (show) {
+          return $('#output').show();
+        } else {
+          return $('#output').hide();
+        }
+      }, 0);
     }
   };
-  $scope.$watch('img.raw', updateWatcher);
-  $scope.$watch('img.thumbnail', updateWatcher);
+  $scope.$watch('img.raw', function(){
+    return updateWatcher(true);
+  });
+  $scope.$watch('img.thumbnail', function(){
+    return updateWatcher(true);
+  });
   $('#file').change(function(){
     var file, ref$, img;
     file = document.getElementById("file");
@@ -97,7 +107,15 @@ main = function($scope, $timeout){
     };
     return img.src = URL.createObjectURL(file.files[0]);
   });
-  return $scope.submit = function(){
+  $scope.cancel = function(){
+    var ref$;
+    ref$ = $scope.img;
+    ref$.raw = null;
+    ref$.thumbnail = null;
+    ref$.canvas = null;
+    return updateWatcher(false);
+  };
+  $scope.submit = function(){
     var hash, sep, head, tail, payloads, url, arg, i$, len$, payload, data, size, ua, j$, to$, i, results$ = [];
     hash = {
       "name": "pic" + new Date().getTime() + "_" + parseInt(Math.random() * 1000000000, 16),
@@ -141,6 +159,16 @@ main = function($scope, $timeout){
     }
     return results$;
   };
+  /*
+    $.ajax do
+      #url: \/post #\https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o 
+      url: "https://www.googleapis.com/upload/storage/v1/b/bucket20140615/o?uploadType=media&name=#{name}"
+      contentType: "image/jpg"
+      type: \POST
+      data: payload
+      processData: false
+  */
+  return $('#attributions').popover();
 };
 function import$(obj, src){
   var own = {}.hasOwnProperty;

@@ -33,7 +33,6 @@ body
   box-shadow: 0 2px 12px rgba(128,128,0,0.7)
   margin-top: 9px
 #output
-  position: fixed
   display: none
   top: 5%
   left: 0
@@ -54,6 +53,13 @@ body
     margin: 20px auto
     textarea
       min-height: 100px
+
+@media (min-width: 800px)
+  #output
+    position: fixed
+    z-index: 11
+    height: auto
+    padding: 5px 0
 
 .thumbnail.upload
   .ib2

@@ -32,7 +32,6 @@ body {
   margin-top: 9px; }
 
 #output {
-  position: fixed;
   display: none;
   top: 5%;
   left: 0;
@@ -55,6 +54,12 @@ body {
     #output form textarea {
       min-height: 100px; }
 
+@media (min-width: 800px) {
+  #output {
+    position: fixed;
+    z-index: 11;
+    height: auto;
+    padding: 5px 0; } }
 .thumbnail.upload .ib2 {
   width: 100%;
   position: relative; }

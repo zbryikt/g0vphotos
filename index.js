@@ -82,7 +82,7 @@ main = function($scope, $timeout){
           layoutMode: 'masonry'
         });
         return $scope.initlayout = true;
-      }, 500);
+      }, 1000);
     });
   };
   dup = function(canvas){
@@ -247,6 +247,9 @@ main = function($scope, $timeout){
     });
   };
   $('#attributions').popover();
+  $('#menu').sticky({
+    topSpacing: 0
+  });
   return $scope.refresh();
 };
 function import$(obj, src){

@@ -40,7 +40,7 @@ main = ($scope,$timeout) ->
           itemSelector: \.thumbnail
           layoutMode: \masonry
         $scope.initlayout = true
-      , 500
+      , 1000
 
   dup = (canvas) ->
     ret = document.createElement(\canvas) <<< {width: canvas.width, height: canvas.height}
@@ -139,4 +139,5 @@ main = ($scope,$timeout) ->
       
   $(\#attributions)popover!
   #skrollr.init({forceHeight: false, render: ->})
+  $(\#menu)sticky topSpacing: 0
   $scope.refresh!

@@ -247,10 +247,6 @@ main = function($scope, $timeout){
     });
   };
   $('#attributions').popover();
-  skrollr.init({
-    forceHeight: false,
-    render: function(){}
-  });
   return $scope.refresh();
 };
 function import$(obj, src){

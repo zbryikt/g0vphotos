@@ -138,5 +138,5 @@ main = ($scope,$timeout) ->
     $(document.body)animate scrollTop: 0
       
   $(\#attributions)popover!
-  skrollr.init({forceHeight: false, render: ->})
+  #skrollr.init({forceHeight: false, render: ->})
   $scope.refresh!

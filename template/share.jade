@@ -44,16 +44,16 @@ html(lang="en")
         .quote-mark
         .quote
           .ib
-            #desc(ng-class="{'empty':!desc || !loaded}") {{desc}}
+            #desc(ng-class="{'empty':!desc || !loaded}") {{desc || '(沒有描述)'}}
             .author
               | - by 
-              #author {{author}}
+              #author {{author || 'anonymous'}}
 
         hr
         .action
           .label.label-primary
             i.glyphicon.glyphicon-info-sign
-            |  {{license}}
+            |  {{license || 'Public Domain'}}
         br
         .action 
           .item.like: a(ng-click="toggleLike()")

@@ -83,8 +83,8 @@
         </div>
       </div>
       <div ng-repeat="item in list" data-order="{{item.order}}" class="thumbnail">
-        <div class="ib"><a href="http://raw.g0v.photos/{{item.name}}" target="_blank"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}" isotope></a>
-          <div class="desc">{{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}}</div>
+        <div class="ib"><a href="/s/{{item.name}}" target="_blank"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}" isotope></a>
+          <div class="desc">{{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}} / <a href="http://raw.g0v.photos/{{item.name}}">原圖</a></div>
         </div>
       </div>
     </div>

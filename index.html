@@ -17,7 +17,7 @@
     <script type="text/javascript" src="jquery.sticky.js"></script>
     <script type="text/javascript" src="index.js"></script>
   </head>
-  <body ng-app ng-controller="main">
+  <body ng-app="main" ng-controller="main">
     <div id="banner">
       <div ng-class="bkno" class="bk"></div>
       <div id="headline" ng-class="[{'active':hlActive},bkno]">
@@ -73,17 +73,17 @@
       </form>
     </div>
     <div id="layout" class="layout">
-      <div class="thumbnail upload">
+      <div data-order="0" class="thumbnail upload">
         <div class="ib">
           <div class="ib2">
             <div ng-show="!chosen" class="img"></div>
-            <div id="upload-canvas" ng-class="{'default-height': !chosen}"></div>
+            <div id="upload-canvas" ng-class="{'default-height': !chosen}" class="default-height"></div>
             <input id="file" type="file">
           </div>
         </div>
       </div>
-      <div ng-repeat="item in list" class="thumbnail">
-        <div class="ib"><a href="http://raw.g0v.photos/{{item.name}}" target="_blank"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}"></a>
+      <div ng-repeat="item in list" data-order="{{item.order}}" class="thumbnail">
+        <div class="ib"><a href="http://raw.g0v.photos/{{item.name}}" target="_blank"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}" isotope></a>
           <div class="desc">{{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}}</div>
         </div>
       </div>

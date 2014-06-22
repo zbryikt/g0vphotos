@@ -13,8 +13,6 @@ body
   margin-bottom: 150px
 
 .thumbnail
-  //@include column-break-inside(avoid)
-  //display: inline-block
   border: 1px solid #ccc
   box-shadow: 0 2px 3px rgba(0,0,0,0.3)
   margin: 10px
@@ -95,12 +93,15 @@ body
   #upload-canvas.default-height
     min-height: 400px
 
+.iso
+  @include transition(all 1s)
+  opacity: 0
+.iso-show
+  opacity: 1
     
 #banner
   width: 100%
   height: 100%
-  // height: 100px
-  //overflow: hidden
   position: relative
   .bk
     position: absolute

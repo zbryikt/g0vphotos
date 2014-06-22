@@ -19,7 +19,7 @@ html(lang="en")
     //-script(type="text/javascript",src="skrollr.min.js")
     script(type="text/javascript",src="jquery.sticky.js")
     script(type="text/javascript",src="index.js")
-  body(ng-app,ng-controller="main")
+  body(ng-app="main",ng-controller="main")
     #banner
       .bk(ng-class="bkno")
       #headline(ng-class="[{'active':hlActive},bkno]")
@@ -73,14 +73,14 @@ html(lang="en")
           .btn.btn-default(ng-click="cancel()",ng-disabled="uploading") 取消
 
     .layout#layout
-      div.thumbnail.upload: .ib
+      div.thumbnail.upload(data-order="0"): .ib
         .ib2
           .img(ng-show="!chosen")
-          #upload-canvas(ng-class="{'default-height': !chosen}")
+          #upload-canvas.default-height(ng-class="{'default-height': !chosen}")
           input#file(type="file")
 
-      div.thumbnail(ng-repeat="item in list"): .ib
-        a(href="http://raw.g0v.photos/{{item.name}}",target="_blank"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}")
+      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}"): .ib
+        a(href="http://raw.g0v.photos/{{item.name}}",target="_blank"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}",isotope)
         .desc {{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}}
     #loading(ng-show="uploading")
     #footer

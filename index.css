@@ -93,6 +93,14 @@ body {
 .thumbnail.upload #upload-canvas.default-height {
   min-height: 400px; }
 
+.iso {
+  -webkit-transition: all 1s;
+  transition: all 1s;
+  opacity: 0; }
+
+.iso-show {
+  opacity: 1; }
+
 #banner {
   width: 100%;
   height: 100%;

@@ -13,12 +13,11 @@ html(lang="en")
     // libraries
     include library.jade
     // custom files
-    link(rel="icon",type="image/gif",href="favicon.png")
-    link(rel="stylesheet",type="text/css",href="index.css")
-    script(type="text/javascript",src="assets/isotope/isotope.pkgd.min.js")
-    //-script(type="text/javascript",src="skrollr.min.js")
-    script(type="text/javascript",src="jquery.sticky.js")
-    script(type="text/javascript",src="index.js")
+    link(rel="icon",type="image/gif",href="/favicon.png")
+    link(rel="stylesheet",type="text/css",href="/index.css")
+    script(type="text/javascript",src="#{assets}/isotope/isotope.pkgd.min.js")
+    script(type="text/javascript",src="/jquery.sticky.js")
+    script(type="text/javascript",src="/index.js")
   body(ng-app="main",ng-controller="main")
     #banner
       .bk(ng-class="bkno")
@@ -33,7 +32,7 @@ html(lang="en")
       a.item(href="http://community.g0v.tw",target="_blank") 新・後勤中心
       a.item(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲團
       a.item(href="#",ng-click="gotop()") 回頁首
-      a.item.logo: img(src="img/logo.gif")
+      a.item.logo: img(src="/img/logo.gif")
     br
     br
     br(style="clear:both")
@@ -86,4 +85,4 @@ html(lang="en")
     #footer
       b 自己的活動自己拍 
       | / g0v.photos / 
-      a#attributions(data-container="body",data-toggle="popover",data-placement="top",data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0 / http://goo.gl/vcSJnS") attributions
+      a#attributions(data-container="body",data-toggle="popover",data-placement="top",data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0. Quote / Matthew Ryan Miller / CC-BY 3.0 ") attributions

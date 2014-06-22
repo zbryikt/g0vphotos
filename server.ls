@@ -180,7 +180,7 @@ custom-path = (req, res, rel-path) ->
   ret = /^\/s\/(.+)/exec rel-path
   if ret =>
     id = ret.1
-    res.writeHead 200, {"Content-type": "text/html"}
+    res.writeHead 200, {"Content-type": "text/html; charset=utf-8"}
     html = jade.renderFile 'template/share.jade', {pid: id}
     res.end html
 
@@ -236,6 +236,6 @@ watcher = chokidar.watch watch-path, ignored: ignore-func, persistent: true
   .on \add, update-file
   .on \change, update-file
 
-http.createServer server .listen 9999, \0.0.0.0
+http.createServer server .listen 80, \0.0.0.0
 
-console.log "running server on 0.0.0.0:9999"
+console.log "running server on 0.0.0.0:80"

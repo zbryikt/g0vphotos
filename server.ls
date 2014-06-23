@@ -1,5 +1,8 @@
 require! <[chokidar http fs child_process path jade]>
 
+if process.argv < 3 => port = 80
+else port = parseInt(process.argv.2)
+
 RegExp.escape = -> it.replace /[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"
 
 ls   = if fs.existsSync v=\node_modules/.bin/livescript => v else \livescript
@@ -236,6 +239,6 @@ watcher = chokidar.watch watch-path, ignored: ignore-func, persistent: true
   .on \add, update-file
   .on \change, update-file
 
-http.createServer server .listen 80, \0.0.0.0
+http.createServer server .listen port, \0.0.0.0
 
-console.log "running server on 0.0.0.0:80"
+console.log "running server on 0.0.0.0:#port"

@@ -1,6 +1,6 @@
 doctype html
 //- basic libraries: jquery(1.10.2), d3js(3.3.11), angularjs(1.2.3), bootstrap(3.0)/semantic-ui(0.9.3/0.9.5)
-- var usecdn = true
+- var usecdn = false
 - var useog = false
 - var lib = { jquery: true, d3js: false, angular: true, bootstrap: true, semantic: false }
 - var assets = "assets"
@@ -19,20 +19,30 @@ html(lang="en")
     script(type="text/javascript",src="/jquery.sticky.js")
     script(type="text/javascript",src="/index.js")
   body(ng-app="main",ng-controller="main")
+  body
     #banner
       .bk(ng-class="bkno")
       #headline(ng-class="[{'active':hlActive},bkno]")
         .title(ng-class="{'active':hlActive}") 自己的活動自己拍
         .subtitle(ng-class="{'active':hlActive}") g0v hackath9n photo stream
-    #menu(data-anchor-target="#banner",data-top-top="@class:static",data-top-bottom="@class:fixed")
-      a.item(href="http://g0v.photos",target="_blank") g0v.photos
-      a.item(href="http://g0v.tw",target="_blank") 官方網站
-      a.item(href="http://hack.g0v.tw",target="_blank") hackfolder
-      a.item(href="http://g0v.hackpad.com",target="_blank") hackpad
-      a.item(href="http://community.g0v.tw",target="_blank") 新・後勤中心
-      a.item(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲團
-      a.item(href="#",ng-click="gotop()") 回頁首
-      a.item.logo: img(src="/img/logo.gif")
+   
+    #menu
+      a.item(href="http://g0v.photos") g0v.photos
+      .dropdown.item
+        a.dropdown-toggle(href="#",data-toggle="dropdown")
+          | 零時政府 
+          i.glyphicon.glyphicon-chevron-down
+        ul.dropdown-menu
+          li: a(href="http://g0v.tw",target="_blank") 官方網站
+          li: a(href="http://hack.g0v.tw",target="_blank") 協作平台
+          li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
+          li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
+          li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
+        
+      .pull-right
+        a.item(href="#",ng-click="debug()") 登入
+        a.item(href="#",ng-click="gotop()") 回頁首
+      a.item.logo(href="#"): img(src="/img/logo.gif")
     br
     br
     br(style="clear:both")
@@ -80,6 +90,11 @@ html(lang="en")
 
       div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}"): .ib
         a(href="/s/{{item.name}}",target="_blank"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}",isotope)
+        .action
+          .fav
+            i.glyphicon.glyphicon-heart-empty
+          .share
+            i.glyphicon.glyphicon-share-alt
         .desc 
           | {{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}} / 
           a(href="http://raw.g0v.photos/{{item.name}}") 原圖
@@ -88,3 +103,21 @@ html(lang="en")
       b 自己的活動自己拍 
       | / g0v.photos / 
       a#attributions(data-container="body",data-toggle="popover",data-placement="top",data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0. Quote / Matthew Ryan Miller / CC-BY 3.0 ") attributions
+    script.
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-52174321-1', 'g0v.photos');
+      ga('send', 'pageview');
+
+    #fb-root
+    script.
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=1397590290497073";
+        fjs.parentNode.insertBefore(js, fjs);
+        fbinited = true;
+      }(document, 'script', 'facebook-jssdk'));

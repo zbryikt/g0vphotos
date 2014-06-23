@@ -263,6 +263,11 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     };
     return upload(payloads);
   };
+  $scope.debug = function(){
+    return FB.login(function(r){
+      return console.log(r);
+    });
+  };
   $scope.gotop = function(){
     return $(document.body).animate({
       scrollTop: 0
@@ -272,9 +277,11 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     return $scope.isotope.reloadItems();
   };
   $('#attributions').popover();
-  $('#menu').sticky({
-    topSpacing: 0
-  });
+  setTimeout(function(){
+    return $('#menu').sticky({
+      topSpacing: 0
+    });
+  }, 0);
   return $scope.refresh();
 }));
 function import$(obj, src){

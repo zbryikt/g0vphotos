@@ -188,16 +188,49 @@ body
   border-bottom: 4px solid #a01
   background: #c23
   z-index: 9
-  a.item
+  .item
+    display: inline
     padding: 10px
     margin: 0 10px
     color: #fff
     font-family: "century gothic"
     letter-spacing: 1px
     font-size: 1.1em
+    a.dropdown-toggle
+      color: #fff
+      &:hover
+        text-decoration: none
+      .glyphicon
+        font-size: 0.5em
+  .pull-right
+    margin-right: 60px
   a.logo
     position: absolute
     padding: 0
     margin-top: -5px
     right: 20px
 
+.action
+  width: 100%
+  height: 20px
+  padding: 1px 5px
+  margin: -18px 5px 0
+  z-index: 8
+  position: relative
+  .fav, .share
+    height: 18px
+    padding: 2px
+    border-radius: 4px
+    color: #fff
+    display: inline-block
+    min-width: 24px
+    min-height: 24px
+    font-size: 12px
+    line-height: 22px
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.6)
+    text-align: center
+    box-shadow: 0 1px 1px rgba(0,0,0,0.2)
+  .fav
+    background: rgb(255,104,104)
+  .share
+    background: #59b

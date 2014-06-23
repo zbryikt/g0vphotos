@@ -5,10 +5,10 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1,width=780">
     <title>自己的活動自己拍 - g0v hackath9n photo stream</title>
     <!-- libraries-->
-    <script type="text/javascript" src="//codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-    <script type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="assets/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/angular/1.2.3/angular.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/bootstrap/3.0.2/css/bootstrap.min.css">
+    <script type="text/javascript" src="assets/bootstrap/3.0.2/js/bootstrap.min.js"></script>
     <!-- custom files-->
     <link rel="icon" type="image/gif" href="/favicon.png">
     <link rel="stylesheet" type="text/css" href="/index.css">
@@ -16,7 +16,8 @@
     <script type="text/javascript" src="/jquery.sticky.js"></script>
     <script type="text/javascript" src="/index.js"></script>
   </head>
-  <body ng-app="main" ng-controller="main">
+  <body ng-app="main" ng-controller="main"></body>
+  <body>
     <div id="banner">
       <div ng-class="bkno" class="bk"></div>
       <div id="headline" ng-class="[{'active':hlActive},bkno]">
@@ -24,7 +25,18 @@
         <div ng-class="{'active':hlActive}" class="subtitle">g0v hackath9n photo stream</div>
       </div>
     </div>
-    <div id="menu" data-anchor-target="#banner" data-top-top="@class:static" data-top-bottom="@class:fixed"><a href="http://g0v.photos" target="_blank" class="item">g0v.photos</a><a href="http://g0v.tw" target="_blank" class="item">官方網站</a><a href="http://hack.g0v.tw" target="_blank" class="item">hackfolder</a><a href="http://g0v.hackpad.com" target="_blank" class="item">hackpad</a><a href="http://community.g0v.tw" target="_blank" class="item">新・後勤中心</a><a href="https://www.facebook.com/g0v.tw" target="_blank" class="item">粉絲團</a><a href="#" ng-click="gotop()" class="item">回頁首</a><a class="item logo"><img src="/img/logo.gif"></a></div><br><br><br style="clear:both">
+    <div id="menu"><a href="http://g0v.photos" class="item">g0v.photos</a>
+      <div class="dropdown item"><a href="#" data-toggle="dropdown" class="dropdown-toggle">零時政府 <i class="glyphicon glyphicon-chevron-down"></i></a>
+        <ul class="dropdown-menu">
+          <li><a href="http://g0v.tw" target="_blank">官方網站</a></li>
+          <li><a href="http://hack.g0v.tw" target="_blank">協作平台</a></li>
+          <li><a href="http://g0v.hackpad.com" target="_blank">線上共筆</a></li>
+          <li><a href="http://community.g0v.tw" target="_blank">後勤中心</a></li>
+          <li><a href="https://www.facebook.com/g0v.tw" target="_blank">粉絲專頁</a></li>
+        </ul>
+      </div>
+      <div class="pull-right"><a href="#" ng-click="debug()" class="item">登入</a><a href="#" ng-click="gotop()" class="item">回頁首</a></div><a href="#" class="item logo"><img src="/img/logo.gif"></a>
+    </div><br><br><br style="clear:both">
     <div id="output">
       <form class="row">
         <div class="col-xs-4">
@@ -83,11 +95,35 @@
       </div>
       <div ng-repeat="item in list" data-order="{{item.order}}" class="thumbnail">
         <div class="ib"><a href="/s/{{item.name}}" target="_blank"><img ng-attr-src="http://thumb.g0v.photos/{{item.name}}" isotope></a>
+          <div class="action">
+            <div class="fav"><i class="glyphicon glyphicon-heart-empty"></i></div>
+            <div class="share"><i class="glyphicon glyphicon-share-alt"></i></div>
+          </div>
           <div class="desc">{{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}} / <a href="http://raw.g0v.photos/{{item.name}}">原圖</a></div>
         </div>
       </div>
     </div>
     <div id="loading" ng-show="uploading"></div>
     <div id="footer"><b>自己的活動自己拍 </b>/ g0v.photos / <a id="attributions" data-container="body" data-toggle="popover" data-placement="top" data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0. Quote / Matthew Ryan Miller / CC-BY 3.0 ">attributions</a></div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-52174321-1', 'g0v.photos');
+      ga('send', 'pageview');
+      
+    </script>
+    <div id="fb-root"></div>
+    <script>
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=1397590290497073";
+        fjs.parentNode.insertBefore(js, fjs);
+        fbinited = true;
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
   </body>
 </html>

@@ -49,13 +49,6 @@ angular.module \main <[]>
           $scope.list = data.items
           $scope.list.reverse!
           $scope.list.map (d,i) -> d.order = i + 1
-        /*$timeout ->
-          if $scope.initlayout => $ \#layout .isotope \destroy
-          $ \#layout .isotope do
-            itemSelector: \.thumbnail
-            layoutMode: \masonry
-          $scope.initlayout = true
-        , 1000*/
 
     dup = (canvas) ->
       ret = document.createElement(\canvas) <<< {width: canvas.width, height: canvas.height}
@@ -151,11 +144,14 @@ angular.module \main <[]>
         .error (e) -> finish false
       upload payloads
 
+    $scope.debug = ->
+      FB.login (r) -> console.log r
+
     $scope.gotop = ->
       $(document.body)animate scrollTop: 0
         
     $scope.blah = ->
       $scope.isotope.reloadItems!
     $(\#attributions)popover!
-    $(\#menu)sticky topSpacing: 0
+    setTimeout (-> $(\#menu)sticky topSpacing: 0), 0
     $scope.refresh!

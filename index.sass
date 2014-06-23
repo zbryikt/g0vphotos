@@ -151,6 +151,7 @@ body
 
 #footer
   position: fixed
+  z-index: 9
   bottom: 0
   background: rgba(218,218,218,0.8)
   height: 30px
@@ -158,6 +159,7 @@ body
   box-shadow: 0 -3px 3px rgba(0,0,0,0.2)
   border-top: 1px solid #999
   width: 100%
+  text-align: right
 
 #attributions
   cursor: pointer
@@ -181,16 +183,22 @@ body
     width: 100%
     color: #fff
 
+
 #menu
+  height: 49px
   padding: 10px
   width: 100%
   border-top: 4px solid #a01
   border-bottom: 4px solid #a01
   background: #c23
   z-index: 9
+  a
+    cursor: pointer
+  a:hover
+    text-decoration: none
   .item
     display: inline
-    padding: 10px
+    padding: 11px 10px 12px
     margin: 0 10px
     color: #fff
     font-family: "century gothic"
@@ -198,10 +206,8 @@ body
     font-size: 1.1em
     a.dropdown-toggle
       color: #fff
-      &:hover
-        text-decoration: none
-      .glyphicon
-        font-size: 0.5em
+    .glyphicon
+      font-size: 0.5em
   .pull-right
     margin-right: 60px
   a.logo
@@ -209,6 +215,16 @@ body
     padding: 0
     margin-top: -5px
     right: 20px
+  .profile
+    border-left: 1px solid #a01
+    border-right: 1px solid #a01
+    background: #c02030
+
+    img
+      width: 24px
+      height: 24px
+      margin: 0 10px 0 0
+      border-radius: 2px
 
 .action
   width: 100%
@@ -218,6 +234,7 @@ body
   z-index: 8
   position: relative
   .fav, .share
+    cursor: pointer
     height: 18px
     padding: 2px
     border-radius: 4px
@@ -234,3 +251,34 @@ body
     background: rgb(255,104,104)
   .share
     background: #59b
+
+.fb-like
+  display: inline-block
+
+#share-popover
+  position: absolute
+  top: 10px
+  left: 10px
+  z-index: 8
+  min-width: 200px
+  padding: 10px
+  border-radius: 5px
+  background: #fff
+  border: 1px solid #ccc
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2)
+  display: none
+  &:after
+    content: " "
+    display: none
+    position: absolute
+    top: 33px
+    left: 50%
+    margin-left: -7px
+    width: 15px
+    height: 15px
+    background: #fff
+    border-right: 1px solid #ccc
+    border-bottom: 1px solid #ccc
+    @include transform(rotate(45deg))
+#share-popover.show
+  display: block

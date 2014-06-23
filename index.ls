@@ -14,6 +14,9 @@ angular.module \main <[]>
     dcd = -> if it => decodeURIComponent it else it
 
     $scope <<< do
+      user: null
+      userdata: {}
+      customauthor: false
       bkno: <[bk1 bk5]>[parseInt(Math.random! * 2)]
       cc: sa: false, by: true, nd: false, nc: false
       license: "Public Domain"
@@ -144,14 +147,52 @@ angular.module \main <[]>
         .error (e) -> finish false
       upload payloads
 
-    $scope.debug = ->
-      FB.login (r) -> console.log r
+    $scope.$watch 'customauthor' -> if !$scope.user or it => $scope.author = ""
+      else $scope.author = $scope.user.name
+    $scope.$watch 'user' -> if !it or $scope.customauthor => $scope.author = ""
+      else $scope.author = $scope.user.name
+    , true
+
+    $(window).resize -> $(\#share-popover)removeClass \show
+
+    $scope.showfav = false
+    $scope.filterfav = (v) ->
+      $scope.showfav = v
+      $scope.isotope.arrange {filter: if v => ".fav" else "*"}
+
+    $scope.heart = (e, pid)->
+      if $scope.userdata.{}heart[pid] => delete $scope.userdata.heart[pid]
+      else $scope.userdata.heart[pid] = true
+
+    $scope.lastshare = null
+    $scope.sharePopover = (e, pid) ->
+      tgt = $(e.currentTarget)
+      offset = tgt.offset!
+      setTimeout (->
+        spo = $(\#share-popover)
+        spo.css do
+          left: "#{offset.left - spo.width!/2 >?5 <?($(window)width! - spo.width!/2)}px"
+          top: "#{offset.top - spo.height! - 30}px"
+        if $scope.lastshare == pid => 
+          $(\#share-popover)removeClass \show
+          $scope.$apply -> $scope.lastshare = false
+        else 
+          $(\#share-popover)addClass \show
+          $scope.$apply -> $scope.lastshare = pid
+
+      ), 0
+    $scope.fbready = ->
+      console.log "facebook is ready."
+      (r) <- FB.getLoginStatus
+      if r.status == \connected => FB.api \/me, (r) -> 
+        $scope.$apply -> $scope.user = r
+    $scope.login = -> FB.login (r) -> if r.status == \connected =>
+      FB.api \/me (r) -> $scope.$apply -> $scope.user = r
+    $scope.logout = -> FB.logout (r) -> $scope.$apply -> $scope.user = null
 
     $scope.gotop = ->
       $(document.body)animate scrollTop: 0
         
-    $scope.blah = ->
-      $scope.isotope.reloadItems!
     $(\#attributions)popover!
     setTimeout (-> $(\#menu)sticky topSpacing: 0), 0
     $scope.refresh!

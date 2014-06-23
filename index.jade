@@ -19,7 +19,25 @@ html(lang="en")
     script(type="text/javascript",src="/jquery.sticky.js")
     script(type="text/javascript",src="/index.js")
   body(ng-app="main",ng-controller="main")
-  body
+    #fb-root
+    script.
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '250121128521928',
+          xfbml      : true,
+          version    : 'v2.0'
+        });
+        angular.element("body").scope().fbready(window.fbready = true);
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
     #banner
       .bk(ng-class="bkno")
       #headline(ng-class="[{'active':hlActive},bkno]")
@@ -38,13 +56,21 @@ html(lang="en")
           li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
           li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
           li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
+      a.item(ng-click="filterfav(true)",ng-show="!showfav") 我的最愛
+      a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
         
       .pull-right
-        a.item(href="#",ng-click="debug()") 登入
+        a.item(ng-click="login()",ng-show="!user") 登入
+        .dropdown.profile.item(ng-show="user")
+          a.dropdown-toggle(href="#",data-toggle="dropdown")
+            img(ng-attr-src="http://graph.facebook.com/{{user.id}}/picture",ng-if="user")
+            | {{user.name}} 
+            i.glyphicon.glyphicon-chevron-down
+          ul.dropdown-menu
+            li: a 設定
+            li: a(ng-click="logout()") 臉書登出
         a.item(href="#",ng-click="gotop()") 回頁首
       a.item.logo(href="#"): img(src="/img/logo.gif")
-    br
-    br
     br(style="clear:both")
     #output
       form.row
@@ -56,8 +82,12 @@ html(lang="en")
             textarea.form-control(ng-model="desc",placeholder="解釋一下這張照片在拍什麼吧")
           .row
             .col-sm-6: .form-group
-              label 作者
-              input.form-control(type="text",ng-model="author",placeholder="例如: 王大明")
+              label
+                | 作者 &nbsp; &nbsp;
+                label.checkbox-inline(ng-show="user")
+                  input(type="checkbox",ng-model="customauthor",ng-disabled="!user")
+                  | 使用其他名稱
+              input.form-control(type="text",ng-model="author",placeholder="例如: 王大明",ng-disabled="!customauthor && user")
             .col-sm-6: .form-group
               label 標籤
               input.form-control(type="text",ng-model="tag",placeholder="用逗點分隔")
@@ -82,27 +112,32 @@ html(lang="en")
           .btn.btn-default(ng-click="cancel()",ng-disabled="uploading") 取消
 
     .layout#layout
-      div.thumbnail.upload(data-order="0"): .ib
+      div.thumbnail.upload.fav(data-order="0"): .ib
         .ib2
           .img(ng-show="!chosen")
           #upload-canvas.default-height(ng-class="{'default-height': !chosen}")
           input#file(type="file")
 
-      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}"): .ib
+      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}",ng-class="{'fav': userdata.heart[item.name] && user}"): .ib
         a(href="/s/{{item.name}}",target="_blank"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}",isotope)
         .action
-          .fav
-            i.glyphicon.glyphicon-heart-empty
-          .share
+          .fav(ng-click="heart($event, item.name)")
+            i.glyphicon.glyphicon-heart-empty(ng-show="!userdata.heart[item.name]")
+            i.glyphicon.glyphicon-heart(ng-show="userdata.heart[item.name] && user")
+          .share(ng-click="sharePopover($event,item.name)")
             i.glyphicon.glyphicon-share-alt
         .desc 
           | {{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}} / 
           a(href="http://raw.g0v.photos/{{item.name}}") 原圖
+    #share-popover
+      | 分享連結: 
+      a(href="http://g0v.photos/s/{{lastshare}}") http://g0v.photos/s/{{lastshare}}
     #loading(ng-show="uploading")
     #footer
       b 自己的活動自己拍 
       | / g0v.photos / 
       a#attributions(data-container="body",data-toggle="popover",data-placement="top",data-content="Cloud-Upload / Chris Kerr / CC-BY 3.0. Quote / Matthew Ryan Miller / CC-BY 3.0 ") attributions
+      .fb-like(data-href="http://g0v.photos",data-width="200",data-layout="button_count",data-action="like",data-show-faces="false",data-share="false")
     script.
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -110,14 +145,3 @@ html(lang="en")
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
       ga('create', 'UA-52174321-1', 'g0v.photos');
       ga('send', 'pageview');
-
-    #fb-root
-    script.
-      (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=1397590290497073";
-        fjs.parentNode.insertBefore(js, fjs);
-        fbinited = true;
-      }(document, 'script', 'facebook-jssdk'));

@@ -36,6 +36,9 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     }
   };
   import$($scope, {
+    user: null,
+    userdata: {},
+    customauthor: false,
     bkno: ['bk1', 'bk5'][parseInt(Math.random() * 2)],
     cc: {
       sa: false,
@@ -263,18 +266,97 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     };
     return upload(payloads);
   };
-  $scope.debug = function(){
+  $scope.$watch('customauthor', function(it){
+    if (!$scope.user || it) {
+      return $scope.author = "";
+    } else {
+      return $scope.author = $scope.user.name;
+    }
+  });
+  $scope.$watch('user', function(it){
+    if (!it || $scope.customauthor) {
+      return $scope.author = "";
+    } else {
+      return $scope.author = $scope.user.name;
+    }
+  }, true);
+  $(window).resize(function(){
+    return $('#share-popover').removeClass('show');
+  });
+  $scope.showfav = false;
+  $scope.filterfav = function(v){
+    $scope.showfav = v;
+    return $scope.isotope.arrange({
+      filter: v ? ".fav" : "*"
+    });
+  };
+  $scope.heart = function(e, pid){
+    var ref$, ref1$;
+    if (((ref$ = $scope.userdata).heart || (ref$.heart = {}))[pid]) {
+      return ref1$ = (ref$ = $scope.userdata.heart)[pid], delete ref$[pid], ref1$;
+    } else {
+      return $scope.userdata.heart[pid] = true;
+    }
+  };
+  $scope.lastshare = null;
+  $scope.sharePopover = function(e, pid){
+    var tgt, offset;
+    tgt = $(e.currentTarget);
+    offset = tgt.offset();
+    return setTimeout(function(){
+      var spo, ref$, ref1$, ref2$;
+      spo = $('#share-popover');
+      spo.css({
+        left: ((ref$ = (ref2$ = offset.left - spo.width() / 2) > 5 ? ref2$ : 5) < (ref1$ = $(window).width() - spo.width() / 2) ? ref$ : ref1$) + "px",
+        top: (offset.top - spo.height() - 30) + "px"
+      });
+      if ($scope.lastshare === pid) {
+        $('#share-popover').removeClass('show');
+        return $scope.$apply(function(){
+          return $scope.lastshare = false;
+        });
+      } else {
+        $('#share-popover').addClass('show');
+        return $scope.$apply(function(){
+          return $scope.lastshare = pid;
+        });
+      }
+    }, 0);
+  };
+  $scope.fbready = function(){
+    console.log("facebook is ready.");
+    return FB.getLoginStatus(function(r){
+      if (r.status === 'connected') {
+        return FB.api('/me', function(r){
+          return $scope.$apply(function(){
+            return $scope.user = r;
+          });
+        });
+      }
+    });
+  };
+  $scope.login = function(){
     return FB.login(function(r){
-      return console.log(r);
+      if (r.status === 'connected') {
+        return FB.api('/me', function(r){
+          return $scope.$apply(function(){
+            return $scope.user = r;
+          });
+        });
+      }
+    });
+  };
+  $scope.logout = function(){
+    return FB.logout(function(r){
+      return $scope.$apply(function(){
+        return $scope.user = null;
+      });
     });
   };
   $scope.gotop = function(){
     return $(document.body).animate({
       scrollTop: 0
     });
-  };
-  $scope.blah = function(){
-    return $scope.isotope.reloadItems();
   };
   $('#attributions').popover();
   setTimeout(function(){

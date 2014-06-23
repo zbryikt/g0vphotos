@@ -25,17 +25,34 @@ html(lang="en")
     script(type="text/javascript",src="/jquery.sticky.js")
     script(type="text/javascript",src="/share.js")
   body(ng-app,ng-controller="share",ng-init="pid='#{pid}'")
-    #menu(data-anchor-target="#banner",data-top-top="@class:static",data-top-bottom="@class:fixed")
-      a.item(href="http://g0v.photos",target="_blank") g0v.photos
-      a.item(href="http://g0v.tw",target="_blank") 官方網站
-      a.item(href="http://hack.g0v.tw",target="_blank") hackfolder
-      a.item(href="http://g0v.hackpad.com",target="_blank") hackpad
-      a.item(href="http://community.g0v.tw",target="_blank") 新・後勤中心
-      a.item(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲團
-      a.item(href="#",ng-click="gotop()") 回頁首
-      a.item.logo: img(src="/img/logo.gif")
+   
+    #menu
+      a.item(href="http://g0v.photos") g0v.photos
+      .dropdown.item
+        a.dropdown-toggle(href="#",data-toggle="dropdown")
+          | 零時政府 
+          i.glyphicon.glyphicon-chevron-down
+        ul.dropdown-menu
+          li: a(href="http://g0v.tw",target="_blank") 官方網站
+          li: a(href="http://hack.g0v.tw",target="_blank") 協作平台
+          li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
+          li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
+          li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
+        
+      .pull-right
+        //a.item(ng-click="login()",ng-show="!user") 登入
+        //.dropdown.profile.item(ng-show="user")
+          a.dropdown-toggle(href="#",data-toggle="dropdown")
+            img(ng-attr-src="http://graph.facebook.com/{{user.id}}/picture",ng-if="user")
+            | {{user.name}} 
+            i.glyphicon.glyphicon-chevron-down
+          ul.dropdown-menu
+            li: a 設定
+            li: a(ng-click="logout()") 臉書登出
+        a.item(href="/") 回首頁
+      a.item.logo(href="#"): img(src="/img/logo.gif")
+
     br(style="clear:both")
-    //-#loading(ng-show="uploading")
     .row.detail
       .col-sm-7
         .photo

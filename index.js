@@ -39,7 +39,7 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     user: null,
     userdata: {},
     customauthor: false,
-    bkno: ['bk1', 'bk5'][parseInt(Math.random() * 2)],
+    bkno: ['bk7'][parseInt(Math.random() * 1)],
     cc: {
       sa: false,
       by: true,
@@ -52,14 +52,6 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     hlActive: true,
     uploading: false,
     initlayout: false,
-    isotope: new Isotope($('#layout')[0], {
-      itemSelector: '.thumbnail',
-      layoutMode: 'masonry',
-      getSortData: {
-        weight: '[data-order]'
-      },
-      sortBy: 'weight'
-    }),
     img: {
       chosen: false,
       raw: null,
@@ -67,6 +59,20 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
       canvas: null
     }
   });
+  $scope.initIsotope = function(){
+    if ($scope.isotope) {
+      $scope.isotope.destroy();
+    }
+    return $scope.isotope = new Isotope($('#layout')[0], {
+      itemSelector: '.thumbnail',
+      layoutMode: 'masonry',
+      getSortData: {
+        weight: '[data-order]'
+      },
+      sortBy: 'weight'
+    });
+  };
+  $scope.initIsotope();
   $scope.img.rawReader = new FileReader();
   $scope.img.rawReader.onload = function(){
     var this$ = this;
@@ -91,22 +97,29 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     return $scope.license = license($scope.cc, $scope.author);
   }, true);
   $scope.refresh = function(){
-    return $.ajax({
-      url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'
-    }).done(function(data){
-      data.items.map(function(it){
-        return ['author', 'desc', 'tag'].map(function(k){
-          return it.metadata[k] = dcd(it.metadata[k]);
+    return $timeout(function(){
+      return $.ajax({
+        url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'
+      }).done(function(data){
+        data.items.map(function(it){
+          return ['author', 'desc', 'tag'].map(function(k){
+            return it.metadata[k] = dcd(it.metadata[k]);
+          });
         });
-      });
-      return $scope.$apply(function(){
-        $scope.list = data.items;
-        $scope.list.reverse();
-        return $scope.list.map(function(d, i){
-          return d.order = i + 1;
+        $scope.initIsotope();
+        $scope.$apply(function(){
+          $scope.list = data.items;
+          $scope.list.reverse();
+          return $scope.list.map(function(d, i){
+            return d.order = i + 1;
+          });
         });
+        return $timeout(function(){
+          $scope.isotope.layout();
+          return $scope.uploading = false;
+        }, 100);
       });
-    });
+    }, 500);
   };
   dup = function(canvas){
     var ret, ref$, ctx;
@@ -216,9 +229,6 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     url = 'https://www.googleapis.com/upload/storage/v1/b';
     arg = 'o?uploadType=multipart&predefinedAcl=publicRead';
     finish = function(refresh){
-      $scope.$apply(function(){
-        return $scope.uploading = false;
-      });
       updateWatcher(false);
       if (refresh) {
         return $timeout(function(){
@@ -228,8 +238,6 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
     };
     upload = function(payloads){
       var payload, data, size, ua, i$, to$, i;
-      finish(true);
-      return;
       payload = payloads.splice(0, 1)[0];
       data = payload[0];
       size = head.length + tail.length + data.length;

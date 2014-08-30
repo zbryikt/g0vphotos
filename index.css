@@ -148,10 +148,14 @@ body {
     background-image: url(img/cover/1.jpg); }
   #banner .bk5 {
     background-image: url(img/cover/5.jpg); }
+  #banner .bk7 {
+    background-image: url(img/cover/7.jpg); }
   #banner #headline.bk1 {
     background-image: url(img/cover/1.blur.jpg); }
   #banner #headline.bk5 {
     background-image: url(img/cover/5.blur.jpg); }
+  #banner #headline.bk7 {
+    background-image: url(img/cover/7.blur.jpg); }
 
 #footer {
   position: fixed;

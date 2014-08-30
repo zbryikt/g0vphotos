@@ -17,7 +17,8 @@ angular.module \main <[]>
       user: null
       userdata: {}
       customauthor: false
-      bkno: <[bk1 bk5]>[parseInt(Math.random! * 2)]
+      bkno: <[bk7]>[parseInt(Math.random! * 1)]
+      #bkno: <[bk1 bk5]>[parseInt(Math.random! * 2)]
       cc: sa: false, by: true, nd: false, nc: false
       license: "Public Domain"
       desc: ""
@@ -25,16 +26,19 @@ angular.module \main <[]>
       hlActive: true
       uploading: false
       initlayout: false
-      isotope: new Isotope $(\#layout)0, do
-        itemSelector: \.thumbnail
-        layoutMode: \masonry
-        getSortData: weight: '[data-order]'
-        sortBy: 'weight'
       img: do
         chosen: false
         raw: null
         thumbnail: null
         canvas: null
+    $scope.init-isotope = ->
+      if $scope.isotope => $scope.isotope.destroy!
+      $scope.isotope = new Isotope $(\#layout)0, do
+        itemSelector: \.thumbnail
+        layoutMode: \masonry
+        getSortData: weight: '[data-order]'
+        sortBy: 'weight'
+    $scope.init-isotope!
     $scope.img.rawReader = new FileReader!
     $scope.img.rawReader.onload = -> $scope.$apply ~> $scope.img.raw = new Uint8Array @result
 
@@ -44,15 +48,21 @@ angular.module \main <[]>
     $scope.$watch 'cc', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.$watch 'author', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.refresh = ->
-      $.ajax do
-        url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
-      .done (data) ->
-        data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
-        $scope.$apply ->
-          $scope.list = data.items
-          $scope.list.reverse!
-          $scope.list.map (d,i) -> d.order = i + 1
-
+      $timeout ->
+        $.ajax do
+          url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
+        .done (data) ->
+          data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
+          $scope.init-isotope!
+          $scope.$apply ->
+            $scope.list = data.items
+            $scope.list.reverse!
+            $scope.list.map (d,i) -> d.order = i + 1
+          $timeout (->
+            $scope.isotope.layout!
+            $scope.uploading = false
+          ), 100
+      , 500
     dup = (canvas) ->
       ret = document.createElement(\canvas) <<< {width: canvas.width, height: canvas.height}
       ctx = ret.getContext \2d
@@ -121,12 +131,10 @@ angular.module \main <[]>
       url = \https://www.googleapis.com/upload/storage/v1/b
       arg = \o?uploadType=multipart&predefinedAcl=publicRead
       finish = (refresh) ->
-        $scope.$apply -> $scope.uploading = false
+        #$scope.$apply -> $scope.uploading = false
         update-watcher false
         if refresh => $timeout (-> $scope.refresh!), 500
       upload = (payloads) ->
-        finish true
-        return
         payload = payloads.splice(0,1)0
         data = payload.0
         size = head.length + tail.length + data.length

@@ -1,0 +1,28 @@
+
+server
+mongodb
+
+ /u/login
+ /u/logout
+ /u/auth/facebook
+   /u/auth/facebook/callback
+ /u/fav/
+   : GET (pagination list)
+ /u/fav/12345678_12345678/
+   : PUT
+   : DELETE
+
+ /s/pic/12354678_12354678
+   : JSON / HTML
+ /s/pic/12354678_12354678/fav
+   : PUT
+   : DELETE
+ /s/pic/
+   : GET (pagination list)
+   : POST (upload photo)
+      author
+      desc
+      tag
+      event
+      license
+

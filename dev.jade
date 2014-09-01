@@ -1,0 +1,64 @@
+doctype html
+//- basic libraries: jquery(1.10.2), d3js(3.3.11), angularjs(1.2.3), bootstrap(3.0)/semantic-ui(0.9.3/0.9.5)
+- var usecdn = false
+- var useog = false
+- var lib = { jquery: true, d3js: false, angular: true, bootstrap: true, semantic: false }
+- var assets = "assets"
+- var thumbnail = "http://dummy.thumbnail"
+html(lang="en")
+  head(prefix="og: http://ogp.me/ns#")
+    meta(charset="utf-8")
+    meta(name="viewport",content="initial-scale=1, maximum-scale=1,width=780")
+    title 自己的活動自己拍 - g0v hackath10n photo stream
+    // libraries
+    include library.jade
+    // custom files
+    link(rel="icon",type="image/gif",href="/favicon.png")
+    link(rel="stylesheet",type="text/css",href="/index.css")
+    script(type="text/javascript",src="#{assets}/isotope/isotope.pkgd.min.js")
+    script(type="text/javascript",src="/jquery.sticky.js")
+    script(type="text/javascript",src="/index.js")
+    script(type="text/javascript",src="/dev.js")
+  body(ng-app="main",ng-controller="dev")
+    div(style="margin:20px")
+      h2 dev backend
+      hr
+      .devblocks
+        .devblock
+          h4.text-center login
+          form.form-horizontal
+            .form-group
+              label.col-sm-3.control-label email
+              .col-sm-8: input.form-control(type="email",ng-model="email")
+            .form-group
+              label.col-sm-3.control-label passwd
+              .col-sm-8: input.form-control(type="password",ng-model="passwd")
+            .col-sm-3
+            .col-sm-8: .btn.btn-block.btn-primary(ng-click="login()") login
+        .devblock
+          h4.text-center logout
+          .btn.btn-block.btn-primary(ng-click="logout()") logout
+        .devblock
+          h4.text-center upload
+          form.form-horizontal
+            .form-group
+              label.col-sm-3.control-label desc
+              .col-sm-8: input.form-control(type="text",name="desc",ng-model="uppic.desc")
+            .form-group
+              label.col-sm-3.control-label author
+              .col-sm-8: input.form-control(type="text",name="author",ng-model="uppic.author")
+            .form-group
+              label.col-sm-3.control-label tag
+              .col-sm-8: input.form-control(type="text",name="tag",ng-model="uppic.tag")
+            .form-group
+              label.col-sm-3.control-label event
+              .col-sm-8: input.form-control(type="text",name="event",ng-model="uppic.event")
+            .form-group
+              label.col-sm-3.control-label license
+              .col-sm-8: input.form-control(type="text",name="license",ng-model="uppic.license")
+            .col-sm-3
+            .col-sm-8: .btn.btn-primary(ng-click="uploadset()") upload
+        .devblock
+          h4.text-center fav
+          .btn.btn-success(ng-click="fav('54040abd87292ecf03c9582e', true)") fav
+          .btn.btn-success(ng-click="fav('54040abd87292ecf03c9582e', false)") unfav

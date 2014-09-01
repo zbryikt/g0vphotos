@@ -8,8 +8,7 @@ angular.module \main <[]>
         des.addClass \iso-show
         scope.isotope.appended des.0
       else scope.isotope.appended e.0.parentNode.parentNode.parentNode
-  ..controller \main, <[$scope $timeout]> ++ ($scope, $timeout) ->
-
+  ..controller \main, <[$scope $timeout $http user]> ++ ($scope, $timeout, $http, user) ->
     ecd = -> if it => encodeURIComponent it else it
     dcd = -> if it => decodeURIComponent it else it
 
@@ -150,10 +149,17 @@ angular.module \main <[]>
           data: ua.buffer
           processData: false
         .done (e) -> 
+          console.log e
           if payloads.length == 0 => return finish true
           setTimeout (-> upload payloads), 0
         .error (e) -> finish false
       upload payloads
+      $http do
+        url: \/d/pic/
+        method: \POST
+        data: JSON.stringify({name: hash.name} <<< hash.metadata)
+      .success (d) -> console.log d
+      .error (d) -> console.log d
 
     $scope.$watch 'customauthor' -> if !$scope.user or it => $scope.author = ""
       else $scope.author = $scope.user.name
@@ -189,14 +195,18 @@ angular.module \main <[]>
           $scope.$apply -> $scope.lastshare = pid
 
       ), 0
-    $scope.fbready = ->
-      console.log "facebook is ready."
-      (r) <- FB.getLoginStatus
-      if r.status == \connected => FB.api \/me, (r) -> 
-        $scope.$apply -> $scope.user = r
-    $scope.login = -> FB.login (r) -> if r.status == \connected =>
-      FB.api \/me (r) -> $scope.$apply -> $scope.user = r
-    $scope.logout = -> FB.logout (r) -> $scope.$apply -> $scope.user = null
+    #$scope.fbready = ->
+    #  console.log "facebook is ready."
+    #  (r) <- FB.getLoginStatus
+    #  if r.status == \connected => FB.api \/me, (r) -> 
+    #    $scope.$apply -> $scope.user = r
+    #$scope.login = -> FB.login (r) -> if r.status == \connected =>
+    #  FB.api \/me (r) -> $scope.$apply -> $scope.user = r
+    #$scope.logout = -> FB.logout (r) -> $scope.$apply -> $scope.user = null
+    $scope.login = -> 
+      $http do
+      
+    $scope.logout = -> $http {url: \/u/logout}
 
     $scope.gotop = ->
       $(document.body)animate scrollTop: 0

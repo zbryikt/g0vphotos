@@ -4,12 +4,21 @@ require! <[nodemailer nodemailer-smtp-transport]>
 require! <[./backend-base]>
 
 backend = backend-base
+r500 = (res, error) -> res.status(500).json({detail:error})
+r404 = (res) -> res.status(404)send!
+r403 = (res) -> res.status(403)send!
+r400 = (res) -> res.status(400)send!
+r200 = (res) -> res.send!
+OID = mongodb.ObjectID
+dbc = {}
 
 config = do
   clientID: \252332158147402
   clientSecret: \763c2bf3a2a48f4d1ae0c6fdc2795ce6
   session-secret: \featureisameasurableproperty
-  url: \http://g0v.photos/
+  #url: \http://g0v.photos/
+  url: \http://localhost/
+  mongodbUrl: \mongodb://localhost/g0vphotos
   port: \9000
   mail: do
     host: \box590.bluehost.com
@@ -21,26 +30,57 @@ config = do
 
 backend.init config
 
-backend.router.user
-  ..get \/fav, (req, res) ->
-  ..put \/fav, (req, res) ->
-  ..delete \/fav, (req, res) ->
-
 pic = backend.express.Router!
 backend.app.use \/s, pic
+
+# handler for add / delete of user's favorite. value: fav(true) / unfav(false)
+fav = (value) -> (req, res) ->
+  if !req.user => return r403 res
+  if !!req.user.{}fav[req.params.id] == value => return res.send!
+  (e,p) <- dbc.pic.findOne {_id: OID(req.params.id)}
+  if !p => return r400 res
+  req.user.{}fav[req.params.id] = value
+  (e,r) <- dbc.user.update {_id: OID(req.user._id)}, {$set: {"fav.#{req.params.id}": value}}, {w:1}
+  if !r => return r500(res, "failed to update user fav list")
+  p.fav = ( p.fav or 0 ) + ( if value => 1 else -1 ) >? 0
+  (e,r) <- dbc.pic.update {_id: OID(req.params.id)}, {$set:{fav:p.fav}}, {w:1}
+  if !r => return r500(res, "failed to update pic fav count")
+  (e,r) <- dbc.user.findOne {_id: OID(req.user._id)}
+  backend.update-user req
+  r200 res
+
 backend.router.user
-  ..get \/fav, (req, res) -> # get personal fav list. need pagination
-  ..put \/fav/:id, (req, res) -> # fav some photo (both user / pic side)
-  ..delete \/fav/:id, (req, res) -> # unfav some photo (both user / pic side)
+  ..get \/fav, (req, res) -> res.json(req.user.fav) # TODO need pagination
+  ..put \/fav/:id, fav true
+  ..delete \/fav/:id, fav false
 
 pic
-  ..get \/pic, (req, res) -> # get pic list (all site). need pagination
-  ..post \/pic, (req, res) -> # upload pic (evnt specified in post data)
+  ..get \/pic, (req, res) -> # get all site pic list
+    # TODO need pagination
+    stream = dbc.pic.find {} .stream!
+    backend.stream-writer res, stream
 
-  ..get \/pic/:id, (req, res) -> # get specific photo info. JSON or HTML.
-  ..put \/pic/:id/fav, (req, res) -> # fav some photo (both user / pic side)
-  ..delete \/pic/:id/fav, (req, res) -> # unfav some photo (both user / pic side)
+  ..post \/pic, (req, res) -> # upload new pic
+    (e,r) <- dbc.pic.insert req.body, {w:1}
+    if !r => r500 res, "failed to add pic"
 
-  ..get \/set/:id, (req, res) -> # get pic list (in event). need pagination
-  ..post \/set/:id, (req, res) -> # upload pic (to event)
+  ..get \/pic/:id, (req, res) -> # get single pic info
+    # TODO both JSON or HTML
+    (e,r) <- dbc.pic.findOne {_id: OID(req.params.id)}
+    if !r => return r404 res
+    res.json r
 
+  ..get \/set/:id, (req, res) ->
+    # need pagination
+    stream = dbc.pic.find {set: req.params.id} .stream!
+    backend.stream-writer res, stream
+
+  ..post \/set/:id, (req, res) -> 
+    data = {} <<< req.body
+      ..set = req.params.id
+    (e,r) <- dbc.pic.insert data, {w:1}
+    if !r => r500 res, "failed to add pic"
+
+backend.start ({db, server, cols})->
+  dbc := cols # shortcut for collections
+  db.collection \pic, (e, c) -> cols.pic = c

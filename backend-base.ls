@@ -10,12 +10,26 @@ base = do
   context-wrapper: (obj) ->
     "angular.module('backend', []) .factory('context', function() { return #{JSON.stringify(obj)}; });"
 
+  stream-writer: (res, stream) ->
+    first = true
+    res.write("[")
+    stream.on \data, (it) ->
+      if first == true => first := false
+      else res.write(",")
+      res.write(JSON.stringify it)
+    stream.on \end, -> 
+      res.write("]")
+      res.send!
+
+  update-user: (req) -> req.logIn req.user, ->
+
   # sample data, from g0v.photos
   config: -> do
     clientID: \252332158147402
     clientSecret: \763c2bf3a2a48f4d1ae0c6fdc2795ce6
     session-secret: \featureisameasurableproperty
     url: \http://g0v.photos/
+    mongodbUrl: \mongodb://localhost/g0vphotos
     port: \9000
     mail: do
       host: \box590.bluehost.com
@@ -36,10 +50,10 @@ base = do
       passwordField: \passwd
     },(u,p,done) ->
       p = crypto.createHash(\md5).update(p).digest(\hex)
-      (e,r) <- users.c.findOne {email: u}
+      (e,r) <- base.cols.user.findOne {email: u}
       if !r =>
-        user = {email: u, passwd: p}
-        (e,r) <- users.c.insert user, {w: 1}
+        user = {email: u, passwd: p, name: u.replace(/@.+$/, "")}
+        (e,r) <- base.cols.user.insert user, {w: 1}
         if !r => return done {server: "failed to create user"}, false
         return done null, user
       else
@@ -49,7 +63,7 @@ base = do
       do
         clientID: config.clientID
         clientSecret: config.clientSecret
-        callbackURL: "#{config.url}/u/auth/facebook/callback"
+        callbackURL: "#{config.url}u/auth/facebook/callback"
       , (access-token, refresh-token, profile, done) ->
         done null, profile
     )
@@ -71,6 +85,11 @@ base = do
 
     router.user
       ..get \/null, (req, res) -> res.json {}
+      ..get \/me, (req,res) ->
+        info = if req.user => req.user{email} else {}
+        res.set("Content-Type", "text/javascript").send(
+          "angular.module('main').factory('user',function() { return "+JSON.stringify(info)+" });"
+        )
       ..get \/200, (req,res) -> res.json(req.user)
       ..get \/403, (req,res) -> res.status(403)send!
       ..get \/login, (req, res) -> res.render \login
@@ -85,12 +104,19 @@ base = do
         successRedirect: \/u/200
         failureRedirect: \/u/403
 
-
     postman = nodemailer.createTransport nodemailer-smtp-transport config.mail
 
-    {app, express, router, postman}
+    @ <<< {config, app, express, router, postman}
 
-  start: ->
-    server = app.listen config.port, -> console.log "listening on port #{server.address!port}"
+  start: (cb) ->
+    server = @app.listen @config.port, -> console.log "listening on port #{server.address!port}"
+    mongodb.MongoClient.connect @config.mongodbUrl, (e, db) ~> 
+      if !db => 
+        console.log "[ERROR] can't connect to mongodb server:"
+        throw new Error e
+      (e, c) <~ db.collection \user
+      cols = {user: c}
+      @ <<< {server, db, cols}
+      cb {db, server, cols}
 
 module.exports = base

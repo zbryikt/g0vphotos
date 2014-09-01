@@ -228,7 +228,9 @@ update-file = ->
   if /\/template\//exec it => return
   [type,cmd] = [ftype(it), ""]
   if type == \other => return
-  if type == \ls => cmd = "#{ls} -cb #{it}"
+  if type == \ls => 
+    if it.indexOf("backend")>=0 => return
+    cmd = "#{ls} -cb #{it}"
   if type == \sass => cmd = "#{sass} #{it} #{it.replace /\.sass$/, \.css}"
   if type == \jade => cmd = "#{jade-exe} -P #{it}"
   if cmd =>

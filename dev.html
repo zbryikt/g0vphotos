@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,width=780">
+    <title>自己的活動自己拍 - g0v hackath10n photo stream</title>
+    <!-- libraries-->
+    <script type="text/javascript" src="assets/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="assets/angular/1.2.3/angular.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/bootstrap/3.0.2/css/bootstrap.min.css">
+    <script type="text/javascript" src="assets/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <!-- custom files-->
+    <link rel="icon" type="image/gif" href="/favicon.png">
+    <link rel="stylesheet" type="text/css" href="/index.css">
+    <script type="text/javascript" src="assets/isotope/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/jquery.sticky.js"></script>
+    <script type="text/javascript" src="/index.js"></script>
+    <script type="text/javascript" src="/dev.js"></script>
+  </head>
+  <body ng-app="main" ng-controller="dev">
+    <div style="margin:20px">
+      <h2>dev backend</h2>
+      <hr>
+      <div class="devblocks">
+        <div class="devblock">
+          <h4 class="text-center">login</h4>
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">email</label>
+              <div class="col-sm-8">
+                <input type="email" ng-model="email" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">passwd</label>
+              <div class="col-sm-8">
+                <input type="password" ng-model="passwd" class="form-control">
+              </div>
+            </div>
+            <div class="col-sm-3"></div>
+            <div class="col-sm-8">
+              <div ng-click="login()" class="btn btn-block btn-primary">login</div>
+            </div>
+          </form>
+        </div>
+        <div class="devblock">
+          <h4 class="text-center">logout</h4>
+          <div ng-click="logout()" class="btn btn-block btn-primary">logout</div>
+        </div>
+        <div class="devblock">
+          <h4 class="text-center">upload</h4>
+          <form class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">desc</label>
+              <div class="col-sm-8">
+                <input type="text" name="desc" ng-model="uppic.desc" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">author</label>
+              <div class="col-sm-8">
+                <input type="text" name="author" ng-model="uppic.author" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">tag</label>
+              <div class="col-sm-8">
+                <input type="text" name="tag" ng-model="uppic.tag" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">event</label>
+              <div class="col-sm-8">
+                <input type="text" name="event" ng-model="uppic.event" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">license</label>
+              <div class="col-sm-8">
+                <input type="text" name="license" ng-model="uppic.license" class="form-control">
+              </div>
+            </div>
+            <div class="col-sm-3"></div>
+            <div class="col-sm-8">
+              <div ng-click="uploadset()" class="btn btn-primary">upload</div>
+            </div>
+          </form>
+        </div>
+        <div class="devblock">
+          <h4 class="text-center">fav</h4>
+          <div ng-click="fav('54040abd87292ecf03c9582e', true)" class="btn btn-success">fav</div>
+          <div ng-click="fav('54040abd87292ecf03c9582e', false)" class="btn btn-success">unfav</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

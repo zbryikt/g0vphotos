@@ -19,7 +19,7 @@ x$.directive('isotope', function(){
     }
   };
 });
-x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
+x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($scope, $timeout, $http, user){
   var ecd, dcd, license, dup, resize, updateWatcher;
   ecd = function(it){
     if (it) {
@@ -262,6 +262,7 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
         data: ua.buffer,
         processData: false
       }).done(function(e){
+        console.log(e);
         if (payloads.length === 0) {
           return finish(true);
         }
@@ -272,7 +273,18 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
         return finish(false);
       });
     };
-    return upload(payloads);
+    upload(payloads);
+    return $http({
+      url: '/d/pic/',
+      method: 'POST',
+      data: JSON.stringify(import$({
+        name: hash.name
+      }, hash.metadata))
+    }).success(function(d){
+      return console.log(d);
+    }).error(function(d){
+      return console.log(d);
+    });
   };
   $scope.$watch('customauthor', function(it){
     if (!$scope.user || it) {
@@ -331,34 +343,10 @@ x$.controller('main', ['$scope', '$timeout'].concat(function($scope, $timeout){
       }
     }, 0);
   };
-  $scope.fbready = function(){
-    console.log("facebook is ready.");
-    return FB.getLoginStatus(function(r){
-      if (r.status === 'connected') {
-        return FB.api('/me', function(r){
-          return $scope.$apply(function(){
-            return $scope.user = r;
-          });
-        });
-      }
-    });
-  };
-  $scope.login = function(){
-    return FB.login(function(r){
-      if (r.status === 'connected') {
-        return FB.api('/me', function(r){
-          return $scope.$apply(function(){
-            return $scope.user = r;
-          });
-        });
-      }
-    });
-  };
+  $scope.login = function(){};
   $scope.logout = function(){
-    return FB.logout(function(r){
-      return $scope.$apply(function(){
-        return $scope.user = null;
-      });
+    return $http({
+      url: '/u/logout'
     });
   };
   $scope.gotop = function(){

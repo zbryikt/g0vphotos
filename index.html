@@ -15,6 +15,7 @@
     <script type="text/javascript" src="assets/isotope/isotope.pkgd.min.js"></script>
     <script type="text/javascript" src="/jquery.sticky.js"></script>
     <script type="text/javascript" src="/index.js"></script>
+    <script type="text/javascript" src="/u/me"></script>
   </head>
   <body ng-app="main" ng-controller="main">
     <div id="fb-root"></div>
@@ -54,7 +55,7 @@
           <li><a href="https://www.facebook.com/g0v.tw" target="_blank">粉絲專頁</a></li>
         </ul>
       </div><a ng-click="filterfav(true)" ng-show="!showfav" class="item">我的最愛</a><a ng-click="filterfav(false)" ng-show="showfav" class="item">全部顯示</a>
-      <div class="pull-right"><a ng-click="login()" ng-show="!user" class="item">登入</a>
+      <div class="pull-right"><a href="/u/auth/facebook" ng-show="!user" class="item">臉書登入</a><a ng-click="login()" ng-show="!user" class="item">登入</a>
         <div ng-show="user" class="dropdown profile item"><a href="#" data-toggle="dropdown" class="dropdown-toggle"><img ng-attr-src="http://graph.facebook.com/{{user.id}}/picture" ng-if="user">{{user.name}} <i class="glyphicon glyphicon-chevron-down"></i></a>
           <ul class="dropdown-menu">
             <li><a>設定</a></li>

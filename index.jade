@@ -18,6 +18,7 @@ html(lang="en")
     script(type="text/javascript",src="#{assets}/isotope/isotope.pkgd.min.js")
     script(type="text/javascript",src="/jquery.sticky.js")
     script(type="text/javascript",src="/index.js")
+    script(type="text/javascript",src="/u/me")
   body(ng-app="main",ng-controller="main")
     #fb-root
     script.
@@ -60,6 +61,7 @@ html(lang="en")
       a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
         
       .pull-right
+        a.item(href="/u/auth/facebook",ng-show="!user") 臉書登入
         a.item(ng-click="login()",ng-show="!user") 登入
         .dropdown.profile.item(ng-show="user")
           a.dropdown-toggle(href="#",data-toggle="dropdown")

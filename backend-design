@@ -1,7 +1,5 @@
 
 server
-mongodb
-
  /u/login
  /u/logout
  /u/auth/facebook
@@ -11,7 +9,6 @@ mongodb
  /u/fav/12345678_12345678/
    : PUT
    : DELETE
-
  /s/pic/12354678_12354678
    : JSON / HTML
  /s/pic/12354678_12354678/fav
@@ -26,3 +23,9 @@ mongodb
       event
       license
 
+mongodb
+  /user
+    /:id
+      /fav
+  /pic
+    /:id

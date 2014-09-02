@@ -66,6 +66,9 @@ pic
     (e,r) <- dbc.pic.insert data, {w:1}
     if !r => r500 res, "failed to add pic"
 
+backend.app
+  ..get \/, (req, res) -> res.render \index.jade
+
 backend.start ({db, server, cols})->
   dbc := cols # shortcut for collections
   db.collection \pic, (e, c) -> cols.pic = c

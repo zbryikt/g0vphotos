@@ -204,7 +204,6 @@ angular.module \main <[]>
     #  FB.api \/me (r) -> $scope.$apply -> $scope.user = r
     #$scope.logout = -> FB.logout (r) -> $scope.$apply -> $scope.user = null
     $scope.login = -> 
-      $http do
       
     $scope.logout = -> $http {url: \/u/logout}
 

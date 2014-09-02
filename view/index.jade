@@ -3,7 +3,7 @@ doctype html
 - var usecdn = false
 - var useog = false
 - var lib = { jquery: true, d3js: false, angular: true, bootstrap: true, semantic: false }
-- var assets = "assets"
+- var assets = "/assets"
 - var thumbnail = "http://dummy.thumbnail"
 html(lang="en")
   head(prefix="og: http://ogp.me/ns#")
@@ -14,10 +14,10 @@ html(lang="en")
     include library.jade
     // custom files
     link(rel="icon",type="image/gif",href="/favicon.png")
-    link(rel="stylesheet",type="text/css",href="/index.css")
+    link(rel="stylesheet",type="text/css",href="/css/index.css")
     script(type="text/javascript",src="#{assets}/isotope/isotope.pkgd.min.js")
-    script(type="text/javascript",src="/jquery.sticky.js")
-    script(type="text/javascript",src="/index.js")
+    script(type="text/javascript",src="#{assets}/misc/jquery.sticky.js")
+    script(type="text/javascript",src="/js/index.js")
     script(type="text/javascript",src="/u/me")
   body(ng-app="main",ng-controller="main")
     #fb-root

@@ -1,0 +1,13 @@
+.devblocks {
+  display: flex;
+  display: -webkit-flex; }
+
+.devblock {
+  width: 300px;
+  min-height: 200px;
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 3px; }

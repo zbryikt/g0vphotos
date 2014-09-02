@@ -1,9 +1,8 @@
 require! <[fs express mongodb body-parser crypto]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
-require! <[./backend-base]>
+require! <[./backend]>
 
-backend = backend-base
 r500 = (res, error) -> res.status(500).json({detail:error})
 r404 = (res) -> res.status(404)send!
 r403 = (res) -> res.status(403)send!
@@ -12,21 +11,7 @@ r200 = (res) -> res.send!
 OID = mongodb.ObjectID
 dbc = {}
 
-config = do
-  clientID: \252332158147402
-  clientSecret: \763c2bf3a2a48f4d1ae0c6fdc2795ce6
-  session-secret: \featureisameasurableproperty
-  #url: \http://g0v.photos/
-  url: \http://localhost/
-  mongodbUrl: \mongodb://localhost/g0vphotos
-  port: \9000
-  mail: do
-    host: \box590.bluehost.com
-    port: 465
-    secure: true
-    maxConnections: 5
-    maxMessages: 10
-    auth: {user: 'noreply@g0v.photos', pass: ''}
+config = debug: true
 
 backend.init config
 

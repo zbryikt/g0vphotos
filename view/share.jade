@@ -15,16 +15,18 @@ html(lang="en")
     meta(name="viewport",content="initial-scale=1, maximum-scale=1,width=780")
     title 自己的活動自己拍 - g0v hackath9n photo stream
     // libraries
-    include ../library.jade
+    include library.jade
     // custom files
     link(rel="icon",type="image/gif",href="/favicon.png")
-    link(rel="stylesheet",type="text/css",href="/index.css")
-    link(rel="stylesheet",type="text/css",href="/share.css")
+    link(rel="stylesheet",type="text/css",href="/css/index.css")
+    link(rel="stylesheet",type="text/css",href="/css/share.css")
     script(type="text/javascript",src="#{assets}/isotope/isotope.pkgd.min.js")
     //-script(type="text/javascript",src="skrollr.min.js")
-    script(type="text/javascript",src="/jquery.sticky.js")
-    script(type="text/javascript",src="/share.js")
-  body(ng-app,ng-controller="share",ng-init="pid='#{pid}'")
+    script(type="text/javascript",src="#{assets}/misc/jquery.sticky.js")
+    script(type="text/javascript",src="/js/share.js")
+    script(type="text/javascript",src="/context")
+  body(ng-app="main",ng-controller="share")
+    //- ,ng-init="pic='#{pic}'")
    
     #menu
       a.item(href="http://g0v.photos") g0v.photos
@@ -56,21 +58,21 @@ html(lang="en")
     .row.detail
       .col-sm-7
         .photo
-          img(src="http://thumb.g0v.photos/#{pid}")
+          img(src="/m/thumb/#{pic._id}.jpg")
       .col-sm-5
         .quote-mark
         .quote
           .ib
-            #desc(ng-class="{'empty':!desc || !loaded}") {{desc || '(沒有描述)'}}
+            #desc #{pic.desc || '(沒有描述)'}
             .author
               | - by 
-              #author {{author || 'anonymous'}}
+              #author #{pic.author || 'anonymous'}
 
         hr
         .action
           .label.label-primary
             i.glyphicon.glyphicon-info-sign
-            |  {{license || 'Public Domain'}}
+            |  #{pic.license || 'Public Domain'}
         br
         .action 
           .item.like: a(ng-click="toggleLike()")

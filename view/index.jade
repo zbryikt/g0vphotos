@@ -119,20 +119,20 @@ html(lang="en")
           .img(ng-show="!chosen")
           #upload-canvas.default-height(ng-class="{'default-height': !chosen}")
           input#file(type="file",name="file")
-          input#formpayload(type="hidden",name="payload")
+          //-input#formpayload(type="hidden",name="payload")
 
-
-      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}",ng-class="{'fav': userdata.heart[item.name] && user}"): .ib
-        a(href="/s/{{item.name}}",target="_blank"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}",isotope)
+      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}",ng-class="{'fav': userdata.heart[item._id] && user}"): .ib
+        //-a(href="/s/{{item._id}}.jpg",target="_blank"): img(ng-attr-src="http://thumb.g0v.photos/{{item.name}}")
+        a(href="/s/pic/{{item._id}}",target="_blank"): img(ng-attr-src="/m/thumb/{{item._id}}.jpg")
         .action
-          .fav(ng-click="heart($event, item.name)")
-            i.glyphicon.glyphicon-heart-empty(ng-show="!userdata.heart[item.name]")
-            i.glyphicon.glyphicon-heart(ng-show="userdata.heart[item.name] && user")
-          .share(ng-click="sharePopover($event,item.name)")
+          .fav(ng-click="heart($event, item._id)")
+            i.glyphicon.glyphicon-heart-empty(ng-show="!userdata.heart[item._id]")
+            i.glyphicon.glyphicon-heart(ng-show="userdata.heart[item._id] && user")
+          .share(ng-click="sharePopover($event,item._id)")
             i.glyphicon.glyphicon-share-alt
         .desc 
-          | {{item.metadata.desc}} by {{item.metadata.author || "anonymous"}} @ {{item.metadata.license || "Public Domain"}} / 
-          a(href="http://raw.g0v.photos/{{item.name}}") 原圖
+          | {{item.desc}} by {{item.author || "anonymous"}} @ {{item.license || "Public Domain"}} / 
+          a(href="http://raw.g0v.photos/{{item._id}}") 原圖
     #share-popover
       | 分享連結: 
       a(href="http://g0v.photos/s/{{lastshare}}") http://g0v.photos/s/{{lastshare}}

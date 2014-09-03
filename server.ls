@@ -1,4 +1,4 @@
-require! <[fs express mongodb body-parser crypto]>
+require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
 require! <[./backend]>
@@ -10,6 +10,9 @@ r400 = (res) -> res.status(400)send!
 r200 = (res) -> res.send!
 OID = mongodb.ObjectID
 dbc = {}
+
+<[media media/raw media/thumb src src/ls src/sass static static/css static/js]>.map ->
+  if !fs.exists-sync it => fs.mkdir-sync it
 
 config = debug: true
 
@@ -52,8 +55,19 @@ pic
     if !r or !r.length => r500 res, "failed to add pic"
     r = r.0
     # need guessing file type
-    (e) <- fs.rename req.files.image.path, "media/#{r._id}.jpg"
-    if e => return r500 res, "failed to move file"
+    raw = "media/raw/#{r._id}.jpg"
+    tmb = "media/thumb/#{r._id}.jpg"
+    (e) <- fs.rename req.files.image.path, raw
+    if e => 
+      console.log "[ERROR] #e"
+      return r500 res, "failed to move file"
+    (e,img) <- lwip.open raw
+    if e => 
+      console.log "ERROR] #e"
+      return r500 res, "failed to resize file"
+    [w,h] = [img.width!, img.height!]
+    [w,h] = [500, h * 500 / w]
+    img.batch!resize(w,h)writeFile tmb, (->) 
     res.send!
     backend.multi.clean req, res
 
@@ -61,7 +75,8 @@ pic
     # TODO both JSON or HTML
     (e,r) <- dbc.pic.findOne {_id: OID(req.params.id)}
     if !r => return r404 res
-    res.json r
+    #res.json r
+    res.render 'share.jade', {pic: r}
 
   ..get \/set/:id, (req, res) ->
     # need pagination

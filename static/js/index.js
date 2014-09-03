@@ -96,6 +96,15 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'context'].concat(function
     return $scope.license = license($scope.cc, $scope.author);
   }, true);
   $scope.refresh = function(){
+    $http({
+      url: '/s/pic/',
+      method: 'GET'
+    }).success(function(d){
+      return $scope.list = d;
+    }).error(function(e){
+      return console.error(e);
+    });
+    return;
     return $timeout(function(){
       return $.ajax({
         url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'

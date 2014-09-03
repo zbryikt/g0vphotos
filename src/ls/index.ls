@@ -48,6 +48,12 @@ angular.module \main <[backend]>
     $scope.$watch 'cc', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.$watch 'author', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.refresh = ->
+      $http do
+        url: \/s/pic/
+        method: \GET
+      .success (d) -> $scope.list = d
+      .error (e) -> console.error e
+      return # TODO remove following since we are going to host list by ourselves
       $timeout ->
         $.ajax do
           url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o

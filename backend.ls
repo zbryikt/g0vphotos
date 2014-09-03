@@ -83,6 +83,7 @@ base = do
     mongodbUrl: \mongodb://localhost/
     port: \9000
     debug: true
+    limit: '20mb'
     mail: do
       host: \box590.bluehost.com
       port: 465
@@ -94,8 +95,8 @@ base = do
   init: (config) ->
     config = {} <<< @config! <<< config
     app = express!
-    app.use body-parser.json!
-    app.use body-parser.urlencoded extended: true
+    app.use body-parser.json limit: config.limit
+    app.use body-parser.urlencoded extended: true, limit: config.limit
     app.set 'view engine', 'jade'
     app.engine \ls, lsc
     app.use \/, express.static("#__dirname/static")
@@ -163,7 +164,7 @@ base = do
     postman = nodemailer.createTransport nodemailer-smtp-transport config.mail
 
     multi = do
-      parser: connect-multiparty!
+      parser: connect-multiparty limit: config.limit
       clean: (req, res, next) ->
         for k,v of req.files => if fs.exists-sync v.path => fs.unlink v.path
       cleaner: (cb) -> (req, res, next) ~>

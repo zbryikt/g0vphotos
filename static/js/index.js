@@ -1,5 +1,5 @@
 var x$;
-x$ = angular.module('main', []);
+x$ = angular.module('main', ['backend']);
 x$.directive('isotope', function(){
   return {
     restrict: 'A',
@@ -7,6 +7,7 @@ x$.directive('isotope', function(){
       var des;
       des = $(e[0].parentNode.parentNode.parentNode);
       des.addClass('iso');
+      return;
       if (e.prop('tagName') === 'IMG') {
         return e.load(function(){
           des.addClass('iso-show');
@@ -18,7 +19,7 @@ x$.directive('isotope', function(){
     }
   };
 });
-x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($scope, $timeout, $http, user){
+x$.controller('main', ['$scope', '$timeout', '$http', 'context'].concat(function($scope, $timeout, $http, context){
   var ecd, dcd, license, dup, resize, updateWatcher;
   ecd = function(it){
     if (it) {
@@ -35,7 +36,7 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
     }
   };
   import$($scope, {
-    user: null,
+    user: context.user || null,
     userdata: {},
     customauthor: false,
     bkno: ['bk7'][parseInt(Math.random() * 1)],
@@ -71,7 +72,6 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
       sortBy: 'weight'
     });
   };
-  $scope.initIsotope();
   $scope.img.rawReader = new FileReader();
   $scope.img.rawReader.onload = function(){
     var this$ = this;
@@ -105,7 +105,6 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
             return it.metadata[k] = dcd(it.metadata[k]);
           });
         });
-        $scope.initIsotope();
         $scope.$apply(function(){
           $scope.list = data.items;
           $scope.list.reverse();
@@ -114,7 +113,6 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
           });
         });
         return $timeout(function(){
-          $scope.isotope.layout();
           return $scope.uploading = false;
         }, 100);
       });
@@ -211,22 +209,7 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
     }, 0);
   };
   $scope._submit = function(){
-    var hash, sep, head, tail, payloads, url, arg, finish, upload;
-    hash = {
-      "name": "pic" + new Date().getTime() + "_" + parseInt(Math.random() * 1000000000, 16),
-      metadata: {
-        "author": ecd($scope.author),
-        "desc": ecd($scope.desc),
-        "tag": ecd($scope.tag),
-        "license": license($scope.cc, $scope.author)
-      }
-    };
-    sep = "DULLSEPARATOR";
-    head = ("--" + sep + "\nContent-Type: application/json; chartset=UTF-8\n\n" + JSON.stringify(hash) + "\n\n") + ("--" + sep + "\nContent-Type: image/jpg\n\n");
-    tail = "\n\n--" + sep + "--";
-    payloads = [[$scope.img.raw, 'raw.g0v.photos'], [$scope.img.thumbnail, 'thumb.g0v.photos']];
-    url = 'https://www.googleapis.com/upload/storage/v1/b';
-    arg = 'o?uploadType=multipart&predefinedAcl=publicRead';
+    var finish, fd;
     finish = function(refresh){
       updateWatcher(false);
       if (refresh) {
@@ -235,54 +218,28 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
         }, 500);
       }
     };
-    upload = function(payloads){
-      var payload, data, size, ua, i$, to$, i;
-      payload = payloads.splice(0, 1)[0];
-      data = payload[0];
-      size = head.length + tail.length + data.length;
-      ua = new Uint8Array(size);
-      for (i$ = 0, to$ = head.length; i$ < to$; ++i$) {
-        i = i$;
-        ua[i] = head.charCodeAt(i) & 0xff;
+    fd = new FormData();
+    ['author', 'desc', 'tag'].map(function(it){
+      if ($scope[it]) {
+        return fd.append(it, $scope[it]);
       }
-      for (i$ = 0, to$ = data.length; i$ < to$; ++i$) {
-        i = i$;
-        ua[i + head.length] = data[i];
-      }
-      for (i$ = 0, to$ = tail.length; i$ < to$; ++i$) {
-        i = i$;
-        ua[i + head.length + data.length] = tail.charCodeAt(i) & 0xff;
-      }
-      console.log(url + "/" + payload[1] + "/" + arg);
-      return $.ajax({
-        type: 'POST',
-        url: url + "/" + payload[1] + "/" + arg,
-        contentType: "multipart/related; boundary=\"" + sep + "\"",
-        data: ua.buffer,
-        processData: false
-      }).done(function(e){
-        console.log(e);
-        if (payloads.length === 0) {
-          return finish(true);
-        }
-        return setTimeout(function(){
-          return upload(payloads);
-        }, 0);
-      }).error(function(e){
-        return finish(false);
-      });
-    };
-    upload(payloads);
+    });
+    fd.append('license', license($scope.cc, $scope.author));
+    fd.append('image', new Blob([$scope.img.raw], {
+      type: "application/octet-stream"
+    }));
     return $http({
-      url: '/d/pic/',
+      url: '/s/pic/',
       method: 'POST',
-      data: JSON.stringify(import$({
-        name: hash.name
-      }, hash.metadata))
+      data: fd,
+      transformRequest: angular.identity,
+      headers: {
+        "Content-Type": undefined
+      }
     }).success(function(d){
-      return console.log(d);
-    }).error(function(d){
-      return console.log(d);
+      return finish(true);
+    }).error(function(e){
+      return finish(false);
     });
   };
   $scope.$watch('customauthor', function(it){
@@ -304,10 +261,7 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
   });
   $scope.showfav = false;
   $scope.filterfav = function(v){
-    $scope.showfav = v;
-    return $scope.isotope.arrange({
-      filter: v ? ".fav" : "*"
-    });
+    return $scope.showfav = v;
   };
   $scope.heart = function(e, pid){
     var ref$, ref1$;
@@ -342,10 +296,15 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'user'].concat(function($s
       }
     }, 0);
   };
-  $scope.login = function(){};
+  $scope.login = function(){
+    return window.location.href = '/u/auth/facebook/';
+  };
   $scope.logout = function(){
     return $http({
-      url: '/u/logout'
+      url: '/u/logout',
+      method: 'GET'
+    }).success(function(){
+      return window.location.reload();
     });
   };
   $scope.gotop = function(){

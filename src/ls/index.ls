@@ -1,19 +1,20 @@
-angular.module \main <[]>
+angular.module \main <[backend]>
   ..directive \isotope, -> do
     restrict: \A
     link: (scope, e, attrs, ctrl) ->
       des = $(e.0.parentNode.parentNode.parentNode)
       des.addClass \iso
+      return
       if e.prop(\tagName) == \IMG => e.load ->
         des.addClass \iso-show
         scope.isotope.appended des.0
       else scope.isotope.appended e.0.parentNode.parentNode.parentNode
-  ..controller \main, <[$scope $timeout $http user]> ++ ($scope, $timeout, $http, user) ->
+  ..controller \main, <[$scope $timeout $http context]> ++ ($scope, $timeout, $http, context) ->
     ecd = -> if it => encodeURIComponent it else it
     dcd = -> if it => decodeURIComponent it else it
 
     $scope <<< do
-      user: null
+      user: context.user or null
       userdata: {}
       customauthor: false
       bkno: <[bk7]>[parseInt(Math.random! * 1)]
@@ -37,7 +38,7 @@ angular.module \main <[]>
         layoutMode: \masonry
         getSortData: weight: '[data-order]'
         sortBy: 'weight'
-    $scope.init-isotope!
+    #$scope.init-isotope!
     $scope.img.rawReader = new FileReader!
     $scope.img.rawReader.onload = -> $scope.$apply ~> $scope.img.raw = new Uint8Array @result
 
@@ -52,13 +53,13 @@ angular.module \main <[]>
           url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
         .done (data) ->
           data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
-          $scope.init-isotope!
+          #$scope.init-isotope!
           $scope.$apply ->
             $scope.list = data.items
             $scope.list.reverse!
             $scope.list.map (d,i) -> d.order = i + 1
           $timeout (->
-            $scope.isotope.layout!
+            #$scope.isotope.layout!
             $scope.uploading = false
           ), 100
       , 500
@@ -113,53 +114,22 @@ angular.module \main <[]>
       $scope.uploading = true
       $timeout (->$scope._submit!), 0 # let uploading work
     $scope._submit = ->
-      hash = {
-        "name": "pic#{new Date!getTime!}_#{parseInt(Math.random!*1000000000,16)}"
-        metadata: {
-          "author": ecd $scope.author
-          "desc": ecd $scope.desc 
-          "tag": ecd $scope.tag
-          "license": license($scope.cc, $scope.author)
-        }
-      }
-      sep = "DULLSEPARATOR"
-      head = "--#sep\nContent-Type: application/json; chartset=UTF-8\n\n#{JSON.stringify(hash)}\n\n" +
-             "--#sep\nContent-Type: image/jpg\n\n"
-      tail = "\n\n--#{sep}--"
-      payloads = [[$scope.img.raw, \raw.g0v.photos],[$scope.img.thumbnail, \thumb.g0v.photos]]
-      url = \https://www.googleapis.com/upload/storage/v1/b
-      arg = \o?uploadType=multipart&predefinedAcl=publicRead
       finish = (refresh) ->
-        #$scope.$apply -> $scope.uploading = false
         update-watcher false
         if refresh => $timeout (-> $scope.refresh!), 500
-      upload = (payloads) ->
-        payload = payloads.splice(0,1)0
-        data = payload.0
-        size = head.length + tail.length + data.length
-        ua = new Uint8Array size
-        for i from 0 til head.length => ua[i] = head.charCodeAt(i) .&. 0xff
-        for i from 0 til data.length => ua[i + head.length] = data[i]
-        for i from 0 til tail.length => ua[i + head.length + data.length] = tail.charCodeAt(i) .&. 0xff
-        console.log "#{url}/#{payload.1}/#{arg}"
-        $.ajax do
-          type: \POST
-          url: "#{url}/#{payload.1}/#{arg}"
-          contentType: "multipart/related; boundary=\"#sep\""
-          data: ua.buffer
-          processData: false
-        .done (e) -> 
-          console.log e
-          if payloads.length == 0 => return finish true
-          setTimeout (-> upload payloads), 0
-        .error (e) -> finish false
-      upload payloads
+
+      fd = new FormData!
+      <[author desc tag]>map -> if $scope[it] => fd.append it, $scope[it]
+      fd.append \license, license($scope.cc, $scope.author)
+      fd.append \image, new Blob([$scope.img.raw],{type:"application/octet-stream"})
       $http do
-        url: \/d/pic/
+        url: \/s/pic/
         method: \POST
-        data: JSON.stringify({name: hash.name} <<< hash.metadata)
-      .success (d) -> console.log d
-      .error (d) -> console.log d
+        data: fd
+        transformRequest: angular.identity
+        headers: "Content-Type": undefined
+      .success (d) -> finish true
+      .error (e) -> finish false
 
     $scope.$watch 'customauthor' -> if !$scope.user or it => $scope.author = ""
       else $scope.author = $scope.user.name
@@ -172,7 +142,7 @@ angular.module \main <[]>
     $scope.showfav = false
     $scope.filterfav = (v) ->
       $scope.showfav = v
-      $scope.isotope.arrange {filter: if v => ".fav" else "*"}
+      #$scope.isotope.arrange {filter: if v => ".fav" else "*"}
 
     $scope.heart = (e, pid)->
       if $scope.userdata.{}heart[pid] => delete $scope.userdata.heart[pid]
@@ -195,20 +165,11 @@ angular.module \main <[]>
           $scope.$apply -> $scope.lastshare = pid
 
       ), 0
-    #$scope.fbready = ->
-    #  console.log "facebook is ready."
-    #  (r) <- FB.getLoginStatus
-    #  if r.status == \connected => FB.api \/me, (r) -> 
-    #    $scope.$apply -> $scope.user = r
-    #$scope.login = -> FB.login (r) -> if r.status == \connected =>
-    #  FB.api \/me (r) -> $scope.$apply -> $scope.user = r
-    #$scope.logout = -> FB.logout (r) -> $scope.$apply -> $scope.user = null
-    $scope.login = -> 
-      
-    $scope.logout = -> $http {url: \/u/logout}
 
-    $scope.gotop = ->
-      $(document.body)animate scrollTop: 0
+    $scope.login = -> window.location.href = \/u/auth/facebook/ 
+    $scope.logout = -> $http {url: \/u/logout, method: \GET} .success -> window.location.reload!
+
+    $scope.gotop = -> $(document.body)animate scrollTop: 0
         
     $(\#attributions)popover!
     setTimeout (-> $(\#menu)sticky topSpacing: 0), 0

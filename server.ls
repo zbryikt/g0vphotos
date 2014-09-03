@@ -45,9 +45,17 @@ pic
     stream = dbc.pic.find {} .stream!
     backend.stream-writer res, stream
 
-  ..post \/pic, (req, res) -> # upload new pic
+  ..post \/pic, backend.multi.parser, (req, res) -> # upload new pic
+    #TODO validation, preventing SQL injection
+    if !req.files.image or !req.body.license => return res.status 400 .send!
     (e,r) <- dbc.pic.insert req.body, {w:1}
-    if !r => r500 res, "failed to add pic"
+    if !r or !r.length => r500 res, "failed to add pic"
+    r = r.0
+    # need guessing file type
+    (e) <- fs.rename req.files.image.path, "media/#{r._id}.jpg"
+    if e => return r500 res, "failed to move file"
+    res.send!
+    backend.multi.clean req, res
 
   ..get \/pic/:id, (req, res) -> # get single pic info
     # TODO both JSON or HTML
@@ -65,6 +73,9 @@ pic
       ..set = req.params.id
     (e,r) <- dbc.pic.insert data, {w:1}
     if !r => r500 res, "failed to add pic"
+
+backend.app
+  ..get \/context, (req, res) -> res.render \backend.ls, {user: req.user}
 
 backend.app
   ..get \/, (req, res) -> res.render \index.jade

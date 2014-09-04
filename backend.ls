@@ -92,6 +92,19 @@ base = do
       maxMessages: 10
       auth: {user: 'noreply@g0v.photos', pass: ''}
 
+  getUser: (u, p, usepasswd, detail, done) ->
+    if usepasswd => p = crypto.createHash(\md5).update(p).digest(\hex)
+    (e,r) <- base.cols.user.findOne {email: u}
+    if !r =>
+      name = if detail => detail.displayName or detail.username else u.replace(/@.+$/, "")
+      user = {email: u, passwd: p, usepasswd, name, detail}
+      (e,r) <- base.cols.user.insert user, {w: 1}
+      if !r => return done {server: "failed to create user"}, false
+      return done null, user
+    else
+      if !usepasswd or r.passwd == p => return done null, r
+      done null, false
+
   init: (config) ->
     config = {} <<< @config! <<< config
     app = express!
@@ -105,24 +118,15 @@ base = do
     passport.use new passport-local.Strategy {
       usernameField: \email
       passwordField: \passwd
-    },(u,p,done) ->
-      p = crypto.createHash(\md5).update(p).digest(\hex)
-      (e,r) <- base.cols.user.findOne {email: u}
-      if !r =>
-        user = {email: u, passwd: p, name: u.replace(/@.+$/, "")}
-        (e,r) <- base.cols.user.insert user, {w: 1}
-        if !r => return done {server: "failed to create user"}, false
-        return done null, user
-      else
-        if r.passwd == p => return done null, r
-        done null, false
+    },(u,p,done) ~> @getUser u, p, true, null, done
+
     passport.use new passport-facebook.Strategy(
       do
         clientID: config.clientID
         clientSecret: config.clientSecret
         callbackURL: "#{config.url}u/auth/facebook/callback"
-      , (access-token, refresh-token, profile, done) ->
-        done null, profile
+      , (access-token, refresh-token, profile, done) ~>
+        @getUser profile.emails.0.value, null, false, profile, done
     )
 
     app.use express-session secret: config.session-secret, resave: false, saveUninitialized: false

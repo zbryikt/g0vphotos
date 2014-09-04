@@ -94,8 +94,8 @@ body {
   min-height: 400px; }
 
 .iso {
-  -webkit-transition: all 1s;
-  transition: all 1s;
+  -webkit-transition: opacity 1s;
+  transition: opacity 1s;
   opacity: 0; }
 
 .iso-show {

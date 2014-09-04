@@ -7,19 +7,28 @@ x$.directive('isotope', function(){
       var des;
       des = $(e[0].parentNode.parentNode.parentNode);
       des.addClass('iso');
-      return;
       if (e.prop('tagName') === 'IMG') {
         return e.load(function(){
           des.addClass('iso-show');
-          return scope.isotope.appended(des[0]);
+          scope.isotope.appended(des[0]);
+          return scope.$on('$destroy', function(){
+            console.log('bye');
+            scope.isotope.remove(des[0]);
+            return scope.isotope.layout();
+          });
         });
       } else {
-        return scope.isotope.appended(e[0].parentNode.parentNode.parentNode);
+        scope.isotope.appended(e[0].parentNode.parentNode.parentNode);
+        return scope.$on('$destroy', function(){
+          console.log('bye');
+          scope.isotope.remove(e[0].parentNode.parentNode.parentNode);
+          return scope.isotope.layout();
+        });
       }
     }
   };
 });
-x$.controller('main', ['$scope', '$timeout', '$http', 'context'].concat(function($scope, $timeout, $http, context){
+x$.controller('main', ['$scope', '$interval', '$timeout', '$http', 'context'].concat(function($scope, $interval, $timeout, $http, context){
   var ecd, dcd, license, dup, resize, updateWatcher;
   ecd = function(it){
     if (it) {
@@ -39,7 +48,7 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'context'].concat(function
     user: context.user || null,
     userdata: {},
     customauthor: false,
-    bkno: ['bk7'][parseInt(Math.random() * 1)],
+    bkno: ['bk1', 'bk5', 'bk7'][parseInt(Math.random() * 3)],
     cc: {
       sa: false,
       by: true,
@@ -72,6 +81,7 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'context'].concat(function
       sortBy: 'weight'
     });
   };
+  $scope.initIsotope();
   $scope.img.rawReader = new FileReader();
   $scope.img.rawReader.onload = function(){
     var this$ = this;
@@ -96,36 +106,22 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'context'].concat(function
     return $scope.license = license($scope.cc, $scope.author);
   }, true);
   $scope.refresh = function(){
-    $http({
+    return $http({
       url: '/s/pic/',
       method: 'GET'
     }).success(function(d){
-      return $scope.list = d;
+      var blah;
+      $scope.list = [];
+      return blah = $interval(function(){
+        if (d.length === 0) {
+          $scope.uploading = false;
+          return $interval.cancel(blah);
+        }
+        return $scope.list.push(d.splice(0, 1)[0]);
+      }, 100);
     }).error(function(e){
       return console.error(e);
     });
-    return;
-    return $timeout(function(){
-      return $.ajax({
-        url: 'https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o'
-      }).done(function(data){
-        data.items.map(function(it){
-          return ['author', 'desc', 'tag'].map(function(k){
-            return it.metadata[k] = dcd(it.metadata[k]);
-          });
-        });
-        $scope.$apply(function(){
-          $scope.list = data.items;
-          $scope.list.reverse();
-          return $scope.list.map(function(d, i){
-            return d.order = i + 1;
-          });
-        });
-        return $timeout(function(){
-          return $scope.uploading = false;
-        }, 100);
-      });
-    }, 500);
   };
   dup = function(canvas){
     var ret, ref$, ctx;
@@ -270,15 +266,25 @@ x$.controller('main', ['$scope', '$timeout', '$http', 'context'].concat(function
   });
   $scope.showfav = false;
   $scope.filterfav = function(v){
-    return $scope.showfav = v;
+    $scope.showfav = v;
+    return $scope.isotope.arrange({
+      filter: v ? ".fav" : "*"
+    });
   };
-  $scope.heart = function(e, pid){
-    var ref$, ref1$;
-    if (((ref$ = $scope.userdata).heart || (ref$.heart = {}))[pid]) {
-      return ref1$ = (ref$ = $scope.userdata.heart)[pid], delete ref$[pid], ref1$;
+  $scope.fav = function(e, pid){
+    if ($scope.user.fav[pid]) {
+      delete $scope.user.fav[pid];
     } else {
-      return $scope.userdata.heart[pid] = true;
+      $scope.user.fav[pid] = true;
     }
+    return $http({
+      url: "/u/fav/" + pid,
+      method: $scope.user.fav[pid] ? 'PUT' : 'DELETE'
+    }).success(function(d){
+      return console.log(d);
+    }).error(function(e){
+      return console.error(e);
+    });
   };
   $scope.lastshare = null;
   $scope.sharePopover = function(e, pid){

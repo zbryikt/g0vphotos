@@ -4,12 +4,18 @@ angular.module \main <[backend]>
     link: (scope, e, attrs, ctrl) ->
       des = $(e.0.parentNode.parentNode.parentNode)
       des.addClass \iso
-      return
       if e.prop(\tagName) == \IMG => e.load ->
         des.addClass \iso-show
         scope.isotope.appended des.0
-      else scope.isotope.appended e.0.parentNode.parentNode.parentNode
-  ..controller \main, <[$scope $timeout $http context]> ++ ($scope, $timeout, $http, context) ->
+        scope.$on \$destroy ->
+          scope.isotope.remove des.0
+          scope.isotope.layout!
+      else
+        scope.isotope.appended e.0.parentNode.parentNode.parentNode
+        scope.$on \$destroy ->
+          scope.isotope.remove e.0.parentNode.parentNode.parentNode
+          scope.isotope.layout!
+  ..controller \main, <[$scope $interval $timeout $http context]> ++ ($scope, $interval, $timeout, $http, context) ->
     ecd = -> if it => encodeURIComponent it else it
     dcd = -> if it => decodeURIComponent it else it
 
@@ -17,8 +23,7 @@ angular.module \main <[backend]>
       user: context.user or null
       userdata: {}
       customauthor: false
-      bkno: <[bk7]>[parseInt(Math.random! * 1)]
-      #bkno: <[bk1 bk5]>[parseInt(Math.random! * 2)]
+      bkno: <[bk1 bk5 bk7]>[parseInt(Math.random! * 3)]
       cc: sa: false, by: true, nd: false, nc: false
       license: "Public Domain"
       desc: ""
@@ -38,7 +43,7 @@ angular.module \main <[backend]>
         layoutMode: \masonry
         getSortData: weight: '[data-order]'
         sortBy: 'weight'
-    #$scope.init-isotope!
+    $scope.init-isotope!
     $scope.img.rawReader = new FileReader!
     $scope.img.rawReader.onload = -> $scope.$apply ~> $scope.img.raw = new Uint8Array @result
 
@@ -51,24 +56,16 @@ angular.module \main <[backend]>
       $http do
         url: \/s/pic/
         method: \GET
-      .success (d) -> $scope.list = d
-      .error (e) -> console.error e
-      return # TODO remove following since we are going to host list by ourselves
-      $timeout ->
-        $.ajax do
-          url: \https://www.googleapis.com/storage/v1/b/thumb.g0v.photos/o
-        .done (data) ->
-          data.items.map (it) -> <[author desc tag]>map (k) -> it.metadata[k] = dcd it.metadata[k]
-          #$scope.init-isotope!
-          $scope.$apply ->
-            $scope.list = data.items
-            $scope.list.reverse!
-            $scope.list.map (d,i) -> d.order = i + 1
-          $timeout (->
-            #$scope.isotope.layout!
+      .success (d) -> 
+        $scope.list = []
+        blah = $interval ->
+          if d.length == 0 => 
             $scope.uploading = false
-          ), 100
-      , 500
+            return $interval.cancel blah
+          $scope.list.push(d.splice 0,1 .0)
+        , 100
+      .error (e) -> console.error e
+
     dup = (canvas) ->
       ret = document.createElement(\canvas) <<< {width: canvas.width, height: canvas.height}
       ctx = ret.getContext \2d
@@ -148,11 +145,16 @@ angular.module \main <[backend]>
     $scope.showfav = false
     $scope.filterfav = (v) ->
       $scope.showfav = v
-      #$scope.isotope.arrange {filter: if v => ".fav" else "*"}
+      $scope.isotope.arrange {filter: if v => ".fav" else "*"}
 
-    $scope.heart = (e, pid)->
-      if $scope.userdata.{}heart[pid] => delete $scope.userdata.heart[pid]
-      else $scope.userdata.heart[pid] = true
+    $scope.fav = (e, pid)->
+       if $scope.user.fav[pid] => delete $scope.user.fav[pid]
+       else $scope.user.fav[pid] = true
+       $http do
+         url: "/u/fav/#pid"
+         method: if $scope.user.fav[pid] => \PUT else \DELETE
+       .success (d) -> console.log d
+       .error (e) -> console.error e
 
     $scope.lastshare = null
     $scope.sharePopover = (e, pid) ->

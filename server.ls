@@ -29,7 +29,7 @@ fav = (value) -> (req, res) ->
   if !p => return r400 res
   req.user.{}fav[req.params.id] = value
   (e,r) <- dbc.user.update {_id: OID(req.user._id)}, {$set: {"fav.#{req.params.id}": value}}, {w:1}
-  if !r => return r500(res, "failed to update user fav list")
+  if !r => return r500(res, "failed to update user fav list: #e")
   p.fav = ( p.fav or 0 ) + ( if value => 1 else -1 ) >? 0
   (e,r) <- dbc.pic.update {_id: OID(req.params.id)}, {$set:{fav:p.fav}}, {w:1}
   if !r => return r500(res, "failed to update pic fav count")
@@ -72,10 +72,10 @@ pic
     backend.multi.clean req, res
 
   ..get \/pic/:id, (req, res) -> # get single pic info
-    # TODO both JSON or HTML
     (e,r) <- dbc.pic.findOne {_id: OID(req.params.id)}
     if !r => return r404 res
-    #res.json r
+    # not always correct?
+    if req.get("accept").indexOf(\application/json) == 0 => return res.json r
     res.render 'share.jade', {pic: r}
 
   ..get \/set/:id, (req, res) ->

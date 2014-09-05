@@ -16,4 +16,23 @@ data: http://bucket20140615.storage.googleapis.com/bravo2
 4. map
 5. copy right, portrait right, report
 
+google cloud storage + google cloud engine
+https://developers.google.com/storage/docs/google-integration
+get access token
+  https://developers.google.com/compute/docs/authentication#applications
+use in nodejs api
+  https://github.com/GoogleCloudPlatform/gcloud-node
+  ( according to it, we won't need to consider authentication in gce.
+    in external environment, generate a json key for accessing this service )
 
+p.s.: json api of gcs
+  https://developers.google.com/storage/docs/json_api/v1/objects/copy
+
+this is for google api:
+  https://github.com/google/google-api-nodejs-client/blob/master/examples/oauth2.js
+upload 
+  https://github.com/google/google-api-nodejs-client/blob/master/examples/mediaupload.js
+
+
+google datastore with nodejs
+https://developers.google.com/datastore/docs/getstarted/start_nodejs/?hl=zh-TW

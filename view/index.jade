@@ -57,7 +57,7 @@ html(lang="en")
           li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
           li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
           li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
-      a.item(ng-click="filterfav(true)",ng-show="!showfav") 我的最愛
+      a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
       a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
         
       .pull-right
@@ -121,9 +121,9 @@ html(lang="en")
           input#file(type="file",name="file")
 
       div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}",ng-class="{'fav': user.fav[item._id] && user}"): .ib
-        a(href="/s/pic/{{item._id}}",target="_blank"): img(ng-attr-src="/m/thumb/{{item._id}}.jpg",isotope)
+        a(href="/s/pic/{{item._id}}",target="_blank"): img(ng-attr-src="//thumb.g0v.photos/{{item._id}}",isotope)
         .action
-          .fav(ng-click="fav($event, item._id)")
+          .fav(ng-show="user",ng-click="fav($event, item._id)")
             i.glyphicon.glyphicon-heart-empty(ng-show="!user.fav[item._id]")
             i.glyphicon.glyphicon-heart(ng-show="user.fav[item._id] && user")
           .share(ng-click="sharePopover($event,item._id)")

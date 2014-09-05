@@ -131,8 +131,12 @@ angular.module \main <[backend]>
         data: fd
         transformRequest: angular.identity
         headers: "Content-Type": undefined
-      .success (d) -> finish true
-      .error (e) -> finish false
+      .success (d) -> 
+        console.log d
+        finish true
+      .error (e) -> 
+        console.log e
+        finish false
 
     $scope.$watch 'customauthor' -> if !$scope.user or it => $scope.author = ""
       else $scope.author = $scope.user.name

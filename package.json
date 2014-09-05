@@ -31,6 +31,7 @@
     "passport-facebook": ">=1.0.3",
     "passport-local": ">=1.0.0",
     "connect-multiparty": ">=1.2.4",
-    "lwip": ">=0.0.1"
+    "lwip": ">=0.0.1",
+    "gcloud": ">=0.4.0"
   }
 }

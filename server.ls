@@ -1,9 +1,11 @@
 require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
-require! <[./backend]>
+require! <[./backend ./storage]>
 
-r500 = (res, error) -> res.status(500).json({detail:error})
+r500 = (res, error) -> 
+  console.log "[ERROR] #error"
+  res.status(500).json({detail:error})
 r404 = (res) -> res.status(404)send!
 r403 = (res) -> res.status(403)send!
 r400 = (res) -> res.status(400)send!
@@ -14,7 +16,7 @@ dbc = {}
 <[media media/raw media/thumb src src/ls src/sass static static/css static/js]>.map ->
   if !fs.exists-sync it => fs.mkdir-sync it
 
-config = debug: true
+config = debug: true, name: \g0vphotos
 
 backend.init config
 
@@ -51,23 +53,31 @@ pic
   ..post \/pic, backend.multi.parser, (req, res) -> # upload new pic
     #TODO validation, preventing SQL injection
     if !req.files.image or !req.body.license => return res.status 400 .send!
+    name = req.body.name = storage.name req.body
     (e,r) <- dbc.pic.insert req.body, {w:1}
     if !r or !r.length => r500 res, "failed to add pic"
     r = r.0
     # need guessing file type
-    raw = "media/raw/#{r._id}.jpg"
-    tmb = "media/thumb/#{r._id}.jpg"
-    (e) <- fs.rename req.files.image.path, raw
+    (e,img) <- lwip.open req.files.image.path, \jpg, _
     if e => 
       console.log "[ERROR] #e"
-      return r500 res, "failed to move file"
-    (e,img) <- lwip.open raw
-    if e => 
-      console.log "ERROR] #e"
-      return r500 res, "failed to resize file"
+      return r500 res, "failed to read img file"
+
     [w,h] = [img.width!, img.height!]
-    [w,h] = [500, h * 500 / w]
-    img.batch!resize(w,h)writeFile tmb, (->) 
+    [w1,h1] = [1000, h * 1000 / w]
+    [w2,h2] = [500, h * 500 / w]
+    (e,b) <- img.toBuffer \jpg, _
+    if e => return r500 res, "failed to get img buffer"
+    (e1) <- storage.write \raw, name, b, _
+    img1 = img.batch!resize(w1,h1)
+    (e,b) <- img1.toBuffer \jpg, _
+    if e => return r500 res, "failed to get img buffer"
+    (e2) <- storage.write \medium, name, b, _
+    img2 = img.batch!resize(w2,h2)
+    (e,b) <- img2.toBuffer \jpg, _
+    if e => return r500 res, "failed to get img buffer"
+    (e3) <- storage.write \thumb, name, b, _
+    if e1 or e2 or e3 => return r500 res, "failed to write img to storage: \n  raw: #e1\n  medium: #e2\n  thumb: #e3"
     res.send!
     backend.multi.clean req, res
 

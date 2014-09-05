@@ -12,7 +12,6 @@ x$.directive('isotope', function(){
           des.addClass('iso-show');
           scope.isotope.appended(des[0]);
           return scope.$on('$destroy', function(){
-            console.log('bye');
             scope.isotope.remove(des[0]);
             return scope.isotope.layout();
           });
@@ -20,7 +19,6 @@ x$.directive('isotope', function(){
       } else {
         scope.isotope.appended(e[0].parentNode.parentNode.parentNode);
         return scope.$on('$destroy', function(){
-          console.log('bye');
           scope.isotope.remove(e[0].parentNode.parentNode.parentNode);
           return scope.isotope.layout();
         });
@@ -242,8 +240,10 @@ x$.controller('main', ['$scope', '$interval', '$timeout', '$http', 'context'].co
         "Content-Type": undefined
       }
     }).success(function(d){
+      console.log(d);
       return finish(true);
     }).error(function(e){
+      console.log(e);
       return finish(false);
     });
   };

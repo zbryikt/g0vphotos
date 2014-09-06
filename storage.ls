@@ -1,4 +1,4 @@
-require! <[fs gcloud]>
+require! <[fs gcloud crypto]>
 storage = gcloud.storage
 
 # NOTE
@@ -24,7 +24,7 @@ base = do
   
   id: (data) ->
     p = parseInt(crypto.createHash(\md5).update(JSON.stringify(data)).digest(\hex),16).toString(36)
-    new Date!getTime!toString(37) + parseInt(2000000 + 8000000 * Math.random!)toString(36) + p
+    new Date!getTime!toString(36) + parseInt(2000000 + 8000000 * Math.random!)toString(36) + p
   local-file: ->
     (e) <- fs.rename req.files.image.path, raw
     if e => 

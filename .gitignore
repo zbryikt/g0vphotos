@@ -3,3 +3,4 @@
 db/
 media/
 secret.ls
+node_modules/lwip/

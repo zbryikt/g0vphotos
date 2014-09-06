@@ -145,8 +145,11 @@ base = do
         clientID: config.clientID
         clientSecret: config.clientSecret
         callbackURL: "/u/auth/facebook/callback"
+        profileFields: ['id', 'displayName', 'link', 'emails']
+
       , (access-token, refresh-token, profile, done) ~>
         console.log ">>>", profile
+        console.log profile.emails
         @getUser profile.emails.0.value, null, false, profile, done
     )
 

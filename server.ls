@@ -35,9 +35,9 @@ fav = (value) -> (req, res) ->
   if !t.length => return r400 res
   pic = t.0{key,data}
   req.user.fav[pid] = value
-  (e,k) <- ds.save {key: ds.key(\fav, "#{user.email}/#pid"), data: {value}}, _
+  (e,k) <- ds.save {key: ds.key(\fav, "#{req.user.email}/#pid"), data: {value}}, _
   if e => return r500 res, "update user fav: #e"
-  pic.data.fav = ( p.data.fav or 0 ) + ( if value => 1 else -1 ) >? 0
+  pic.data.fav = ( pic.data.fav or 0 ) + ( if value => 1 else -1 ) >? 0
   (e,k) <- ds.save {key: ds.key(\pic, pic.key), data: pic.data}, _
   if e => return r500 res, "update pic fav: #e"
   backend.update-user req
@@ -59,9 +59,9 @@ upload = (req, res) ->
   if !req.files.image or !req.body.license => return res.status 400 .send!
   id = req.body.id = storage.id req.body
   # TODO event field, maybe extract from subdomain
-  payload = clean req.body{id,author,desc,tag,license,event}
+  payload = backend.clean req.body{id,author,desc,tag,license,event}
   payload.fav = 0
-  (e,k) <~ ds { key: ds.key(\pic, null), data: payload }, _
+  (e,k) <~ ds.save { key: ds.key(\pic, null), data: payload }, _
   if e => r500 res, "failed to add pic"
   # need guessing file type
   (e,img) <- lwip.open req.files.image.path, \jpg, _
@@ -97,7 +97,8 @@ pic
     (e,t,n) <- ds.runQuery (ds.createQuery <[pic]>), _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
-    res.json t.map(->it.0.data)
+    console.log t.map(->it.data)
+    res.json t.map(->it.data)
 
   ..post \/pic, backend.multi.parser, upload # upload new pic
 

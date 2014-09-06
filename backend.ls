@@ -85,7 +85,7 @@ base = do
     clientID: \252332158147402
     clientSecret: \763c2bf3a2a48f4d1ae0c6fdc2795ce6
     session-secret: \featureisameasurableproperty
-    url: \http://localhost/
+    url: \http://g0v.photos/
     name: \servlet
     mongodbUrl: \mongodb://localhost/
     port: \9000
@@ -144,7 +144,7 @@ base = do
       do
         clientID: config.clientID
         clientSecret: config.clientSecret
-        callbackURL: "#{config.url}u/auth/facebook/callback"
+        callbackURL: "/u/auth/facebook/callback"
       , (access-token, refresh-token, profile, done) ~>
         console.log ">>>", profile
         @getUser profile.emails.0.value, null, false, profile, done
@@ -196,7 +196,9 @@ base = do
         if cb => cb req, res, next
         @clean req, res, next
 
-    dataset = new datastore.Dataset {} <<< config.{}gcs{projectId, keyFilename}
+    c = {} <<< config.{}gcs{projectId}
+    if config.{}gcs.keyFilename and fs.exists-sync(config.gcs.keyFilename) => c.keyFilename = config.gcs.keyFilename
+    dataset = new datastore.Dataset c
 
     @watch!
     @ <<< {config, app, express, router, postman, multi, dataset}

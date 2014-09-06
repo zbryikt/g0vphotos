@@ -1,7 +1,7 @@
 require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
-require! <[./backend ./storage]>
+require! <[./backend ./storage ./secret]> 
 
 r500 = (res, error) -> 
   console.log "[ERROR] #error"
@@ -18,6 +18,7 @@ ds = {}
   if !fs.exists-sync it => fs.mkdir-sync it
 
 config = debug: true, name: \g0vphotos
+config <<< secret.config{clientID, clientSecret}
 
 backend.init config
 

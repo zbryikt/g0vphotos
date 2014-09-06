@@ -120,17 +120,17 @@ html(lang="en")
           #upload-canvas.default-height(ng-class="{'default-height': !chosen}")
           input#file(type="file",name="file")
 
-      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}",ng-class="{'fav': user.fav[item._id] && user}"): .ib
-        a(href="/s/pic/{{item._id}}",target="_blank"): img(ng-attr-src="//thumb.g0v.photos/{{item._id}}",isotope)
+      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}",ng-class="{'fav': user.fav[item.id] && user}"): .ib
+        a(href="/s/pic/{{item.id}}",target="_blank"): img(ng-attr-src="//thumb.g0v.photos/{{item.id}}",isotope)
         .action
-          .fav(ng-show="user",ng-click="fav($event, item._id)")
-            i.glyphicon.glyphicon-heart-empty(ng-show="!user.fav[item._id]")
-            i.glyphicon.glyphicon-heart(ng-show="user.fav[item._id] && user")
-          .share(ng-click="sharePopover($event,item._id)")
+          .fav(ng-show="user",ng-click="fav($event, item.id)")
+            i.glyphicon.glyphicon-heart-empty(ng-show="!user.fav[item.id]")
+            i.glyphicon.glyphicon-heart(ng-show="user.fav[item.id] && user")
+          .share(ng-click="sharePopover($event,item.id)")
             i.glyphicon.glyphicon-share-alt
         .desc 
           | {{item.desc}} by {{item.author || "anonymous"}} @ {{item.license || "Public Domain"}} / 
-          a(href="http://raw.g0v.photos/{{item._id}}") 原圖
+          a(href="http://raw.g0v.photos/{{item.id}}") 原圖
       .clearfix
     #share-popover
       | 分享連結: 

@@ -29,30 +29,24 @@ backend.app.use \/s, pic
 fav = (value) -> (req, res) ->
   pid = req.params.id
   if !req.user => return r403 res
-  if !!req.user.{}fav[pic] == value => return res.send!
+  if !!req.user.{}fav[pid] == value => return res.send!
   (e,t,n) <- ds.runQuery (ds.createQuery <[pic]> .filter "id =", pid), _
   if e => return r500 res, "looking for pic id = #pid: #e"
   if !t.length => return r400 res
   pic = t.0{key,data}
-  req.user.fav[pid] = value
-  (e,k) <- ds.save {key: ds.key(\fav, "#{req.user.email}/#pid"), data: {value}}, _
-  if e => return r500 res, "update user fav: #e"
-  pic.data.fav = ( pic.data.fav or 0 ) + ( if value => 1 else -1 ) >? 0
-  (e,k) <- ds.save {key: ds.key(\pic, pic.key), data: pic.data}, _
-  if e => return r500 res, "update pic fav: #e"
-  backend.update-user req
-  r200 res
-  #(e,p) <- dbc.pic.findOne {_id: OID(req.params.id)}
-  #if !p => return r400 res
-  #req.user.{}fav[req.params.id] = value
-  #(e,r) <- dbc.user.update {_id: OID(req.user._id)}, {$set: {"fav.#{req.params.id}": value}}, {w:1}
-  #if !r => return r500(res, "failed to update user fav list: #e")
-  #p.fav = ( p.fav or 0 ) + ( if value => 1 else -1 ) >? 0
-  #(e,r) <- dbc.pic.update {_id: OID(req.params.id)}, {$set:{fav:p.fav}}, {w:1}
-  #if !r => return r500(res, "failed to update pic fav count")
-  #(e,r) <- dbc.user.findOne {_id: OID(req.user._id)}
-  #backend.update-user req
-  #r200 res
+  if value => req.user.fav[pid] = value
+  else delete req.user.fav[pid]
+
+  cb = (e,k) ->
+    if e => return r500 res, "update user fav: #e"
+    pic.data.fav = ( pic.data.fav or 0 ) + ( if value => 1 else -1 ) >? 0
+    (e,k) <- ds.save {key: pic.key, data: pic.data}, _
+    if e => return r500 res, "update pic fav: #e"
+    backend.update-user req
+    r200 res
+
+  if value => ds.save {key: ds.key(\fav, "#{req.user.email}/#pid"), data: {value}}, cb
+  else => ds.delete ds.key(\fav, "#{req.user.email}/#pid"), cb
 
 upload = (req, res) ->
   #TODO validation, preventing SQL injection
@@ -97,7 +91,6 @@ pic
     (e,t,n) <- ds.runQuery (ds.createQuery <[pic]>), _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
-    console.log t.map(->it.data)
     res.json t.map(->it.data)
 
   ..post \/pic, backend.multi.parser, upload # upload new pic

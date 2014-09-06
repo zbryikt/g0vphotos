@@ -58,7 +58,7 @@ html(lang="en")
     .row.detail
       .col-sm-7
         .photo
-          img(src="//medium.g0v.photos/#{pic._id}")
+          img(src="//medium.g0v.photos/#{pic.id}")
       .col-sm-5
         .quote-mark
         .quote
@@ -78,10 +78,10 @@ html(lang="en")
           .item.like: a(ng-click="toggleLike()")
             i.glyphicon(ng-class="{'glyphicon-heart':like,'glyphicon-heart-empty':!like}")
             |  喜歡
-          .item: a(href="http://g0v.photos/s/#{pid}")
+          .item: a(href="http://g0v.photos/s/#{pic.id}")
             i.glyphicon.glyphicon-link
             |  連結
-          .item: a(href="http://raw.g0v.photos/#{pid}")
+          .item: a(href="http://raw.g0v.photos/#{pic.id}")
             i.glyphicon.glyphicon-save
             |  下載原始大小
     #footer

@@ -148,8 +148,6 @@ base = do
         profileFields: ['id', 'displayName', 'link', 'emails']
 
       , (access-token, refresh-token, profile, done) ~>
-        console.log ">>>", profile
-        console.log profile.emails
         @getUser profile.emails.0.value, null, false, profile, done
     )
 
@@ -184,7 +182,7 @@ base = do
       ..get \/logout, (req, res) ->
         req.logout!
         res.redirect \/
-      ..get \/auth/facebook, passport.authenticate \facebook
+      ..get \/auth/facebook, passport.authenticate \facebook, {scope: ['email']}
       ..get \/auth/facebook/callback, passport.authenticate \facebook, do
         successRedirect: \/
         failureRedirect: \/u/403

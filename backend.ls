@@ -1,8 +1,9 @@
 require! <[fs path child_process express mongodb body-parser crypto chokidar]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport LiveScript]>
-require! <[connect-multiparty]>
+require! <[connect-multiparty gcloud]>
 
+datastore = gcloud.datastore
 RegExp.escape = -> it.replace /[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"
 
 ls   = if fs.existsSync v=\node_modules/.bin/livescript => v else \livescript
@@ -53,6 +54,12 @@ ftype = ->
   | otherwise => "other"
 
 base = do
+  clean: (obj) ->
+    for k,v of obj =>
+      if !v => delete obj[k]
+      if typeof(v)=='object' => @clean v
+    obj
+
   authorized: (cb) -> (req, res) ->
     if not (req.user and req.user.isStaff) => return res.status(403).render('403', {url: req.originalUrl})
     cb req, res
@@ -84,6 +91,9 @@ base = do
     port: \9000
     debug: true
     limit: '20mb'
+    gcs: do
+      projectId: \keen-optics-617
+      keyFilename: \/Users/tkirby/.ssh/google/g0vphotos/key.json
     mail: do
       host: \box590.bluehost.com
       port: 465
@@ -93,17 +103,27 @@ base = do
       auth: {user: 'noreply@g0v.photos', pass: ''}
 
   getUser: (u, p, usepasswd, detail, done) ->
-    if usepasswd => p = crypto.createHash(\md5).update(p).digest(\hex)
-    (e,r) <- base.cols.user.findOne {email: u}
-    if !r =>
+    p = if usepasswd => crypto.createHash(\md5).update(p).digest(\hex) else ""
+    (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[user]> .filter "email =", u), _
+    if !t.length =>
       name = if detail => detail.displayName or detail.username else u.replace(/@.+$/, "")
+      @clean detail
       user = {email: u, passwd: p, usepasswd, name, detail}
-      (e,r) <- base.cols.user.insert user, {w: 1}
-      if !r => return done {server: "failed to create user"}, false
+      (e,k) <~ @dataset.save { key: @dataset.key(\user, null), data: user}, _
+      if e => return done {server: "failed to create user"}, false
+      delete user.passwd
+      user.fav = {}
       return done null, user
     else
-      if !usepasswd or r.passwd == p => return done null, r
-      done null, false
+      user = t.0.data
+      if (usepasswd or user.usepasswd) and user.passwd != p => return done null, false
+      delete user.passwd
+      (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[fav]> .filter "email =", u), _
+      if e => return done null, false
+      user.fav = {}
+      # TODO handle next / pagination if necessaary
+      t.map -> user.fav[it.data.pic] = true
+      return done null, user
 
   init: (config) ->
     config = {} <<< @config! <<< config
@@ -126,6 +146,7 @@ base = do
         clientSecret: config.clientSecret
         callbackURL: "#{config.url}u/auth/facebook/callback"
       , (access-token, refresh-token, profile, done) ~>
+        console.log ">>>", profile
         @getUser profile.emails.0.value, null, false, profile, done
     )
 
@@ -175,8 +196,10 @@ base = do
         if cb => cb req, res, next
         @clean req, res, next
 
+    dataset = new datastore.Dataset {} <<< config.{}gcs{projectId, keyFilename}
+
     @watch!
-    @ <<< {config, app, express, router, postman, multi}
+    @ <<< {config, app, express, router, postman, multi, dataset}
 
   start: (cb) ->
 

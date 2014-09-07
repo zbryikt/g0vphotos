@@ -147,12 +147,12 @@ base = do
   getEvent: (req, cb) ->
     part = req.headers.host.split \.
     event = if part.length > 2 => part.0 else ""
-    if !event => return cb null, ""
-    if @events[event] => return cb null, event
+    if !event => return cb null, "", {}
+    if @events[event] => return cb null, event, @events[event]
     (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[event]> .filter "event =", event), _
-    if e or !t or t.length==0 => return cb true, null
-    @events[event] = true
-    cb null, event
+    if e or !t or t.length==0 => return cb true, null, {}
+    @events[event] = obj = t.0.data
+    cb null, event, obj
 
   init: (config) ->
     config = {} <<< @config! <<< config
@@ -160,9 +160,9 @@ base = do
     app.use body-parser.json limit: config.limit
     app.use body-parser.urlencoded extended: true, limit: config.limit
     app.use (req, res, next) ~> # retrieve subdomain
-      (error, event) <- @getEvent req, _
+      (error, event, obj) <- @getEvent req, _
       if error or !event => return next!
-      req.event = event
+      req.event = {name: event, data: obj}
       next!
     app.set 'view engine', 'jade'
     app.engine \ls, lsc

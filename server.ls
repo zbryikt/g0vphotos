@@ -54,7 +54,7 @@ upload = (req, res) ->
   id = req.body.id = storage.id req.body
   # TODO event field, maybe extract from subdomain
   payload = backend.clean req.body{id,author,desc,tag,license,event}
-  if req.event and !payload.event => payload.event = req.event
+  if req.event.name and !payload.event => payload.event = req.event.name
   payload.fav = 0
   payload.create_date = new Date!
   (e,k) <~ ds.save { key: ds.key(\pic, null), data: payload }, _
@@ -91,7 +91,7 @@ pic
   ..get \/pic, (req, res) -> # get all site pic list
     # TODO need pagination
     query = ds.createQuery <[pic]> 
-    #if req.event => query = query.filter "event =", req.event
+    #if req.event.name => query = query.filter "event =", req.event.name
     query = query.order \-create_date .limit 100
     offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
     if offset => query = query.offset offset
@@ -100,7 +100,7 @@ pic
     if !t or !t.length => return r404 res
     if !n => return res.json { data: t.map(->it.data)}
     next = if t.length < 100 => -1 else (t.length + offset) 
-    if req.event => t = t.filter -> it.data.event == req.event
+    if req.event.name => t = t.filter -> it.data.event == req.event.name
     res.json {next, data: t.map(->it.data)}
 
   ..post \/pic, backend.multi.parser, upload # upload new pic
@@ -147,7 +147,7 @@ pic
     upload req, res
 
 backend.app
-  ..get \/context, (req, res) -> res.render \backend.ls, {user: req.user}
+  ..get \/context, (req, res) -> res.render \backend.ls, {user: req.user, event: req.{}event.data}
 
 backend.app
   ..get \/, (req, res) -> 

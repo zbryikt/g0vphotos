@@ -90,15 +90,18 @@ backend.router.user
 pic
   ..get \/pic, (req, res) -> # get all site pic list
     # TODO need pagination
-    query = ds.createQuery <[pic]> .order \-create_date .limit 100
-    if req.event => query = query.filter "event =", req.event
+    query = ds.createQuery <[pic]> 
+    #if req.event => query = query.filter "event =", req.event
+    query = query.order \-create_date .limit 100
     offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
     if offset => query = query.offset offset
     (e,t,n) <- ds.runQuery query, _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
     if !n => return res.json { data: t.map(->it.data)}
-    res.json {next: if t.length < 100 => -1 else (t.length + (offset)), data: t.map(->it.data)}
+    next = if t.length < 100 => -1 else (t.length + offset) 
+    if req.event => t = t.filter -> it.data.event == req.event
+    res.json {next, data: t.map(->it.data)}
 
   ..post \/pic, backend.multi.parser, upload # upload new pic
 
@@ -120,6 +123,25 @@ pic
     if !t or !t.length => return r404 res
     res.json t.map(-> it.data)
 
+  ..post \/set/new/, backend.multi.parser, (req, res) ->
+    if !req.files.image or !/^[a-zA-Z0-9]{3,11}/.exec(req.body.event) => return r500 res, "incorrect data"
+    if !req.body.name or !req.body.desc => return r500 res, "incorrect data"
+    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.body.event), _
+    if e => return r500 res, "failed to query event"
+    if t and t.length => return r400 res
+    (e,img) <- lwip.open req.files.image.path, \jpg, _
+    if e => 
+      console.log "[ERROR] #e"
+      return r500 res, "failed to read img file"
+    (e,b) <- img.toBuffer \jpg, _
+    if e => return r500 res, "failed to get img buffer"
+    (e) <- storage.write \img, "event/#{req.body.event}", b, _
+    if e => return r500 res, "failed to write img to storage: #e"
+    (e,k) <- ds.save {key: ds.key(\event,null), data: req.body}, _
+    if e => return r500 res, "failed to insert event information"
+    res.send!
+    backend.multi.clean req, res
+
   ..post \/set/:id, (req, res) -> 
     req.body.event = req.params.id
     upload req, res
@@ -128,7 +150,10 @@ backend.app
   ..get \/context, (req, res) -> res.render \backend.ls, {user: req.user}
 
 backend.app
-  ..get \/, (req, res) -> res.render \index.jade
+  ..get \/, (req, res) -> 
+    (err, event) <- backend.getEvent req, _
+    if err => return r404 res
+    res.render \index.jade
   ..get \/set/new/, (req, res) -> res.render \newset.jade
 backend.start ({db, server, cols})->
   ds := backend.dataset

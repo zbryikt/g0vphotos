@@ -10,7 +10,7 @@ storage = gcloud.storage
 
 KEYFILE = \/Users/tkirby/.ssh/google/g0vphotos/key.json
 bucket = {}
-<[raw medium thumb]>map ->
+<[raw medium thumb img]>map ->
   config = {bucketName: "#it.g0v.photos"}
   if fs.exists-sync KEYFILE => config = config <<< {keyFilename: KEYFILE}
   bucket[it] = new storage.Bucket config

@@ -20,7 +20,7 @@ html(lang="en")
     script(type="text/javascript",src="#{assets}/misc/jquery.sticky.js")
     script(type="text/javascript",src="/js/index.js")
     script(type="text/javascript",src="/context")
-  body(ng-app="main",ng-controller="main")
+  body(ng-app="main",ng-controller="newset")
     #fb-root
     script.
       window.fbAsyncInit = function() {
@@ -70,4 +70,34 @@ html(lang="en")
             li: a(ng-click="logout()") 臉書登出
         a.item(href="#",ng-click="gotop()") 回頁首
       a.item.logo(href="#"): img(src="/img/logo.gif")
-    br(style="clear:both")
+    #content
+      #newset
+        #newset-banner
+          p.text-center: big 想要有一個專用的照片流是嗎？
+          h2.text-center 建立活動專頁
+      br
+      br
+      form#newsetform(name="newsetform",style="width:70%;margin:auto",novalidate)
+        .row
+          .col-sm-6
+            .form-group(ng-class="fix('name')")
+              label.control-label.text-right
+                | 活動名稱
+                small ( 大標題顯示於頁首 )
+              input.form-control(type="text",name="name",ng-model="set.name",placeholder="例如: 零時政府第十次黑客松",required)
+          .col-sm-6
+            .form-group(ng-class="fix('event')")
+              label.control-label.text-right
+                | 活動短名
+                small ( 網址用，只使用字母與數字 )
+              input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required)
+        .form-group(ng-class="fix('desc')")
+          label.control-label.text-right 活動副標
+          input.form-control(type="text",name="desc",ng-model="set.desc",placeholder="例如: 大家趕快來上傳照片吧！",required)
+        .form-group(ng-class="fix('image')")
+          label.control-label.text-right 主頁圖片
+          input.form-control#setimage(type="file",name="image",ng-model="set.image",required)
+        hr
+        .row
+          .col-sm-6: .btn.btn-block.btn-success(ng-click="submit()") 建立
+          .col-sm-6: a.btn.btn-block.btn-default(href="//g0v.photos") 取消

@@ -66,6 +66,7 @@ angular.module \main <[backend]>
       .success (data) -> 
         if !$scope.list => $scope.list = []
         d = data.data
+        console.log data
         $scope.page.next = data.next
         blah = $interval ->
           if d.length == 0 => 
@@ -199,3 +200,25 @@ angular.module \main <[backend]>
     $(\#attributions)popover!
     setTimeout (-> $(\#menu)sticky topSpacing: 0), 0
     $scope.refresh!
+  ..controller \newset, <[$scope $http]> ++ ($scope, $http) ->
+    $scope.set = {}
+    $scope.need-fix = false
+    $scope.fix = (name) -> 
+      if $scope.need-fix and $scope.newsetform.{}[name].$invalid => "has-error" else ""
+    $scope.submit = ->
+      if !(/^[a-zA-Z0-9]{3,11}$/.exec($scope.set.event)) =>
+        $scope.newsetform.event.$setValidity "illegal", false
+      $scope.need-fix = $scope.newsetform.$invalid
+      if $scope.need-fix => return
+      fd = new FormData!
+      image = $(\#setimage).0
+      <[name desc event]>.map -> fd.append it, $scope.set[it]
+      fd.append \image, image.files.0
+      $http do
+        url: \/s/set/new/
+        method: \POST
+        data: fd
+        transformRequest: angular.identity
+        headers: "Content-Type": undefined
+      .success (d) -> #window.location.href = "//#{$scope.set.event}.g0v.photos/"
+      .error (e) -> console.error e

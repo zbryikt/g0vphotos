@@ -143,14 +143,26 @@ base = do
       t.map -> user.fav[it.data.pic] = true
       return done null, user
 
+  events: {}
+  getEvent: (req, cb) ->
+    part = req.headers.host.split \.
+    event = if part.length > 2 => part.0 else ""
+    if !event => return cb null, ""
+    if @events[event] => return cb null, event
+    (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[event]> .filter "event =", event), _
+    if e or !t or t.length==0 => return cb true, null
+    @events[event] = true
+    cb null, event
+
   init: (config) ->
     config = {} <<< @config! <<< config
     app = express!
     app.use body-parser.json limit: config.limit
     app.use body-parser.urlencoded extended: true, limit: config.limit
-    app.use (req, res, next) -> # retrieve subdomain
-      part = req.headers.host.split \.
-      if part.length > 2 => req.event = part.0
+    app.use (req, res, next) ~> # retrieve subdomain
+      (error, event) <- @getEvent req, _
+      if error or !event => return next!
+      req.event = event
       next!
     app.set 'view engine', 'jade'
     app.engine \ls, lsc

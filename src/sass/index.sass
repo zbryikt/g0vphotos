@@ -143,6 +143,19 @@ body
     background-position: center center
     box-shadow: 0 0 5px rgba(0,0,0,0.2)
     @include transition(all 1s ease-out)
+  .headline-bk
+    position: absolute
+    z-index: 0
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background-attachment: fixed
+    background-size: cover
+    background-position: center center
+  .headline-text
+    position: relative
+    z-index: 1
   .title.active, .subtitle.active
     opacity: 1
   #headline.active

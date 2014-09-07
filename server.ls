@@ -89,8 +89,8 @@ backend.router.user
 pic
   ..get \/pic, (req, res) -> # get all site pic list
     # TODO need pagination
-    query = ds.createQuery <[pic]>
-      .filter "event =", req.event if req.event
+    query = if req.event => ds.createQuery <[pic]> .filter "event =", req.event
+    else ds.createQuery <[pic]>
     (e,t,n) <- ds.runQuery query, _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
@@ -108,7 +108,10 @@ pic
 
   ..get \/set/:id, (req, res) ->
     # need pagination
-    (e,t,n) <- ds.runQuery (ds.createQuery <[pic]> .filter "event =", req.params.id), _
+    query = if req.params.id => ds.createQuery <[pic]> .filter "event =", req.params.id
+    else ds.createQuery <[pic]>
+    #(e,t,n) <- ds.runQuery (ds.createQuery <[pic]> .filter "event =", req.params.id), _
+    (e,t,n) <- ds.runQuery query, _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
     res.json t.map(-> it.data)

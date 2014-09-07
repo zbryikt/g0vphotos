@@ -129,6 +129,6 @@ backend.app
 
 backend.app
   ..get \/, (req, res) -> res.render \index.jade
-
+  ..get \/set/new/, (req, res) -> res.render \newset.jade
 backend.start ({db, server, cols})->
   ds := backend.dataset

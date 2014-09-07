@@ -58,6 +58,8 @@ html(lang="en")
           li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
           li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
           li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
+      a.item(href="//h9n.g0v.photos") 第九次黑客松
+      a.item(href="//h10n.g0v.photos") 第十次黑客松
       a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
       a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
         
@@ -127,7 +129,7 @@ html(lang="en")
           br
           .tag: .text {{item.license || "Public Domain"}}
 
-        a(href="/s/pic/{{item.id}}",target="_blank"): img(ng-attr-src="//thumb.g0v.photos/{{item.id}}",isotope)
+        a.img(href="/s/pic/{{item.id}}",target="_blank"): img(ng-attr-src="//thumb.g0v.photos/{{item.id}}",isotope)
         .action
           .fav(ng-show="user",ng-click="fav($event, item.id)")
             i.glyphicon.glyphicon-heart-empty(ng-show="!user.fav[item.id]")

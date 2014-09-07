@@ -1,0 +1,73 @@
+doctype html
+//- basic libraries: jquery(1.10.2), d3js(3.3.11), angularjs(1.2.3), bootstrap(3.0)/semantic-ui(0.9.3/0.9.5)
+- var usecdn = false
+- var useog = false
+- var lib = { jquery: true, d3js: false, angular: true, bootstrap: true, semantic: false }
+- var assets = "/assets"
+- var thumbnail = "http://dummy.thumbnail"
+html(lang="en")
+  head(prefix="og: http://ogp.me/ns#")
+    include fbhash.jade
+    meta(charset="utf-8")
+    meta(name="viewport",content="initial-scale=1, maximum-scale=1,width=780")
+    title 自己的活動自己拍 - g0v hackath10n photo stream
+    // libraries
+    include library.jade
+    // custom files
+    link(rel="icon",type="image/gif",href="/favicon.png")
+    link(rel="stylesheet",type="text/css",href="/css/index.css")
+    script(type="text/javascript",src="#{assets}/isotope/isotope.pkgd.min.js")
+    script(type="text/javascript",src="#{assets}/misc/jquery.sticky.js")
+    script(type="text/javascript",src="/js/index.js")
+    script(type="text/javascript",src="/context")
+  body(ng-app="main",ng-controller="main")
+    #fb-root
+    script.
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '250121128521928',
+          xfbml      : true,
+          version    : 'v2.0'
+        });
+        //angular.element("body").scope().fbready(window.fbready = true);
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
+    #menu
+      a.item(href="http://g0v.photos") g0v.photos
+      .dropdown.item
+        a.dropdown-toggle(href="#",data-toggle="dropdown")
+          | 零時政府 
+          i.glyphicon.glyphicon-chevron-down
+        ul.dropdown-menu
+          li: a(href="http://g0v.tw",target="_blank") 官方網站
+          li: a(href="http://hack.g0v.tw",target="_blank") 協作平台
+          li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
+          li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
+          li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
+      a.item(href="//h9n.g0v.photos") 第九次黑客松
+      a.item(href="//h10n.g0v.photos") 第十次黑客松
+      a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
+      a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
+        
+      .pull-right
+        a.item(href="/u/auth/facebook",ng-show="!user") 臉書登入
+        //-a.item(ng-click="login()",ng-show="!user") 登入
+        .dropdown.profile.item(ng-show="user")
+          a.dropdown-toggle(href="#",data-toggle="dropdown")
+            img(ng-attr-src="http://graph.facebook.com/{{user.detail.id}}/picture",ng-if="user")
+            | {{user.name}} 
+            i.glyphicon.glyphicon-chevron-down
+          ul.dropdown-menu
+            li: a 設定
+            li: a(ng-click="logout()") 臉書登出
+        a.item(href="#",ng-click="gotop()") 回頁首
+      a.item.logo(href="#"): img(src="/img/logo.gif")
+    br(style="clear:both")

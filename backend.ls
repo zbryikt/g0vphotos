@@ -57,7 +57,7 @@ session-store = (ds) -> @ <<<
   ds: ds
   get: (sid, cb) ->
     (e,t,n) <- @ds.runQuery (@ds.createQuery <[session]> .filter "__key__ =", @ds.key(\session, sid)), _
-    if !e and t.length => session = JSON.parse(new Buffer(t.0.data.session, \base64).toString \utf8)
+    if !e and t and t.length => session = JSON.parse(new Buffer(t.0.data.session, \base64).toString \utf8)
     else => session = null
     if cb => cb e, session
   set: (sid, session, cb) ->

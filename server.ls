@@ -64,8 +64,8 @@ upload = (req, res) ->
     console.log "[ERROR] #e"
     return r500 res, "failed to read img file"
   [w,h] = [img.width!, img.height!]
-  [w1,h1] = [1000, h * 1000 / w]
-  [w2,h2] = [500, h * 500 / w]
+  [w1,h1] = if w > h => [960, h * 960 / w] else [w * 718 / h, 718]
+  [w2,h2] = [480, h * 480 / w]
   (e,b) <- img.toBuffer \jpg, _
   if e => return r500 res, "failed to get img buffer"
   (e1) <- storage.write \raw, id, b, _

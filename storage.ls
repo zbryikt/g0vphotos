@@ -23,8 +23,11 @@ base = do
     }, (e) -> cb e
   
   id: (data) ->
-    p = parseInt(crypto.createHash(\md5).update(JSON.stringify(data)).digest(\hex),16).toString(36)
-    new Date!getTime!toString(36) + parseInt(2000000 + 8000000 * Math.random!)toString(36) + p
+    md5 = parseInt(crypto.createHash(\md5).update(JSON.stringify(data)).digest(\hex),16)
+    now = new Date!getTime!
+    rnd = parseInt(Math.random! * 1000000)
+    [now,rnd,md5]map(-> it.toString 36)join ""
+
   local-file: ->
     (e) <- fs.rename req.files.image.path, raw
     if e => 

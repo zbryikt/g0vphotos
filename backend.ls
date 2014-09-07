@@ -257,7 +257,8 @@ base = do
     watcher = chokidar.watch @watch-path, ignored: (~> @ignore-func it), persistent: true
       .on \add, @watch-handler
       .on \change, @watch-handler
-  watch-handler: ->
+  watch-handler: (it) -> 
+    (x) <- setTimeout _, 100
     src = if it.0 != \/ => path.join(cwd,it) else it
     src = src.replace path.join(cwd,\/), ""
     [type,cmd,dess] = [ftype(src), "",[]]

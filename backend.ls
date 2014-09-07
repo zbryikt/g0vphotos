@@ -53,11 +53,27 @@ ftype = ->
   | /\.jade$/.exec it => "jade"
   | otherwise => "other"
 
+session-store = (ds) -> @ <<<
+  ds: ds
+  get: (sid, cb) ->
+    (e,t,n) <- @ds.runQuery (@ds.createQuery <[session]> .filter "__key__ =", @ds.key(\session, sid)), _
+    if t.length => session = JSON.parse(new Buffer(t.0.data.session, \base64).toString \utf8)
+    else => session = null
+    if cb => cb e, session
+  set: (sid, session, cb) ->
+    session = new Buffer(JSON.stringify session).toString \base64
+    @ds.save {key: @ds.key(\session, sid), data: {session}}, (e,k) -> if cb => cb e
+  destroy: (sid, cb) ->
+    @ds.delete @ds.key(\session, sid), (e) -> if cb => cb e
+session-store.prototype = express-session.Store.prototype
+
 base = do
   clean: (obj) ->
     for k,v of obj =>
-      if !v => delete obj[k]
-      if typeof(v)=='object' => @clean v
+      if typeof(v)=='object' => 
+        @clean v
+        if [k for k of v]length == 0 => delete obj[k]
+      else if v==undefined or v==null => delete obj[k]
     obj
 
   authorized: (cb) -> (req, res) ->
@@ -91,6 +107,8 @@ base = do
     port: \9000
     debug: true
     limit: '20mb'
+    cookie: do
+      domain: \.g0v.photos
     gcs: do
       projectId: \keen-optics-617
       keyFilename: \/Users/tkirby/.ssh/google/g0vphotos/key.json
@@ -130,6 +148,10 @@ base = do
     app = express!
     app.use body-parser.json limit: config.limit
     app.use body-parser.urlencoded extended: true, limit: config.limit
+    app.use (req, res, next) -> # retrieve subdomain
+      part = req.headers.host.split \.
+      if part.length > 2 => req.event = part.0
+      next!
     app.set 'view engine', 'jade'
     app.engine \ls, lsc
     app.use \/, express.static("#__dirname/static")
@@ -146,12 +168,25 @@ base = do
         clientSecret: config.clientSecret
         callbackURL: "/u/auth/facebook/callback"
         profileFields: ['id', 'displayName', 'link', 'emails']
-
       , (access-token, refresh-token, profile, done) ~>
         @getUser profile.emails.0.value, null, false, profile, done
     )
 
-    app.use express-session secret: config.session-secret, resave: false, saveUninitialized: false
+    c = {} <<< config.{}gcs{projectId}
+    if config.{}gcs.keyFilename and fs.exists-sync(config.gcs.keyFilename) => c.keyFilename = config.gcs.keyFilename
+    dataset = new datastore.Dataset c
+
+    app.use express-session do
+      secret: config.session-secret
+      resave: true
+      saveUninitialized: true
+      store: new session-store dataset
+      cookie: do
+        #secure: true # TODO: https. also need to dinstinguish production/staging
+        path: \/
+        httpOnly: true
+        maxAge: 86400000 * 30 * 12 
+        domain: config.cookie.domain if config.{}cookie.domain
     app.use passport.initialize!
     app.use passport.session!
 
@@ -196,10 +231,6 @@ base = do
       cleaner: (cb) -> (req, res, next) ~>
         if cb => cb req, res, next
         @clean req, res, next
-
-    c = {} <<< config.{}gcs{projectId}
-    if config.{}gcs.keyFilename and fs.exists-sync(config.gcs.keyFilename) => c.keyFilename = config.gcs.keyFilename
-    dataset = new datastore.Dataset c
 
     @watch!
     @ <<< {config, app, express, router, postman, multi, dataset}

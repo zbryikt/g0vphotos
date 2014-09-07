@@ -44,7 +44,7 @@ html(lang="en")
       .bk(ng-class="bkno")
       #headline(ng-class="[{'active':hlActive},bkno]")
         .title(ng-class="{'active':hlActive}") 自己的活動自己拍
-        .subtitle(ng-class="{'active':hlActive}") g0v hackath10n photo stream
+        .subtitle(ng-class="{'active':hlActive}") 您在線上的活動照片串流平台
    
     #menu
       a.item(href="http://g0v.photos") g0v.photos
@@ -115,13 +115,13 @@ html(lang="en")
           .btn.btn-default(ng-click="cancel()",ng-disabled="uploading") 取消
 
     .layout#layout
-      div.thumbnail.upload.fav(data-order="0"): .ib
+      div.thumbnail.upload.fav(data-order="9999999"): .ib
         form#fileform.ib2(action="/s/pic",method="POST",enctype="multipart/form-data")
           .img(ng-show="!chosen")
           #upload-canvas.default-height(ng-class="{'default-height': !chosen}")
           input#file(type="file",name="file")
 
-      div.thumbnail(ng-repeat="item in list",data-order="{{item.order}}",ng-class="{'fav': user.fav[item.id] && user}"): .ib
+      div.thumbnail(ng-repeat="item in list",data-order="{{item.create_date}}",ng-class="{'fav': user.fav[item.id] && user}"): .ib
         a(href="/s/pic/{{item.id}}",target="_blank"): img(ng-attr-src="//thumb.g0v.photos/{{item.id}}",isotope)
         .action
           .fav(ng-show="user",ng-click="fav($event, item.id)")

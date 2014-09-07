@@ -31,6 +31,10 @@ angular.module \main <[backend]>
       hlActive: true
       uploading: false
       initlayout: false
+      downloading: false
+      list: []
+      page: do
+        next: 0
       img: do
         chosen: false
         raw: null
@@ -43,6 +47,7 @@ angular.module \main <[backend]>
         layoutMode: \masonry
         getSortData: weight: '[data-order]'
         sortBy: 'weight'
+        sortAscending: false
     $scope.init-isotope!
     $scope.img.rawReader = new FileReader!
     $scope.img.rawReader.onload = -> $scope.$apply ~> $scope.img.raw = new Uint8Array @result
@@ -53,14 +58,19 @@ angular.module \main <[backend]>
     $scope.$watch 'cc', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.$watch 'author', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.refresh = ->
+      $scope.downloading = true
+      if $scope.page.next == -1 => return
       $http do
-        url: \/s/pic/
+        url: "/s/pic?#{if $scope.page.next => 'next='+$scope.page.next else ''}"
         method: \GET
-      .success (d) -> 
-        $scope.list = []
+      .success (data) -> 
+        if !$scope.list => $scope.list = []
+        d = data.data
+        $scope.page.next = data.next
         blah = $interval ->
           if d.length == 0 => 
             $scope.uploading = false
+            $scope.downloading = false
             return $interval.cancel blah
           $scope.list.push(d.splice 0,1 .0)
         , 100
@@ -182,7 +192,10 @@ angular.module \main <[backend]>
     $scope.logout = -> $http {url: \/u/logout, method: \GET} .success -> window.location.reload!
 
     $scope.gotop = -> $(document.body)animate scrollTop: 0
-        
+    $(window).scroll ->
+      s = $(document.body).scrollTop!
+      h = $(\#layout).height!
+      if s > h and !$scope.downloading => $scope.refresh!
     $(\#attributions)popover!
     setTimeout (-> $(\#menu)sticky topSpacing: 0), 0
     $scope.refresh!

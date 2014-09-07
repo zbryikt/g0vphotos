@@ -56,6 +56,7 @@ upload = (req, res) ->
   payload = backend.clean req.body{id,author,desc,tag,license,event}
   if req.event and !payload.event => payload.event = req.event
   payload.fav = 0
+  payload.create_date = new Date!
   (e,k) <~ ds.save { key: ds.key(\pic, null), data: payload }, _
   if e => r500 res, "failed to add pic"
   # need guessing file type
@@ -89,12 +90,15 @@ backend.router.user
 pic
   ..get \/pic, (req, res) -> # get all site pic list
     # TODO need pagination
-    query = if req.event => ds.createQuery <[pic]> .filter "event =", req.event
-    else ds.createQuery <[pic]>
+    query = ds.createQuery <[pic]> .order \-create_date .limit 100
+    if req.event => query = query.filter "event =", req.event
+    offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
+    if offset => query = query.offset offset
     (e,t,n) <- ds.runQuery query, _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
-    res.json t.map(->it.data)
+    if !n => return res.json { data: t.map(->it.data)}
+    res.json {next: if t.length < 100 => -1 else (t.length + (offset)), data: t.map(->it.data)}
 
   ..post \/pic, backend.multi.parser, upload # upload new pic
 

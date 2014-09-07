@@ -122,6 +122,11 @@ html(lang="en")
           input#file(type="file",name="file")
 
       div.thumbnail(ng-repeat="item in list",data-order="{{item.create_date}}",ng-class="{'fav': user.fav[item.id] && user}"): .ib
+        .tags
+          .tag.white(ng-show="item.event"): .text {{item.event}}
+          br
+          .tag: .text {{item.license || "Public Domain"}}
+
         a(href="/s/pic/{{item.id}}",target="_blank"): img(ng-attr-src="//thumb.g0v.photos/{{item.id}}",isotope)
         .action
           .fav(ng-show="user",ng-click="fav($event, item.id)")
@@ -130,7 +135,8 @@ html(lang="en")
           .share(ng-click="sharePopover($event,item.id)")
             i.glyphicon.glyphicon-share-alt
         .desc 
-          | {{item.desc}} by {{item.author || "anonymous"}} @ {{item.license || "Public Domain"}} / 
+          | {{item.desc}} by {{item.author || "anonymous"}} / 
+          //-@ {{item.license || "Public Domain"}} / 
           a(href="http://raw.g0v.photos/{{item.id}}") 原圖
       .clearfix
     #share-popover

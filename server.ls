@@ -54,6 +54,7 @@ upload = (req, res) ->
   id = req.body.id = storage.id req.body
   # TODO event field, maybe extract from subdomain
   payload = backend.clean req.body{id,author,desc,tag,license,event}
+  if req.event and !payload.event => payload.event = req.event
   payload.fav = 0
   (e,k) <~ ds.save { key: ds.key(\pic, null), data: payload }, _
   if e => r500 res, "failed to add pic"
@@ -88,7 +89,9 @@ backend.router.user
 pic
   ..get \/pic, (req, res) -> # get all site pic list
     # TODO need pagination
-    (e,t,n) <- ds.runQuery (ds.createQuery <[pic]>), _
+    query = ds.createQuery <[pic]>
+      .filter "event =", req.event if req.event
+    (e,t,n) <- ds.runQuery query, _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
     res.json t.map(->it.data)
@@ -111,7 +114,7 @@ pic
     res.json t.map(-> it.data)
 
   ..post \/set/:id, (req, res) -> 
-    req.body.set = req.params.id
+    req.body.event = req.params.id
     upload req, res
 
 backend.app

@@ -187,6 +187,10 @@ base = do
     c = {} <<< config.{}gcs{projectId}
     if config.{}gcs.keyFilename and fs.exists-sync(config.gcs.keyFilename) => c.keyFilename = config.gcs.keyFilename
     dataset = new datastore.Dataset c
+    # experimental - seems that dataset will be expired for a short period of time
+    setTimeout ~>
+      @dataset = new datastore.Dataset c
+    , 60 * 5
 
     app.use express-session do
       secret: config.session-secret

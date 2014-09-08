@@ -149,6 +149,7 @@ html(lang="en")
           //-@ {{item.license || "Public Domain"}} / 
           a(href="http://raw.g0v.photos/{{item.id}}") 原圖
       .clearfix
+    #loading-hourglass(ng-class="{'active':downloading}")
     #share-popover
       | 分享連結: 
       a(href="http://g0v.photos/s/{{lastshare}}") http://g0v.photos/s/{{lastshare}}

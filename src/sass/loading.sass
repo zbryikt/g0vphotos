@@ -1,0 +1,24 @@
+@import vars
+@import basic
+
+#loading-hourglass
+  position: fixed
+  bottom: 30px
+  left: 50%
+  margin: 0
+  width: 0
+  height: 0
+  border-radius: 50%
+  background-position: center center
+  background-repeat: no-repeat
+  background-image: url(/img/loading-sm.gif)
+  background-color: #fff
+  z-index: index($order, loading)
+  box-shadow: 0 0 20px 20px rgba(255,255,255,1.0)
+  opacity: 0
+  @include transition(all 0.5s)
+#loading-hourglass.active
+  opacity: 0.8
+  width: 48px
+  height: 48px
+  margin: -24px 0 0 -24px

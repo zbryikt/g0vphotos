@@ -221,5 +221,5 @@ angular.module \main <[backend]>
         data: fd
         transformRequest: angular.identity
         headers: "Content-Type": undefined
-      .success (d) -> #window.location.href = "//#{$scope.set.event}.g0v.photos/"
+      .success (d) -> window.location.href = "//#{$scope.set.event}.g0v.photos/"
       .error (e) -> console.error e

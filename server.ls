@@ -17,8 +17,10 @@ ds = {}
 <[media media/raw media/thumb src src/ls src/sass static static/css static/js]>.map ->
   if !fs.exists-sync it => fs.mkdir-sync it
 
-config = debug: true, name: \g0vphotos
-config <<< secret.config{clientID, clientSecret}
+config = do
+  debug: true
+  name: \g0vphotos
+config <<< secret.config{clientID, clientSecret, gcs}
 
 backend.init config
 

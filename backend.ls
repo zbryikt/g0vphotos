@@ -144,6 +144,11 @@ base = do
       return done null, user
 
   events: {}
+  getLatestEvent: (req, cb) ->
+    (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[event]>), _
+    if e or !t => return
+    for it in t => @events[it.data.event] = it.data
+
   getEvent: (req, cb) ->
     part = req.headers.host.split \.
     event = if part.length > 2 => part.0 else ""
@@ -253,6 +258,7 @@ base = do
 
   start: (cb) ->
 
+    @getLatestEvent!
     if !@config.debug => 
       @app.use (err, req, res, next) -> if err => res.status 500 .render '500' else next!
 

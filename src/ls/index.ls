@@ -22,6 +22,7 @@ angular.module \main <[backend]>
     $scope <<< do
       user: context.user or null
       event: context.event or null
+      events: context.events or null
       userdata: {}
       customauthor: false
       bkno: <[bk1 bk5 bk7]>[parseInt(Math.random! * 3)]

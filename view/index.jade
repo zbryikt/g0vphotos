@@ -41,9 +41,9 @@ html(lang="en")
        }(document, 'script', 'facebook-jssdk'));
 
     #banner(ng-if="event")
-      .bk(ng-class="bkno",style="background-image: url(//img.g0v.photos/event/{{event.event}})")
+      .bk(ng-class="bkno",ng-attr-style="background-image: url(//img.g0v.photos/event/{{event.event}})")
       #headline(ng-class="[{'active':hlActive},bkno]",style="background:none;overflow: hidden")
-        .headline-bk(style="background-image: url(//img.g0v.photos/event/{{event.event}});-webkit-filter:blur(10px)")
+        .headline-bk(ng-attr-style="background-image: url(//img.g0v.photos/event/{{event.event}});-webkit-filter:blur(10px)")
         .headline-text
           .title(ng-class="{'active':hlActive}") {{event.name}}
           .subtitle(ng-class="{'active':hlActive}") {{event.desc}}
@@ -65,8 +65,12 @@ html(lang="en")
           li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
           li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
           li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
-      a.item(href="//h9n.g0v.photos") 第九次黑客松
-      a.item(href="//h10n.g0v.photos") 第十次黑客松
+      .dropdown.item
+        a.dropdown-toggle(href="#",data-toggle="dropdown")
+          | 最新活動 
+          i.glyphicon.glyphicon-chevron-down
+        ul.dropdown-menu
+          li(ng-repeat="e in events"): a(href="//{{e.event}}.g0v.photos") {{e.name}}
       a.item(href="/set/new/") 建立我的活動
       a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
       a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示

@@ -137,6 +137,7 @@ pic
     if e => return r500 res, "failed to get img buffer"
     (e) <- storage.write \img, "event/#{req.body.event}", b, _
     if e => return r500 res, "failed to write img to storage: #e"
+    req.body.create_date = new Date!
     (e,k) <- ds.save {key: ds.key(\event,null), data: req.body}, _
     if e => return r500 res, "failed to insert event information"
     res.send!
@@ -146,9 +147,19 @@ pic
     req.body.event = req.params.id
     upload req, res
 
+  ..get \/set/, (req, res) ->
+    ret = [v for k,v of backend.events]
+    ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
+    if ret.length > 6 => ret = ret.splice(0,6)
+    res.json ret
+
 
 backend.app
-  ..get \/context, (req, res) -> res.render \backend.ls, {user: req.user, event: req.{}event.data}
+  ..get \/context, (req, res) -> 
+    ret = [v for k,v of backend.events]
+    ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
+    if ret.length > 6 => ret = ret.splice(0,6)
+    res.render \backend.ls, {user: req.user, event: req.{}event.data, events: ret}
 
 backend.app
   ..get \/, (req, res) -> 

@@ -146,6 +146,7 @@ pic
     req.body.event = req.params.id
     upload req, res
 
+
 backend.app
   ..get \/context, (req, res) -> res.render \backend.ls, {user: req.user, event: req.{}event.data}
 
@@ -155,5 +156,10 @@ backend.app
     if err => return r404 res
     res.render \index.jade
   ..get \/set/new/, (req, res) -> res.render \newset.jade
+
 backend.start ({db, server, cols})->
   ds := backend.dataset
+  # TODO dirty workaround: find a better way to update credential 
+  setTimeout ->
+    ds := backend.dataset
+  , 60000

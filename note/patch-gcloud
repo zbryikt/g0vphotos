@@ -1,0 +1,23 @@
+node_modules/gcloud/lib/datastore/entity.js:
+  if (v instanceof String || typeof v === 'string') {
+    p.string_value = v;
+    if(v.length>=500) p.indexed = false;  <---- 
+    return p;
+  }
+
+node_modules/gcloud/lib/storage/index.js:
+Bucket.prototype.getWritableStream_ = function(name, metadata, callback) {
+  var boundary = uuid.v4();
+  var that = this;
+  metadata.contentType = metadata.contentType || 'text/plain';
+  this.conn.createAuthorizedReq({
+    method: 'POST',
+    uri: util.format('{base}/{bucket}/o', {
+      base: STORAGE_UPLOAD_BASE_URL,
+      bucket: this.bucketName
+    }),
+    qs: {
+      name: name,
+      predefinedACL: \publicRead
+      uploadType: 'multipart'
+    },

@@ -41,9 +41,9 @@ html(lang="en")
        }(document, 'script', 'facebook-jssdk'));
 
     #banner(ng-if="event")
-      .bk(ng-class="bkno",style="background-image: url(//img.g0v.photos/event/h10n)")
+      .bk(ng-class="bkno",style="background-image: url(//img.g0v.photos/event/{{event.event}})")
       #headline(ng-class="[{'active':hlActive},bkno]",style="background:none;overflow: hidden")
-        .headline-bk(style="background-image: url(//img.g0v.photos/event/h10n);-webkit-filter:blur(10px)")
+        .headline-bk(style="background-image: url(//img.g0v.photos/event/{{event.event}});-webkit-filter:blur(10px)")
         .headline-text
           .title(ng-class="{'active':hlActive}") {{event.name}}
           .subtitle(ng-class="{'active':hlActive}") {{event.desc}}

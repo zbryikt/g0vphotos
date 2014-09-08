@@ -18,6 +18,6 @@ Bucket.prototype.getWritableStream_ = function(name, metadata, callback) {
     }),
     qs: {
       name: name,
-      predefinedACL: \publicRead
+      predefinedACL: "publicRead",
       uploadType: 'multipart'
     },

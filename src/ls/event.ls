@@ -1,5 +1,5 @@
 angular.module \main
-  ..controller \newset, <[$scope $http context]> ++ ($scope, $http, context) ->
+  ..controller \event, <[$scope $http context]> ++ ($scope, $http, context) ->
     $scope.set = {}
     if context.event =>
       $scope.event = context.event
@@ -8,6 +8,12 @@ angular.module \main
     $scope.fix = (name) -> 
       if $scope.need-fix and $scope.newsetform.{}[name].$invalid => "has-error" else ""
     $scope.uploading = false
+    $scope.delete = ->
+      $http do
+        url: "/s/set/#{$scope.event.event}"
+        method: \DELETE
+      .success (d) -> console.log d
+      .error (e) -> console.log e
     $scope.submit = ->
       if !(/^[a-zA-Z0-9]{3,11}$/.exec($scope.set.event)) =>
         $scope.newsetform.event.$setValidity "illegal", false
@@ -19,8 +25,8 @@ angular.module \main
       <[name desc event]>.map -> fd.append it, $scope.set[it]
       fd.append \image, image.files.0
       $http do
-        url: if event => "/s/set/#{$scope.event.event}" else \/s/set/new/
-        method: if event => \PUT else \POST
+        url: if $scope.event => "/s/set/#{$scope.event.event}" else \/s/set/new/
+        method: if $scope.event => \PUT else \POST
         data: fd
         transformRequest: angular.identity
         headers: "Content-Type": undefined

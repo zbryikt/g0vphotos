@@ -151,6 +151,11 @@ pic
     req.body.event = req.params.id
     upload req, res
 
+  ..delete \/set/:id, (req, res) ->
+    # TODO delete
+    res.send!
+    backend.multi.clean req, res
+
   ..put \/set/:id, backend.multi.parser, (req, res) -> 
     if !req.user => return r400 res, "login required"
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.params.id), _
@@ -193,8 +198,8 @@ backend.app
     (err, event) <- backend.getEvent req, _
     if err => return r404 res
     res.render \index.jade
-  ..get \/set/new/, (req, res) -> res.render \newset.jade
-  ..get \/set/edit/, (req, res) -> res.render \newset.jade, {event: req.{}event.data}
+  ..get \/set/new/, (req, res) -> res.render \event.jade
+  ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
 
 backend.start ({db, server, cols})->
   ds := backend.dataset

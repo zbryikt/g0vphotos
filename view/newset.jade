@@ -1,102 +1,39 @@
-doctype html
-//- basic libraries: jquery(1.10.2), d3js(3.3.11), angularjs(1.2.3), bootstrap(3.0)/semantic-ui(0.9.3/0.9.5)
-- var usecdn = false
-- var useog = false
-- var lib = { jquery: true, d3js: false, angular: true, bootstrap: true, semantic: false }
-- var assets = "/assets"
-- var thumbnail = "http://dummy.thumbnail"
-html(lang="en")
-  head(prefix="og: http://ogp.me/ns#")
-    include fbhash.jade
-    meta(charset="utf-8")
-    meta(name="viewport",content="initial-scale=1, maximum-scale=1,width=780")
-    title 自己的活動自己拍 - g0v hackath10n photo stream
-    // libraries
-    include library.jade
-    // custom files
-    link(rel="icon",type="image/gif",href="/favicon.png")
-    link(rel="stylesheet",type="text/css",href="/css/index.css")
-    script(type="text/javascript",src="#{assets}/isotope/isotope.pkgd.min.js")
-    script(type="text/javascript",src="#{assets}/misc/jquery.sticky.js")
-    script(type="text/javascript",src="/js/index.js")
-    script(type="text/javascript",src="/context")
-  body(ng-app="main",ng-controller="newset")
-    #fb-root
-    script.
-      window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '250121128521928',
-          xfbml      : true,
-          version    : 'v2.0'
-        });
-        //angular.element("body").scope().fbready(window.fbready = true);
-      };
-
-      (function(d, s, id){
-         var js, fjs = d.getElementsByTagName(s)[0];
-         if (d.getElementById(id)) {return;}
-         js = d.createElement(s); js.id = id;
-         js.src = "//connect.facebook.net/en_US/sdk.js";
-         fjs.parentNode.insertBefore(js, fjs);
-       }(document, 'script', 'facebook-jssdk'));
-
-    #menu
-      a.item(href="http://g0v.photos") g0v.photos
-      .dropdown.item
-        a.dropdown-toggle(href="#",data-toggle="dropdown")
-          | 零時政府 
-          i.glyphicon.glyphicon-chevron-down
-        ul.dropdown-menu
-          li: a(href="http://g0v.tw",target="_blank") 官方網站
-          li: a(href="http://hack.g0v.tw",target="_blank") 協作平台
-          li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
-          li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
-          li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
-        
-      .pull-right
-        a.item(href="/u/auth/facebook",ng-show="!user") 臉書登入
-        //-a.item(ng-click="login()",ng-show="!user") 登入
-        .dropdown.profile.item(ng-show="user")
-          a.dropdown-toggle(href="#",data-toggle="dropdown")
-            img(ng-attr-src="http://graph.facebook.com/{{user.detail.id}}/picture",ng-if="user")
-            | {{user.name}} 
-            i.glyphicon.glyphicon-chevron-down
-          ul.dropdown-menu
-            li: a 設定
-            li: a(ng-click="logout()") 臉書登出
-        a.item(href="#",ng-click="gotop()") 回頁首
-      a.item.logo(href="#"): img(src="/img/logo.gif")
-    #content
-      #newset
-        #newset-banner
-          p.text-center: big 想要有一個專用的照片流是嗎？
-          h2.text-center 建立活動專頁
-      br
-      br
-      form#newsetform(name="newsetform",style="width:70%;margin:auto",novalidate)
-        .row
-          .col-sm-6
-            .form-group(ng-class="fix('name')")
-              label.control-label.text-right
-                | 活動名稱
-                small ( 大標題顯示於頁首 )
-              input.form-control(type="text",name="name",ng-model="set.name",placeholder="例如: 零時政府第十次黑客松",required)
-          .col-sm-6
-            .form-group(ng-class="fix('event')")
-              label.control-label.text-right
-                | 活動短名
-                small ( 網址用，只使用字母與數字 )
-              input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required,ng-disabled="event")
-        .form-group(ng-class="fix('desc')")
-          label.control-label.text-right 活動副標
-          input.form-control(type="text",name="desc",ng-model="set.desc",placeholder="例如: 大家趕快來上傳照片吧！",required)
-        .form-group(ng-class="fix('image')")
-          label.control-label.text-right 主頁圖片
-          input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
-        hr
-        .row
-          .col-sm-6: .btn.btn-block.btn-success(ng-click="submit()")
-            span(ng-show="!event") 建立
-            span(ng-show="event") 更新
-          .col-sm-6: a.btn.btn-block.btn-default(href="//g0v.photos") 取消
-    #loading(ng-show="uploading")
+extends base
+block head
+  script(type="text/javascript",src="/js/newset.js")
+block body
+  include menu.jade
+  #content(ng-controller="newset")
+    #newset
+      #newset-banner
+        p.text-center: big 想要有一個專用的照片流是嗎？
+        h2.text-center 建立活動專頁
+    br
+    br
+    form#newsetform(name="newsetform",style="width:70%;margin:auto",novalidate)
+      .row
+        .col-sm-6
+          .form-group(ng-class="fix('name')")
+            label.control-label.text-right
+              | 活動名稱
+              small ( 大標題顯示於頁首 )
+            input.form-control(type="text",name="name",ng-model="set.name",placeholder="例如: 零時政府第十次黑客松",required)
+        .col-sm-6
+          .form-group(ng-class="fix('event')")
+            label.control-label.text-right
+              | 活動短名
+              small ( 網址用，只使用字母與數字 )
+            input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required,ng-disabled="event")
+      .form-group(ng-class="fix('desc')")
+        label.control-label.text-right 活動副標
+        input.form-control(type="text",name="desc",ng-model="set.desc",placeholder="例如: 大家趕快來上傳照片吧！",required)
+      .form-group(ng-class="fix('image')")
+        label.control-label.text-right 主頁圖片
+        input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
+      hr
+      .row
+        .col-sm-6: .btn.btn-block.btn-success(ng-click="submit()")
+          span(ng-show="!event") 建立
+          span(ng-show="event") 更新
+        .col-sm-6: a.btn.btn-block.btn-default(href="//g0v.photos") 取消
+  #loading(ng-show="uploading")

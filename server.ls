@@ -126,6 +126,7 @@ pic
     res.json t.map(-> it.data)
 
   ..post \/set/new/, backend.multi.parser, (req, res) ->
+    if !req.user => return r400 res, "login required"
     if !req.files.image or !/^[a-zA-Z0-9]{3,11}/.exec(req.body.event) => return r500 res, "incorrect data"
     if !req.body.name or !req.body.desc => return r500 res, "incorrect data"
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.body.event), _
@@ -140,6 +141,7 @@ pic
     (e) <- storage.write \img, "event/#{req.body.event}", b, _
     if e => return r500 res, "failed to write img to storage: #e"
     req.body.create_date = new Date!
+    req.body.owner = req.user.email
     (e,k) <- ds.save {key: ds.key(\event,null), data: req.body}, _
     if e => return r500 res, "failed to insert event information"
     res.send!
@@ -150,9 +152,11 @@ pic
     upload req, res
 
   ..put \/set/:id, backend.multi.parser, (req, res) -> 
+    if !req.user => return r400 res, "login required"
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.params.id), _
     if e or !t or !t.length => return r404 res
     t = t.0
+    if t.data.owner != req.user.email => return r403 res, "only owner can edit event"
     # TODO data validation
     for key in <[name desc]> => if req.body[key] => t.data[key] = req.body[key]
     if req.files.image =>

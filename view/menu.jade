@@ -1,0 +1,75 @@
+#menu
+  a.item(href="http://g0v.photos") g0v.photos
+  .dropdown.item
+    a.dropdown-toggle(href="#",data-toggle="dropdown")
+      | 零時政府 
+      i.glyphicon.glyphicon-chevron-down
+    ul.dropdown-menu
+      li: a(href="http://g0v.tw",target="_blank") 官方網站
+      li: a(href="http://hack.g0v.tw",target="_blank") 協作平台
+      li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
+      li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
+      li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
+  .dropdown.item
+    a.dropdown-toggle(href="#",data-toggle="dropdown")
+      | 最新活動 
+      i.glyphicon.glyphicon-chevron-down
+    ul.dropdown-menu
+      li(ng-repeat="e in events"): a(href="//{{e.event}}.g0v.photos") {{e.name}}
+  a.item(href="/set/new/") 建立我的活動
+  a.item(ng-show="user && user.email==event.owner",href="/set/edit/") 編輯活動
+  a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
+  a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
+    
+  .pull-right
+    a.item(href="/u/auth/facebook",ng-show="!user") 臉書登入
+    .dropdown.profile.item(ng-show="user")
+      a.dropdown-toggle(href="#",data-toggle="dropdown")
+        img(ng-attr-src="http://graph.facebook.com/{{user.detail.id}}/picture",ng-if="user")
+        | {{user.name}} 
+        i.glyphicon.glyphicon-chevron-down
+      ul.dropdown-menu
+        li: a 設定
+        li: a(ng-click="logout()") 臉書登出
+    a.item(href="#",ng-click="gotop()") 回頁首
+  a.item.logo(href="#"): img(src="/img/logo.gif")
+br(style="clear:both")
+#output
+  form.row
+    .col-xs-4
+      .preview
+    .col-xs-8
+      .form-group
+        label 照片描述
+        textarea.form-control(ng-model="desc",placeholder="解釋一下這張照片在拍什麼吧")
+      .row
+        .col-sm-6: .form-group
+          label
+            | 作者 &nbsp; &nbsp;
+            label.checkbox-inline(ng-show="user")
+              input(type="checkbox",ng-model="customauthor",ng-disabled="!user")
+              | 使用其他名稱
+          input.form-control(type="text",ng-model="author",placeholder="例如: 王大明",ng-disabled="!customauthor && user")
+        .col-sm-6: .form-group
+          label 標籤
+          input.form-control(type="text",ng-model="tag",placeholder="用逗點分隔")
+      .form-group
+        label
+          | 授權 - {{license}}
+        br
+        .well
+          label.checkbox-inline
+            input(type="checkbox",ng-model="cc.by",ng-disabled="!author")
+            | BY / 姓名標示
+          label.checkbox-inline
+            input(type="checkbox",ng-model="cc.sa",ng-disabled="!author")
+            | SA / 相同方式分享
+          label.checkbox-inline
+            input(type="checkbox",ng-model="cc.nd",ng-disabled="!author")
+            | ND / 禁止改作
+          label.checkbox-inline
+            input(type="checkbox",ng-model="cc.nc",ng-disabled="!author")
+            | NC / 非商業性
+      .btn.btn-success(ng-click="submit()",ng-disabled="uploading") 上傳
+      .btn.btn-default(ng-click="cancel()",ng-disabled="uploading") 取消
+

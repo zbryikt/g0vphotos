@@ -52,10 +52,6 @@ html(lang="en")
           li: a(href="http://g0v.hackpad.com",target="_blank") 線上共筆
           li: a(href="http://community.g0v.tw",target="_blank") 後勤中心
           li: a(href="https://www.facebook.com/g0v.tw",target="_blank") 粉絲專頁
-      a.item(href="//h9n.g0v.photos") 第九次黑客松
-      a.item(href="//h10n.g0v.photos") 第十次黑客松
-      a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
-      a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
         
       .pull-right
         a.item(href="/u/auth/facebook",ng-show="!user") 臉書登入
@@ -90,14 +86,17 @@ html(lang="en")
               label.control-label.text-right
                 | 活動短名
                 small ( 網址用，只使用字母與數字 )
-              input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required)
+              input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required,ng-disabled="event")
         .form-group(ng-class="fix('desc')")
           label.control-label.text-right 活動副標
           input.form-control(type="text",name="desc",ng-model="set.desc",placeholder="例如: 大家趕快來上傳照片吧！",required)
         .form-group(ng-class="fix('image')")
           label.control-label.text-right 主頁圖片
-          input.form-control#setimage(type="file",name="image",ng-model="set.image",required)
+          input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
         hr
         .row
-          .col-sm-6: .btn.btn-block.btn-success(ng-click="submit()") 建立
+          .col-sm-6: .btn.btn-block.btn-success(ng-click="submit()")
+            span(ng-show="!event") 建立
+            span(ng-show="event") 更新
           .col-sm-6: a.btn.btn-block.btn-default(href="//g0v.photos") 取消
+    #loading(ng-show="uploading")

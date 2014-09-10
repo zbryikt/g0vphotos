@@ -149,6 +149,27 @@ pic
     req.body.event = req.params.id
     upload req, res
 
+  ..put \/set/:id, backend.multi.parser, (req, res) -> 
+    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.params.id), _
+    if e or !t or !t.length => return r404 res
+    t = t.0
+    # TODO data validation
+    for key in <[name desc]> => if req.body[key] => t.data[key] = req.body[key]
+    if req.files.image =>
+      (e,img) <- lwip.open req.files.image.path, \jpg, _
+      if e => 
+        console.log "[ERROR] #e"
+        return r500 res, "failed to read img file"
+      (e,b) <- img.toBuffer \jpg, _
+      if e => return r500 res, "failed to get img buffer"
+      (e) <- storage.write \img, "event/#{req.body.event}", b, _
+      if e => return r500 res, "failed to write img to storage: #e"
+    (e,k) <- ds.save {key: t.key, data: t.data}, _
+    if e => return r500 res, "failed to update event information"
+    backend.events[req.params.id] = t.data
+    res.send!
+    backend.multi.clean req, res
+
   ..get \/set/, (req, res) ->
     ret = [v for k,v of backend.events]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
@@ -169,6 +190,7 @@ backend.app
     if err => return r404 res
     res.render \index.jade
   ..get \/set/new/, (req, res) -> res.render \newset.jade
+  ..get \/set/edit/, (req, res) -> res.render \newset.jade, {event: req.{}event.data}
 
 backend.start ({db, server, cols})->
   ds := backend.dataset

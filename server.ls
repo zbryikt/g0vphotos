@@ -63,7 +63,6 @@ fav = (value) -> (req, res) ->
   pic = t.0{key,data}
   if value => req.user.fav[pid] = value
   else delete req.user.fav[pid]
-
   cb = (e,k) ->
     if e => return r500 res, "update user fav: #e"
     pic.data.fav = ( pic.data.fav or 0 ) + ( if value => 1 else -1 ) >? 0
@@ -71,9 +70,8 @@ fav = (value) -> (req, res) ->
     if e => return r500 res, "update pic fav: #e"
     backend.update-user req
     r200 res
-
-  if value => ds.save {key: ds.key(\fav, "#{req.user.email}/#pid"), data: {value}}, cb
-  else => ds.delete ds.key(\fav, "#{req.user.email}/#pid"), cb
+  if value => ds.save {key: ds.key(\fav, "#{req.user.username}/#pid"), data: {username: req.user.username, pic: pid}}, cb
+  else => ds.delete ds.key(\fav, "#{req.user.username}/#pid"), cb
 
 upload = (req, res) ->
   #TODO validation, preventing SQL injection
@@ -166,7 +164,7 @@ pic
     (e) <- storage.write \img, "event/#{req.body.event}", b, _
     if e => return r500 res, "failed to write img to storage: #e"
     req.body.create_date = new Date!
-    req.body.owner = req.user.email
+    req.body.owner = req.user.username
     (e,k) <- ds.save {key: ds.key(\event,null), data: req.body}, _
     if e => return r500 res, "failed to insert event information"
     res.send!
@@ -186,7 +184,7 @@ pic
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.params.id), _
     if e or !t or !t.length => return r404 res
     t = t.0
-    if t.data.owner != req.user.email => return r403 res, "only owner can edit event"
+    if t.data.owner != req.user.username => return r403 res, "only owner can edit event"
     # TODO data validation
     for key in <[name desc]> => if req.body[key] => t.data[key] = req.body[key]
     if req.files.image =>

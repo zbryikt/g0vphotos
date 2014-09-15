@@ -1,7 +1,9 @@
 require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
-require! <[./backend ./storage ./secret]> 
+require! './backend/main'.main,  './backend/aux'.aux
+require! driver: './backend/gcs'
+require! <[./storage ./secret]> 
 
 r500 = (res, error) -> 
   console.log "[ERROR] #error"
@@ -21,6 +23,29 @@ config = do
   debug: true
   name: \g0vphotos
 config <<< secret.config{clientID, clientSecret, gcs}
+
+event-store = do
+  data: {}
+  latest: (req, cb) ->
+    (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[event]>), _
+    if e or !t => return
+    for it in t => @data[it.data.event] = it.data
+  get: (req, cb) ->
+    part = req.headers.host.split \.
+    event = if part.length > 2 => part.0 else ""
+    if !event => return cb null, "", {}
+    if @data[event] => return cb null, event, @data[event]
+    (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[event]> .filter "event =", event), _
+    if e or !t or t.length==0 => return cb true, null, {}
+    @data[event] = obj = t.0.data
+    cb null, event, obj
+
+local-init = (app) ->
+  app.use (req, res, next) ~> # retrieve subdomain
+    (error, event, obj) <- event-store.get req, _
+    if error or !event => return next!
+    req.event = {name: event, data: obj}
+    next!
 
 backend.init config
 
@@ -202,6 +227,7 @@ backend.app
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
 
 backend.start ({db, server, cols})->
+  event-store.latest!
   ds := backend.dataset
   # TODO dirty workaround: find a better way to update credential 
   setTimeout ->

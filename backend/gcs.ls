@@ -22,13 +22,18 @@ base = do
   get-user: (username, password, usepasswd, detail, newuser, callback) ->
     (e,t,n) <~ @ds.runQuery (@ds.createQuery <[user]> .filter "username =", username), _
     if !t.length =>
-      user = @utils.clean newuser username, password, usepasswd, detail
+      user = @aux.clean newuser username, password, usepasswd, detail
       (e,k) <~ @ds.save { key: @ds.key(\user, null), data: user}, _
       if e => return callback {all: "failed to create user"}, false
     else
       user = t.0.data
       if (usepasswd or user.usepasswd) and user.password != p => return callback null, false
     delete user.password
+    (e,t,n) <~ @ds.runQuery (@ds.createQuery <[fav]> .filter "username =", username), _
+    if e => return done null, false
+    user.fav = {}
+    # TODO handle next / pagination if necessaary
+    t.map -> user.fav[it.data.pic] = true
     return callback null, user
 
   session-store: -> do

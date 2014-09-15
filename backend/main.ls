@@ -62,7 +62,7 @@ backend = do
 
   getUser: (username, password, usepasswd, detail, done) ->
     password = if usepasswd => crypto.createHash(\md5).update(password).digest(\hex) else ""
-    @dd.get-user username, password, usepasswd, detail, @newUser, done
+    user = @dd.get-user username, password, usepasswd, detail, @newUser, done
 
   session-store: (backend) -> @ <<< backend.dd.session-store!
 

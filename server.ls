@@ -1,7 +1,7 @@
 require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
-require! './backend/main'.main,  './backend/aux'.aux
+require! {'./backend/main'.backend,  './backend/aux'.aux}
 require! driver: './backend/gcs'
 require! <[./storage ./secret]> 
 
@@ -27,7 +27,7 @@ config <<< secret.config{clientID, clientSecret, gcs}
 event-store = do
   data: {}
   latest: (req, cb) ->
-    (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[event]>), _
+    (e,t,n) <~ ds.runQuery (ds.createQuery <[event]>), _
     if e or !t => return
     for it in t => @data[it.data.event] = it.data
   get: (req, cb) ->
@@ -35,7 +35,7 @@ event-store = do
     event = if part.length > 2 => part.0 else ""
     if !event => return cb null, "", {}
     if @data[event] => return cb null, event, @data[event]
-    (e,t,n) <~ @dataset.runQuery (@dataset.createQuery <[event]> .filter "event =", event), _
+    (e,t,n) <~ ds.runQuery (ds.createQuery <[event]> .filter "event =", event), _
     if e or !t or t.length==0 => return cb true, null, {}
     @data[event] = obj = t.0.data
     cb null, event, obj
@@ -47,7 +47,7 @@ local-init = (app) ->
     req.event = {name: event, data: obj}
     next!
 
-backend.init config
+backend.init config, driver, local-init
 
 pic = backend.express.Router!
 backend.app.use \/s, pic
@@ -213,23 +213,19 @@ pic
 
 backend.app
   ..get \/context, (req, res) -> 
-    ret = [v for k,v of backend.events]
+    ret = [v for k,v of event-store.data]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
     res.render \backend.ls, {user: req.user, event: req.{}event.data, events: ret}
 
 backend.app
   ..get \/, (req, res) -> 
-    (err, event) <- backend.getEvent req, _
+    (err, event) <- event-store.get req, _
     if err => return r404 res
     res.render \index.jade
   ..get \/set/new/, (req, res) -> res.render \event.jade
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
 
 backend.start ({db, server, cols})->
+  ds := backend.ds
   event-store.latest!
-  ds := backend.dataset
-  # TODO dirty workaround: find a better way to update credential 
-  setTimeout ->
-    ds := backend.dataset
-  , 60000

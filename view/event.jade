@@ -28,9 +28,11 @@ block body
           .form-group(ng-class="fix('image')")
             label.control-label.text-right 主頁圖片
             input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
-      .form-group(ng-class="fix('desc')")
-        label.control-label.text-right 活動副標
-        input.form-control(type="text",name="desc",ng-model="set.desc",placeholder="例如: 大家趕快來上傳照片吧！",required)
+      .row
+        .col-sm-12
+          .form-group(ng-class="fix('desc')")
+            label.control-label.text-right 活動副標
+            input.form-control(type="text",name="desc",ng-model="set.desc",placeholder="例如: 大家趕快來上傳照片吧！",required)
       hr
       .row
         .col-sm-6: .btn.btn-block.btn-success(ng-click="submit()")

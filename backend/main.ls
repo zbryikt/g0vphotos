@@ -122,7 +122,6 @@ backend = do
       ..use "/d", router.api
       ..use "/u", router.user
       ..get "/d/health", (req, res) -> res.json {}
-      ..get \/context, (req, res) -> res.render \backend.ls, {user: req.user}
 
     router.user
       ..get \/null, (req, res) -> res.json {}

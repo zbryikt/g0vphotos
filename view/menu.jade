@@ -16,8 +16,7 @@
       i.glyphicon.glyphicon-chevron-down
     ul.dropdown-menu
       li(ng-repeat="e in events"): a(href="//{{e.event}}.g0v.photos") {{e.name}}
-  a.item(href="/set/new/") 建立我的活動
-  a.item(ng-show="user && user.email==event.owner",href="/set/edit/") 編輯活動
+  a.item(href="/set/new/") 建立活動
   a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
   a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
     
@@ -26,10 +25,11 @@
     .dropdown.profile.item(ng-show="user")
       a.dropdown-toggle(href="#",data-toggle="dropdown")
         img(ng-attr-src="http://graph.facebook.com/{{user.detail.id}}/picture",ng-if="user")
-        | {{user.name}} 
+        | {{user.displayname}} 
         i.glyphicon.glyphicon-chevron-down
       ul.dropdown-menu
         li: a 設定
+        li: a(ng-show="user && user.email==event.owner",href="/set/edit/") 編輯活動
         li: a(ng-click="logout()") 臉書登出
     a.item(href="#",ng-click="gotop()") 回頁首
   a.item.logo(href="#"): img(src="/img/logo.gif")

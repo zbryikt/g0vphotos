@@ -22,7 +22,7 @@ ds = {}
 config = do
   debug: true
   name: \g0vphotos
-config <<< secret.config{clientID, clientSecret, gcs}
+config <<< secret
 
 event-store = do
   data: {}

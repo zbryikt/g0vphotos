@@ -10,7 +10,64 @@ block body
         h2.text-center 建立活動專頁
     br
     br
-    form#newsetform(name="newsetform",style="width:70%;margin:auto",novalidate)
+    form#newsetform.form-horizontal(name="newsetform",style="width:70%;margin:auto",novalidate)
+      .form-group
+        label.col-sm-2.control-label.big 活動名稱
+        .col-sm-9
+          input.form-control(type="text",name="name",ng-model="set.name",placeholder="例如: 零時政府第十次黑客松",required)
+
+      .form-group
+        label.col-sm-2.control-label.big 主辦單位 / 組織
+        .col-sm-9
+          select#event-choose-org.form-control
+            option 零時政府
+            option 個人
+          .pull-right
+            span 還沒有屬於自己的組織嗎？
+            a(href="#")
+              | 立刻建立 
+              i.glyphicon.glyphicon-plus
+      hr
+      .form-group
+        label.col-sm-2.control-label 活動短名
+        .col-sm-9
+          input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required)
+          span: small * 只能使用英文字母或數字
+      .form-group
+        label.col-sm-2.control-label 照片流網址
+        label.col-sm-9.control-label: .text-left http://{{set.event}}.g0v.photos/
+      .form-group
+        label.col-sm-2.control-label 活動副標
+        .col-sm-9
+          input.form-control(type="text",name="desc",ng-model="set.desc",placeholder="例如: 零時政府第十次黑客松",required)
+      .form-group
+        label.col-sm-2.control-label 主頁圖片
+        .col-sm-9
+          input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
+      .form-group
+        label.col-sm-2.control-label 詳細描述
+        .col-sm-9
+          textarea.form-control(name="detail",ng-model="set.detail",placeholder="更詳細的描述活動的細節",required)
+      .form-group
+        label.col-sm-2.control-label 活動網站
+        .col-sm-9
+          input.form-control(type="text",name="url",ng-model="set.url",placeholder="例如: http://hack.g0v.tw/hackath10n")
+      .form-group
+        label.col-sm-2.control-label 社群專頁
+        .col-sm-9
+          input.form-control(type="text",name="social",ng-model="set.social",placeholder="例如: http://facebook.com/g0v.tw")
+      .row
+        .col-sm-offset-2.col-sm-5: .btn.btn-block.btn-success(ng-click="submit()")
+          span(ng-show="!event") 建立
+          span(ng-show="event") 更新
+        .col-sm-4: a.btn.btn-block.btn-default(href="//g0v.photos") 取消
+
+    br
+    br
+    br
+
+    //-form#newsetform(name="newsetform",style="width:70%;margin:auto",novalidate)
+      .row
       .row
         .col-sm-4
           .form-group(ng-class="fix('name')")

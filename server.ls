@@ -2,7 +2,8 @@ require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
 require! {'./backend/main'.backend,  './backend/aux'.aux}
-require! driver: './backend/gcs'
+#require! driver: './backend/gcs'
+require! driver: './backend/mongodb'
 require! <[./storage ./secret]> 
 
 r500 = (res, error) -> 
@@ -39,6 +40,13 @@ event-store = do
     if e or !t or t.length==0 => return cb true, null, {}
     @data[event] = obj = t.0.data
     cb null, event, obj
+
+# for debug
+event-store = do
+  data: {}
+  latest: ->
+  get: (req, cb) ->
+    cb null, "", {}
 
 local-init = (app) ->
   app.use (req, res, next) ~> # retrieve subdomain
@@ -223,6 +231,7 @@ backend.app
     res.render \index.jade
   ..get \/set/new/, (req, res) -> res.render \event.jade
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
+  ..get \/org/new/, (req, res) -> res.render \org.jade
 
 backend.start ({db, server, cols})->
   ds := backend.ds

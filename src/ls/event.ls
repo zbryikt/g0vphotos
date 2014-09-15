@@ -36,3 +36,4 @@ angular.module \main
         $scope.uploading = false
         console.error e
 
+    $(\#event-choose-org)select2!

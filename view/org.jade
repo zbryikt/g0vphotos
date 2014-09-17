@@ -1,64 +1,66 @@
 extends base
 block head
-  script(type="text/javascript",src="/js/event.js")
+  script(type="text/javascript",src="/js/org.js")
 block body
   include menu.jade
-  #content(ng-controller="event")
-    #newset
-      #newset-banner
+  #content(ng-controller="org")
+    #neworg
+      #neworg-banner
         p.text-center: big 將您舉辦的活動組織起來
         h2.text-center 建立組織
     br
     br
-    form#newsetform.form-horizontal(name="newsetform",style="width:70%;margin:auto",novalidate)
-
-      .form-group
+    form#newsetform.form-horizontal(name="neworgform",style="width:70%;margin:auto",novalidate)
+      .form-group(ng-class="{'has-error':fix('name')}")
         label.col-sm-2.control-label.big 組織名稱
         .col-sm-9
-          input.form-control(type="text",name="name",ng-model="set.name",placeholder="例如: 零時政府",required)
+          input.form-control(type="text",name="name",ng-model="org.name",placeholder="例如: 零時政府",required)
 
-      .form-group
+      .form-group(ng-class="{'has-error':fix('oid')}")
         label.col-sm-2.control-label.big 組織短名
         .col-sm-9
-          input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required)
+          input.form-control(type="text",name="oid",ng-model="org.oid",placeholder="例如: hackath10n",required)
           span: small * 只能使用英文字母或數字
 
       .form-group
         label.col-sm-2.control-label.big 專用網址
-        label.col-sm-9.control-label.big: .text-left &nbsp; &nbsp; http://{{set.event}}.g0v.photos/
+        label.col-sm-9.control-label.big: .text-left
+          | &nbsp; &nbsp; 
+          span(ng-show="!org.oid") http://???.g0v.photos/
+          span(ng-show="org.oid") http://{{org.oid}}.g0v.photos/
 
       hr
 
       .form-group
         label.col-sm-2.control-label 大頭照
         .col-sm-9
-          input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
+          input.form-control#orgAvatar(type="file",name="orgAvatar",ng-model="org.orgAvatar")
 
       .form-group
         label.col-sm-2.control-label 首頁圖
         .col-sm-9
-          input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
+          input.form-control#orgBanner(type="file",name="orgBanner",ng-model="org.orgBanner")
 
-      .form-group
+      .form-group(ng-class="{'has-error':fix('detail')}")
         label.col-sm-2.control-label 組織描述
         .col-sm-9
-          textarea.form-control(name="detail",ng-model="set.detail",placeholder="更詳細的描述組織的細節",required)
-      .form-group
+          textarea.form-control(name="detail",ng-model="org.detail",placeholder="更詳細的描述組織的細節",required)
+      .form-group(ng-class="{'has-error':fix('url')}")
         label.col-sm-2.control-label 組織網站
         .col-sm-9
-          input.form-control(type="text",name="url",ng-model="set.url",placeholder="例如: http://hack.g0v.tw/hackath10n")
-      .form-group
+          input.form-control(type="text",name="url",ng-model="org.url",placeholder="例如: http://hack.g0v.tw/hackath10n")
+      .form-group(ng-class="{'has-error':fix('social')}")
         label.col-sm-2.control-label 社群專頁
         .col-sm-9
-          input.form-control(type="text",name="social",ng-model="set.social",placeholder="例如: http://facebook.com/g0v.tw")
+          input.form-control(type="text",name="social",ng-model="org.social",placeholder="例如: http://facebook.com/g0v.tw")
       .row
         .col-sm-offset-2.col-sm-5: .btn.btn-block.btn-success(ng-click="submit()")
           span(ng-show="!event") 建立
           span(ng-show="event") 更新
+          ldstate(ng-model="uploading.value")
         .col-sm-4: a.btn.btn-block.btn-default(href="//g0v.photos") 取消
 
     br
     br
     br
 
-    #loading(ng-show="uploading")

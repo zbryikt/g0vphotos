@@ -1,0 +1,71 @@
+@import basic 
+@include keyframes(fadeout)
+  0%
+    opacity: 1
+  50%
+    opacity: 1
+  100%
+    opacity: 0
+
+.state-indicator
+  display: inline
+  font-size: 16px
+  vertical-align: middle
+  .spinner
+    vertical-align: text-bottom
+    background-image: url(/img/spin.gif)
+    background-repeat: no-repeat
+    background-position: center center
+    background-size: cover
+    display: inline-block
+    width: 24px
+    height: 24px
+
+  i.fa
+    min-width: 100px
+  > *
+    height: 24px
+    line-height: 24px
+    text-align: left
+    &:after
+      display: inline
+      margin-left: 5px
+      color: #fff
+      vertical-align: text-bottom
+    &.fadeout
+      @include animation(fadeout 2s linear 1)
+
+.ajax-done, .ajax-fail
+  @include transition(all 1s linear 1s)
+  opacity: 0
+  margin-left: 12px
+  min-width: 100px
+  &:after
+    width: 100%
+    color: #000
+
+.ajax-done
+  color: #4c5
+  &:after
+    content: "完成"
+
+.ajax-fail
+  color: #c54
+  &:after
+    content: "錯誤"
+
+
+.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-info
+  .ajax-done, .ajax-fail
+    &:after
+      color: #fff
+
+=state-spinner($type) 
+  .btn-#{$type} .state-indicator .spinner
+    background-image: url(/img/spin-#{$type}.gif)
+
+@include state-spinner(primary)
+@include state-spinner(success)
+@include state-spinner(info)
+@include state-spinner(warning)
+@include state-spinner(danger)

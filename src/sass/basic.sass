@@ -1,3 +1,27 @@
+=keyframes($name)
+  @-webkit-keyframes #{$name}
+    @content
+  @-moz-keyframes #{$name}
+    @content
+  @-ms-keyframes #{$name}
+    @content
+  @keyframes #{$name}
+    @content
+
+=animation($arg)
+  -ms-animation: $arg
+  -moz-animation: $arg
+  -webkit-animation: $arg
+  -o-animation: $arg
+  animation: $arg
+
+=animation-delay($arg)
+  -ms-animation-delay: $arg
+  -moz-animation-delay: $arg
+  -webkit-animation-delay: $arg
+  -o-animation-delay: $arg
+  animation-delay: $arg
+
 @mixin column($count, $gap, $fill)
   -webkit-column-count: $count
   -webkit-column-gap: $gap

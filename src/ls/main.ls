@@ -1,4 +1,4 @@
-angular.module \main <[backend]>
+angular.module \main <[backend common]>
   ..directive \isotope, -> do
     restrict: \A
     link: (scope, e, attrs, ctrl) ->

@@ -2,9 +2,10 @@ require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
 require! {'./backend/main'.backend,  './backend/aux'.aux}
-#require! driver: './backend/gcs'
-require! driver: './backend/mongodb'
+require! driver: './backend/gcs'
+#require! driver: './backend/mongodb'
 require! <[./storage ./secret]> 
+require! <[./org]>
 
 r500 = (res, error) -> 
   console.log "[ERROR] #error"
@@ -94,9 +95,7 @@ upload = (req, res) ->
   if e => r500 res, "failed to add pic"
   # need guessing file type
   (e,img) <- lwip.open req.files.image.path, \jpg, _
-  if e => 
-    console.log "[ERROR] #e"
-    return r500 res, "failed to read img file"
+  if e => return r500 res, "failed to read img file"
   [w,h] = [img.width!, img.height!]
   [w1,h1] = if w > h => [960, h * 960 / w] else [w * 718 / h, 718]
   [w2,h2] = [480, h * 480 / w]
@@ -163,10 +162,9 @@ pic
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.body.event), _
     if e => return r500 res, "failed to query event"
     if t and t.length => return r400 res
+    # TODO need guessing file type
     (e,img) <- lwip.open req.files.image.path, \jpg, _
-    if e => 
-      console.log "[ERROR] #e"
-      return r500 res, "failed to read img file"
+    if e => return r500 res, "failed to read img file"
     (e,b) <- img.toBuffer \jpg, _
     if e => return r500 res, "failed to get img buffer"
     (e) <- storage.write \img, "event/#{req.body.event}", b, _
@@ -233,6 +231,9 @@ backend.app
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
   ..get \/org/new/, (req, res) -> res.render \org.jade
 
+org.init backend
+
 backend.start ({db, server, cols})->
   ds := backend.ds
+  org.setds ds
   event-store.latest!

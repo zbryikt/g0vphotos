@@ -220,7 +220,7 @@ backend.app
     ret = [v for k,v of event-store.data]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
-    res.render \backend.ls, {user: req.user, event: req.{}event.data, events: ret}
+    res.render \global.ls, {user: req.user, event: req.{}event.data, events: ret}
 
 backend.app
   ..get \/, (req, res) -> 

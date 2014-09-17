@@ -1,7 +1,7 @@
 require! <[fs express mongodb body-parser crypto lwip]>
 require! <[passport passport-local passport-facebook express-session]>
 require! <[nodemailer nodemailer-smtp-transport]>
-require! {'./backend/main'.backend,  './backend/aux'.aux}
+require! {'./backend/main'.backend, './backend/main'.aux}
 require! driver: './backend/gcs'
 #require! driver: './backend/mongodb'
 require! <[./storage ./secret]> 

@@ -41,10 +41,10 @@ block body
         .col-sm-9
           input.form-control#orgBanner(type="file",name="orgBanner",ng-model="org.orgBanner")
 
-      .form-group(ng-class="{'has-error':fix('detail')}")
+      .form-group(ng-class="{'has-error':fix('desc')}")
         label.col-sm-2.control-label 組織描述
         .col-sm-9
-          textarea.form-control(name="detail",ng-model="org.detail",placeholder="更詳細的描述組織的細節",required)
+          textarea.form-control(name="desc",ng-model="org.desc",placeholder="更詳細的描述組織的細節",required)
       .form-group(ng-class="{'has-error':fix('url')}")
         label.col-sm-2.control-label 組織網站
         .col-sm-9

@@ -1,3 +1,3 @@
 angular.module \backend, <[]>
-  ..factory \context, -> req
+  ..factory \context, -> if bridge? => req <<< bridge else req
     

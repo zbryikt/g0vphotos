@@ -229,7 +229,7 @@ backend.app
     res.render \index.jade
   ..get \/set/new/, (req, res) -> res.render \event.jade
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
-  ..get \/org/new/, (req, res) -> res.render \org.jade
+  ..get \/org/new/, (req, res) -> res.render \org/new.jade
 
 org.init backend
 

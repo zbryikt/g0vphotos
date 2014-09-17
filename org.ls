@@ -1,6 +1,5 @@
 require! <[lwip ./storage]>
 require! aux: './backend/aux'
-console.log aux
 
 read-img = (file, res, cb) ->
   console.log file
@@ -16,8 +15,17 @@ module.exports = do
   setds: -> ds := it
   init: (backend) ->
     api = backend.router.api
-    api.get \/org/, (req, res) ->
+
+    backend.app.get \/org/:id/, (req, res) ->
+      oid = req.params.id
+      if !oid => return aux.r404 res
       (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
+      if e or !t => return aux.r505 res, "failed to get org"
+      if !t.length => return aux.r404 res
+      res.render \org/detail.jade, {bridge: {org: t.0}}
+
+    api.get \/org/, (req, res) ->
+      (e,t,n) <- ds.runQuery (ds.createQuery <[org]>), _
       if e or !t => return aux.r500 res, "failed to query org"
       # TODO pagination
       res.json t.map -> it.data
@@ -41,13 +49,15 @@ module.exports = do
       res.send!
       backend.multi.clean req, res
 
-    api.get \/org/#id/, (req, res) ->
-      (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
+    api.get \/org/:id/, (req, res) ->
+      key = req.params.id
+      if !key => return aux.r404 res
+      (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", key), _
       if e or !t => return aux.r500 res, "failed to query org"
       if !t.length => return aux.r400 res
       res.json t.0.data
 
-    api.put \/org/#id/, backend.multi.parser, (req, res) ->
+    api.put \/org/:id/, backend.multi.parser, (req, res) ->
       key = req.params.id
       if !key => return aux.r404 res
       # TODO validation
@@ -56,7 +66,7 @@ module.exports = do
       res.send!
       backend.multi.clean req, res
 
-    api.delete \/org/#id/, (req, res) ->
+    api.delete \/org/:id/, (req, res) ->
       (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
       if e or !t => return aux.r500 res, "failed to query org"
       if !t.length => return aux.r404 res

@@ -24,7 +24,8 @@ html(lang="en")
     script(type="text/javascript",src="#{assets}/select2/select2.min.js")
     script(type="text/javascript",src="/js/common.js")
     script(type="text/javascript",src="/js/main.js")
-    script(type="text/javascript",src="/context")
+    script(type="text/javascript",src="/global")
+    include backend.jade
     block head
   body(ng-app="main",ng-controller="main")
 

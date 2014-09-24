@@ -22,7 +22,7 @@ module.exports = do
       (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
       if e or !t => return aux.r505 res, "failed to get org"
       if !t.length => return aux.r404 res
-      res.render \org/detail.jade, {bridge: {org: t.0}}
+      res.render \org/detail.jade, {context: {org: t.0}}
 
     api.get \/org/, (req, res) ->
       (e,t,n) <- ds.runQuery (ds.createQuery <[org]>), _

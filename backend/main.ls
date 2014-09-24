@@ -63,7 +63,7 @@ backend = do
 
   getUser: (username, password, usepasswd, detail, done) ->
     password = if usepasswd => crypto.createHash(\md5).update(password).digest(\hex) else ""
-    user = @dd.get-user username, password, usepasswd, detail, @newUser, done
+    @dd.get-user username, password, usepasswd, detail, @newUser, done
 
   session-store: (backend) -> @ <<< backend.dd.session-store!
 
@@ -82,6 +82,7 @@ backend = do
     app.engine \ls, lsc
     app.use \/, express.static(path.join(__dirname, '../static'))
     app.set 'views', path.join(__dirname, '../view')
+    app.locals.basedir = app.get \views
 
     passport.use new passport-local.Strategy {
       usernameField: \email

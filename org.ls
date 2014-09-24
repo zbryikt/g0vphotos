@@ -34,12 +34,12 @@ module.exports = do
       # TODO validation
       data = req.body
       oid = data.oid
+      if !req.files.banner => return aux.r500 res, "need banner image"
+      if !req.files.avatar => return aux.r500 res, "need avatar image"
       (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
       if e or !t => return aux.r500 res, "failed to query org"
       if t.length => return aux.r400 res
       (e,k) <- ds.save {key: ds.key(\org, null), data}, _
-      console.log req.files.banner.path
-      console.log req.files.avatar.path
       (b) <- read-img req.files.banner.path, res, _
       (e) <- storage.write \img, "org/b/#oid", b, _
       if e => return aux.r500 res, "failed to write img to storage: #e"

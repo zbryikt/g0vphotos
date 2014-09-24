@@ -23,7 +23,7 @@ block body
           #upload-canvas.default-height(ng-class="{'default-height': !chosen}")
           input#file(type="file",name="file")
 
-      div.thumbnail(ng-repeat="item in list",data-order="{{item.create_date}}",ng-class="{'fav': user.fav[item.id] && user}"): .ib
+      //-div.thumbnail(ng-repeat="item in list",data-order="{{item.create_date}}",ng-class="{'fav': user.fav[item.id] && user}"): .ib
         .tags
           .tag.white(ng-show="item.event"): .text {{item.event}}
           br

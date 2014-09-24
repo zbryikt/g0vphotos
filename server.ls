@@ -26,34 +26,58 @@ config = do
   name: \g0vphotos
 config <<< secret
 
+org-store = do
+  data: {}
+  latest: (req, cb) ->
+    (e,t,n) <~ ds.runQuery (ds.createQuery <[org]>), _
+    if e or !t => return
+    for it in t => @data[it.data.oid] = it.data
+  get: (req, cb) ->
+    part = req.headers.host.split \.
+    org = if part.length > 2 => part.0 else ""
+    if !org => return cb null, "", {}
+    if @data[org] => return cb null, org, @data[org]
+    (e,t,n) <~ ds.runQuery (ds.createQuery <[org]> .filter "org =", org), _
+    if e or !t or t.length==0 => return cb true, null, {}
+    @data[org] = obj = t.0.data
+    cb null, org, obj
+
 event-store = do
   data: {}
   latest: (req, cb) ->
     (e,t,n) <~ ds.runQuery (ds.createQuery <[event]>), _
     if e or !t => return
-    for it in t => @data[it.data.event] = it.data
+    for it in t => 
+      @data.{}[it.data.org][it.data.oid] = it.data
   get: (req, cb) ->
-    part = req.headers.host.split \.
-    event = if part.length > 2 => part.0 else ""
+    #part = req.headers.host.split \.
+    #event = if part.length > 2 => part.0 else ""
+    # TODO finish this
+    org = if req.org => that.name else null
+    event = req.headers.path
     if !event => return cb null, "", {}
     if @data[event] => return cb null, event, @data[event]
-    (e,t,n) <~ ds.runQuery (ds.createQuery <[event]> .filter "event =", event), _
+    q = ds.createQuery <[event]> .filter("event =", event)filter("org =", org)
+    (e,t,n) <~ ds.runQuery q, _
     if e or !t or t.length==0 => return cb true, null, {}
-    @data[event] = obj = t.0.data
+    @data.{}[org][event] = obj = t.0.data
     cb null, event, obj
 
 # for debug
-event-store = do
+/*org-store = do
   data: {}
   latest: ->
   get: (req, cb) ->
-    cb null, "", {}
+    cb null, "", {}*/
 
 local-init = (app) ->
   app.use (req, res, next) ~> # retrieve subdomain
+    (error, org, obj) <- org-store.get req, _
+    if error => return next!
     (error, event, obj) <- event-store.get req, _
-    if error or !event => return next!
-    req.event = {name: event, data: obj}
+    if error => return next!
+    if org => req.org = {name: org, data: obj}
+    if event => req.event = {name: event, data: obj}
     next!
 
 backend.init config, driver, local-init
@@ -86,9 +110,9 @@ upload = (req, res) ->
   #TODO validation, preventing SQL injection
   if !req.files.image or !req.body.license => return res.status 400 .send!
   id = req.body.id = storage.id req.body
-  # TODO event field, maybe extract from subdomain
-  payload = backend.clean req.body{id,author,desc,tag,license,event}
+  payload = backend.clean req.body{id,author,desc,tag,license,event,org}
   if req.{}event.name and !payload.event => payload.event = req.event.name
+  if req.{}org.name and !payload.org => payload.org  req.org.name
   payload.fav = 0
   payload.create_date = new Date!
   (e,k) <~ ds.save { key: ds.key(\pic, null), data: payload }, _
@@ -133,6 +157,7 @@ pic
     if !n => return res.json { data: t.map(->it.data)}
     next = if t.length < 100 => -1 else (t.length + offset) 
     if req.{}event.name => t = t.filter -> it.data.event == req.event.name
+    if req.{}org.name => t = t.filter -> it.data.org == req.org.name
     res.json {next, data: t.map(->it.data)}
 
   ..post \/pic, backend.multi.parser, upload # upload new pic
@@ -159,7 +184,8 @@ pic
     if !req.user => return r400 res, "login required"
     if !req.files.image or !/^[a-zA-Z0-9]{3,11}/.exec(req.body.event) => return r500 res, "incorrect data"
     if !req.body.name or !req.body.desc => return r500 res, "incorrect data"
-    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.body.event), _
+    org = if req.org => that.name else null
+    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("event =", req.body.event).filter("org =",org)), _
     if e => return r500 res, "failed to query event"
     if t and t.length => return r400 res
     # TODO need guessing file type
@@ -171,6 +197,7 @@ pic
     if e => return r500 res, "failed to write img to storage: #e"
     req.body.create_date = new Date!
     req.body.owner = req.user.username
+    if !req.body.org => req.body.org = org
     (e,k) <- ds.save {key: ds.key(\event,null), data: req.body}, _
     if e => return r500 res, "failed to insert event information"
     res.send!
@@ -187,7 +214,8 @@ pic
 
   ..put \/set/:id, backend.multi.parser, (req, res) -> 
     if !req.user => return r400 res, "login required"
-    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter "event =", req.params.id), _
+    org = if req.org => that.name else null
+    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("event =", req.params.id).filter("org =", org)), _
     if e or !t or !t.length => return r404 res
     t = t.0
     if t.data.owner != req.user.username => return r403 res, "only owner can edit event"
@@ -200,16 +228,17 @@ pic
         return r500 res, "failed to read img file"
       (e,b) <- img.toBuffer \jpg, _
       if e => return r500 res, "failed to get img buffer"
-      (e) <- storage.write \img, "event/#{req.body.event}", b, _
+      (e) <- storage.write \img, "org/#org/event/#{req.body.event}", b, _
       if e => return r500 res, "failed to write img to storage: #e"
     (e,k) <- ds.save {key: t.key, data: t.data}, _
     if e => return r500 res, "failed to update event information"
-    backend.events[req.params.id] = t.data
+    event-store.data.{}[org][req.params.id] = t.data
     res.send!
     backend.multi.clean req, res
 
   ..get \/set/, (req, res) ->
-    ret = [v for k,v of backend.events]
+    org = if req.org => that.name else null
+    ret = [v for k,v of event-store.data.{}[org]]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
     res.json ret
@@ -217,7 +246,8 @@ pic
 
 backend.app
   ..get \/global, aux.type.json, (req, res) ->
-    ret = [v for k,v of event-store.data]
+    org = if req.org => that.name else null
+    ret = [v for k,v of event-store.data[org]]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
     res.render \global.ls, {user: req.user, event: req.{}event.data, events: ret}
@@ -230,6 +260,9 @@ backend.app
   ..get \/set/new/, (req, res) -> res.render \event.jade
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
   ..get \/org/new/, (req, res) -> res.render \org/new.jade
+  ..get \/org/detail/, (req, res) -> res.render \org/detail.jade
+  ..get \/:event/, (req, res) ->
+    res.send!
 
 org.init backend
 

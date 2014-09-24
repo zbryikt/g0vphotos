@@ -15,7 +15,7 @@ angular.module \main <[backend common]>
         scope.$on \$destroy ->
           scope.isotope.remove e.0.parentNode.parentNode.parentNode
           scope.isotope.layout!
-  ..controller \main, <[$scope $timeout $http context]> ++  ($scope, $timeout, $http, context) ->
+  ..controller \main, <[$scope $timeout $http context global]> ++  ($scope, $timeout, $http, context, global) ->
     $scope <<< context{user, event, events}
     $scope <<< do
       login: -> window.location.href = \/u/auth/facebook/ 

@@ -50,11 +50,9 @@ event-store = do
     for it in t => 
       @data.{}[it.data.org][it.data.oid] = it.data
   get: (req, cb) ->
-    #part = req.headers.host.split \.
-    #event = if part.length > 2 => part.0 else ""
-    # TODO finish this
     org = if req.org => that.name else null
-    event = req.headers.path
+    ret = /\/e\/([^/]+)\//.exec(req.url)
+    event = if ret => ret.1 else null
     if !event => return cb null, "", {}
     if @data[event] => return cb null, event, @data[event]
     q = ds.createQuery <[event]> .filter("event =", event)filter("org =", org)
@@ -62,13 +60,6 @@ event-store = do
     if e or !t or t.length==0 => return cb true, null, {}
     @data.{}[org][event] = obj = t.0.data
     cb null, event, obj
-
-# for debug
-/*org-store = do
-  data: {}
-  latest: ->
-  get: (req, cb) ->
-    cb null, "", {}*/
 
 local-init = (app) ->
   app.use (req, res, next) ~> # retrieve subdomain
@@ -256,13 +247,13 @@ backend.app
   ..get \/, (req, res) -> 
     (err, event) <- event-store.get req, _
     if err => return r404 res
-    res.render \index.jade
+    res.render \index.jade, {context: {event: req.event, org: req.org}}
   ..get \/set/new/, (req, res) -> res.render \event.jade
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
   ..get \/org/new/, (req, res) -> res.render \org/new.jade
   ..get \/org/detail/, (req, res) -> res.render \org/detail.jade
   ..get \/:event/, (req, res) ->
-    res.send!
+    res.render \index.jade, {context: {event: req.event, org: req.org}}
 
 org.init backend
 

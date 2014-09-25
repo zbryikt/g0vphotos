@@ -1,8 +1,7 @@
-extends base
+extends /layout/with-menu
 block head
   script(type="text/javascript",src="/js/event.js")
-block body
-  include menu.jade
+block content
   #content(ng-controller="event")
     #newset
       #newset-banner
@@ -19,9 +18,7 @@ block body
       .form-group
         label.col-sm-2.control-label.big 主辦單位 / 組織
         .col-sm-9
-          select#event-choose-org.form-control
-            option 零時政府
-            option 個人
+          input#event-choose-org.form-control
           .pull-right
             span 還沒有屬於自己的組織嗎？
             a(href="#")

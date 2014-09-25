@@ -37,7 +37,7 @@ org-store = do
     org = if part.length > 2 => part.0 else ""
     if !org => return cb null, "", {}
     if @data[org] => return cb null, org, @data[org]
-    (e,t,n) <~ ds.runQuery (ds.createQuery <[org]> .filter "org =", org), _
+    (e,t,n) <~ ds.runQuery (ds.createQuery <[org]> .filter "oid =", org), _
     if e or !t or t.length==0 => return cb true, null, {}
     @data[org] = obj = t.0.data
     cb null, org, obj
@@ -48,7 +48,7 @@ event-store = do
     (e,t,n) <~ ds.runQuery (ds.createQuery <[event]>), _
     if e or !t => return
     for it in t => 
-      @data.{}[it.data.org][it.data.oid] = it.data
+      @data.{}[it.data.org][it.data.oid || it.data.event] = it.data
   get: (req, cb) ->
     org = if req.org => that.name else null
     ret = /\/e\/([^/]+)\//.exec(req.url)
@@ -63,11 +63,11 @@ event-store = do
 
 local-init = (app) ->
   app.use (req, res, next) ~> # retrieve subdomain
-    (error, org, obj) <- org-store.get req, _
+    (error, org, org-obj) <- org-store.get req, _
     if error => return next!
     (error, event, obj) <- event-store.get req, _
     if error => return next!
-    if org => req.org = {name: org, data: obj}
+    if org => req.org = org-obj
     if event => req.event = {name: event, data: obj}
     next!
 
@@ -241,16 +241,17 @@ backend.app
     ret = [v for k,v of event-store.data[org]]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
-    res.render \global.ls, {user: req.user, event: req.{}event.data, events: ret}
+    # NOTE event might not work since the url is /global ?
+    res.render \global.ls, {user: req.user, org: req.{}org, orgs: org-store.data, event: req.{}event.data, events: ret}
 
 backend.app
   ..get \/, (req, res) -> 
     (err, event) <- event-store.get req, _
     if err => return r404 res
     res.render \index.jade, {context: {event: req.event, org: req.org}}
-  ..get \/set/new/, (req, res) -> res.render \event.jade
+  ..get \/event/create/, (req, res) -> res.render \event/create.jade
   ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
-  ..get \/org/new/, (req, res) -> res.render \org/new.jade
+  ..get \/org/create/, (req, res) -> res.render \org/create.jade
   ..get \/org/detail/, (req, res) -> res.render \org/detail.jade
   ..get \/:event/, (req, res) ->
     res.render \index.jade, {context: {event: req.event, org: req.org}}

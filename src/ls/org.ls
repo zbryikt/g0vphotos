@@ -1,4 +1,7 @@
 angular.module \main
+  ..controller \org.detail, <[$scope $http context global]> ++ ($scope, $http, context, global) ->
+    console.log context
+    $scope.org = context.org
   ..controller \org, <[$scope $http context stateIndicator]> ++ ($scope, $http, context, stateIndicator) ->
     console.log \ok
     $scope.org = {}

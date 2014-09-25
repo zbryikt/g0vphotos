@@ -1,5 +1,5 @@
 angular.module \main
-  ..controller \event, <[$scope $http context]> ++ ($scope, $http, context) ->
+  ..controller \event, <[$scope $http context global]> ++ ($scope, $http, context, global) ->
     $scope.set = {}
     if context.event =>
       $scope.event = context.event
@@ -36,4 +36,7 @@ angular.module \main
         $scope.uploading = false
         console.error e
 
-    $(\#event-choose-org)select2!
+    console.log context
+    $(\#event-choose-org)select2 do
+      query: (q) ->
+        q.callback( results: [[k,v] for k,v of context.orgs].map(->id: it.0, text: it.1.name))

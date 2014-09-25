@@ -1,5 +1,10 @@
-extends /base
+extends /layout/with-menu
 block head
-block body
-  include /menu.jade
-  
+  script(type="text/javascript",src="/js/org.js")
+block content
+  #content
+    .org-detail(ng-controller="org.detail")
+      .banner(ng-attr-style="background-image:url(http://img.g0v.photos/org/b/{{org.oid}})")
+      h2 {{org.name}}
+      p {{org.desc}}
+      p TODO: event list

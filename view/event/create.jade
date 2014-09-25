@@ -28,11 +28,11 @@ block content
       .form-group
         label.col-sm-2.control-label 活動短名
         .col-sm-9
-          input.form-control(type="text",name="event",ng-model="set.event",placeholder="例如: hackath10n",required)
+          input.form-control(type="text",name="oid",ng-model="set.oid",placeholder="例如: hackath10n",required)
           span: small * 只能使用英文字母或數字
       .form-group
         label.col-sm-2.control-label 照片流網址
-        label.col-sm-9.control-label: .text-left http://{{set.event}}.g0v.photos/
+        label.col-sm-9.control-label: .text-left http://{{set.org}}.g0v.photos/e/{{set.oid}}
       .form-group
         label.col-sm-2.control-label 活動副標
         .col-sm-9
@@ -40,7 +40,7 @@ block content
       .form-group
         label.col-sm-2.control-label 主頁圖片
         .col-sm-9
-          input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!event")
+          input.form-control#setimage(type="file",name="image",ng-model="set.image",ng-required="!oid")
       .form-group
         label.col-sm-2.control-label 詳細描述
         .col-sm-9
@@ -55,8 +55,8 @@ block content
           input.form-control(type="text",name="social",ng-model="set.social",placeholder="例如: http://facebook.com/g0v.tw")
       .row
         .col-sm-offset-2.col-sm-5: .btn.btn-block.btn-success(ng-click="submit()")
-          span(ng-show="!event") 建立
-          span(ng-show="event") 更新
+          span(ng-show="!oid") 建立
+          span(ng-show="oid") 更新
         .col-sm-4: a.btn.btn-block.btn-default(href="//g0v.photos") 取消
 
     br

@@ -1,7 +1,9 @@
 angular.module \main
-  ..controller \stream, <[$scope $interval $timeout $http context]> ++ ($scope, $interval, $timeout, $http, context) ->
+  ..controller \stream, <[$scope $interval $timeout $http context global]> ++ ($scope, $interval, $timeout, $http, context, global) ->
+    console.log ">>>", context
     $scope <<< do
       user: context.user or null
+      org: context.org or null
       event: context.event or null
       events: context.events or null
       customauthor: false

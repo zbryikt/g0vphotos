@@ -50,7 +50,7 @@ event-store = do
     for it in t => 
       @data.{}[it.data.org][it.data.oid || it.data.event] = it.data
   get: (req, cb) ->
-    org = if req.org => that.name else null
+    org = if req.org => that.oid else null
     ret = /\/e\/([^/]+)\//.exec(req.url)
     event = if ret => ret.1 else null
     if !event => return cb null, "", {}
@@ -65,10 +65,10 @@ local-init = (app) ->
   app.use (req, res, next) ~> # retrieve subdomain
     (error, org, org-obj) <- org-store.get req, _
     if error => return next!
+    if org => req.org = org-obj
     (error, event, obj) <- event-store.get req, _
     if error => return next!
-    if org => req.org = org-obj
-    if event => req.event = {name: event, data: obj}
+    if event => req.event = obj #{name: event, data: obj}
     next!
 
 backend.init config, driver, local-init
@@ -102,7 +102,7 @@ upload = (req, res) ->
   if !req.files.image or !req.body.license => return res.status 400 .send!
   id = req.body.id = storage.id req.body
   payload = backend.clean req.body{id,author,desc,tag,license,event,org}
-  if req.{}event.name and !payload.event => payload.event = req.event.name
+  if req.{}event.name and !payload.event => payload.event = req.event.oid
   if req.{}org.name and !payload.org => payload.org  req.org.name
   payload.fav = 0
   payload.create_date = new Date!
@@ -138,7 +138,7 @@ pic
   ..get \/pic, (req, res) -> # get all site pic list
     # TODO need pagination
     query = ds.createQuery <[pic]> 
-    #if req.{}event.name => query = query.filter "event =", req.event.name
+    #if req.{}event.name => query = query.filter "event =", req.event.oid
     query = query.order \-create_date .limit 100
     offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
     if offset => query = query.offset offset
@@ -147,8 +147,8 @@ pic
     if !t or !t.length => return r404 res
     if !n => return res.json { data: t.map(->it.data)}
     next = if t.length < 100 => -1 else (t.length + offset) 
-    if req.{}event.name => t = t.filter -> it.data.event == req.event.name
-    if req.{}org.name => t = t.filter -> it.data.org == req.org.name
+    if req.{}event.name => t = t.filter -> it.data.event == req.event.oid
+    if req.{}org.name => t = t.filter -> it.data.org == req.org.oid
     res.json {next, data: t.map(->it.data)}
 
   ..post \/pic, backend.multi.parser, upload # upload new pic
@@ -161,7 +161,7 @@ pic
     if req.get("accept").indexOf(\application/json) == 0 => return res.json t.0.data
     res.render 'share.jade', {pic: t.0.data}
 
-  ..get \/set/:id, (req, res) ->
+  ..get \/event/:id, (req, res) ->
     # need pagination
     query = if req.params.id => ds.createQuery <[pic]> .filter "event =", req.params.id
     else ds.createQuery <[pic]>
@@ -171,11 +171,11 @@ pic
     if !t or !t.length => return r404 res
     res.json t.map(-> it.data)
 
-  ..post \/set/new/, backend.multi.parser, (req, res) ->
+  ..post \/event/new/, backend.multi.parser, (req, res) ->
     if !req.user => return r400 res, "login required"
     if !req.files.image or !/^[a-zA-Z0-9]{3,11}/.exec(req.body.event) => return r500 res, "incorrect data"
     if !req.body.name or !req.body.desc => return r500 res, "incorrect data"
-    org = if req.org => that.name else null
+    org = if req.org => that.oid else null
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("event =", req.body.event).filter("org =",org)), _
     if e => return r500 res, "failed to query event"
     if t and t.length => return r400 res
@@ -194,16 +194,16 @@ pic
     res.send!
     backend.multi.clean req, res
 
-  ..post \/set/:id, (req, res) -> 
+  ..post \/event/:id, (req, res) -> 
     req.body.event = req.params.id
     upload req, res
 
-  ..delete \/set/:id, (req, res) ->
+  ..delete \/event/:id, (req, res) ->
     # TODO delete
     res.send!
     backend.multi.clean req, res
 
-  ..put \/set/:id, backend.multi.parser, (req, res) -> 
+  ..put \/event/:id, backend.multi.parser, (req, res) -> 
     if !req.user => return r400 res, "login required"
     org = if req.org => that.name else null
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("event =", req.params.id).filter("org =", org)), _
@@ -227,7 +227,7 @@ pic
     res.send!
     backend.multi.clean req, res
 
-  ..get \/set/, (req, res) ->
+  ..get \/event/, (req, res) ->
     org = if req.org => that.name else null
     ret = [v for k,v of event-store.data.{}[org]]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
@@ -242,7 +242,7 @@ backend.app
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
     # NOTE event might not work since the url is /global ?
-    res.render \global.ls, {user: req.user, org: req.{}org, orgs: org-store.data, event: req.{}event.data, events: ret}
+    res.render \global.ls, {user: req.user, org: req.org, orgs: org-store.data, events: ret}
 
 backend.app
   ..get \/, (req, res) -> 
@@ -250,11 +250,11 @@ backend.app
     if err => return r404 res
     res.render \index.jade, {context: {event: req.event, org: req.org}}
   ..get \/event/create/, (req, res) -> res.render \event/create.jade
-  ..get \/set/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
+  ..get \/event/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
   ..get \/org/create/, (req, res) -> res.render \org/create.jade
   ..get \/org/detail/, (req, res) -> res.render \org/detail.jade
-  ..get \/:event/, (req, res) ->
-    res.render \index.jade, {context: {event: req.event, org: req.org}}
+  ..get \/e/:event/, (req, res) ->
+    res.render \index.jade, {context: {event: req.event}}
 
 org.init backend
 

@@ -2,7 +2,7 @@ angular.module \main
   ..controller \event, <[$scope $http context global]> ++ ($scope, $http, context, global) ->
     $scope.set = {}
     if context.event =>
-      $scope.event = context.event
+      $scope.oid = context.event.oid
       $scope.set <<< context.event
     $scope.need-fix = false
     $scope.fix = (name) -> 
@@ -10,33 +10,37 @@ angular.module \main
     $scope.uploading = false
     $scope.delete = ->
       $http do
-        url: "/s/set/#{$scope.event.event}"
+        url: "/s/event/#{$scope.oid}"
         method: \DELETE
       .success (d) -> console.log d
       .error (e) -> console.log e
     $scope.submit = ->
-      if !(/^[a-zA-Z0-9]{3,11}$/.exec($scope.set.event)) =>
-        $scope.newsetform.event.$setValidity "illegal", false
+      if !(/^[a-zA-Z0-9]{3,11}$/.exec($scope.set.oid)) =>
+        $scope.newsetform.oid.$setValidity "illegal", false
       $scope.need-fix = $scope.newsetform.$invalid
       if $scope.need-fix => return
       $scope.uploading = true
       fd = new FormData!
       image = $(\#setimage).0
-      <[name desc event]>.map -> fd.append it, $scope.set[it]
+      <[name desc oid org]>.map -> fd.append it, $scope.set[it]
       fd.append \image, image.files.0
       $http do
-        url: if $scope.event => "/s/set/#{$scope.event.event}" else \/s/set/new/
+        url: if $scope.event => "/s/event/#{$scope.oid}" else \/s/event/new/
         method: if $scope.event => \PUT else \POST
         data: fd
         transformRequest: angular.identity
         headers: "Content-Type": undefined
       .success (d) -> 
-        window.location.href = "//#{$scope.set.event}.g0v.photos/"
+        window.location.href = "//#{$scope.set.org}.g0v.photos/#{$scope.set.oid}"
       .error (e) -> 
         $scope.uploading = false
         console.error e
 
-    console.log context
+    org-changed = (e) -> $scope.$apply -> 
     $(\#event-choose-org)select2 do
       query: (q) ->
         q.callback( results: [[k,v] for k,v of context.orgs].map(->id: it.0, text: it.1.name))
+    if context.org =>
+      $(\#event-choose-org)select2 \data, {id: context.org.oid, text: context.org.name}
+      $scope.set.org = context.org.oid
+    $(\#event-choose-org)on \change, (e) -> $scope.$apply -> $scope.set.org = e.val

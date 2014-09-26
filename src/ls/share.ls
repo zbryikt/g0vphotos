@@ -1,4 +1,4 @@
-angular.module \main, <[backend]>
+angular.module \main
   ..controller \share, <[$scope $http context]> ++ ($scope, $http, context) ->
     $scope <<< do
       like: false

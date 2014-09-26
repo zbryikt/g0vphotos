@@ -44,9 +44,9 @@ angular.module \main
     $scope.refresh = ->
       $scope.downloading = true
       if $scope.page.next == -1 => return
-      event = if $scope.{}event.oid => $scope.event.oid+'/' else ''
+      url = if $scope.{}event.oid => "/e/#{$scope.event.oid}/pic" else "/s/pic"
       $http do
-        url: "/s/pic/#event#{if $scope.page.next => '?next='+$scope.page.next else ''}"
+        url: "#url#{if $scope.page.next => '?next='+$scope.page.next else ''}"
         method: \GET
       .success (data) -> 
         if !$scope.list => $scope.list = []

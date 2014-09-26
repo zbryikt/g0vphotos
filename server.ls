@@ -145,24 +145,6 @@ pic
     next = if t.length < 100 => -1 else (t.length + offset) 
     res.json {next, data: t.map(->it.data)}
 
-  ..get \/pic/:event, (req, res) -> # get event-specific pic list
-    query = ds.createQuery <[pic]>
-    event = req.params.event
-    if event => query = query.filter "event =", event
-    # TODO patch h9n and h10n
-    if !(event == "h9n" or event == "h10n") =>
-      query = query.filter "org =", (req.{}org.oid or "www")
-    # TODO dunno why order not work. check it in newer gcloud-node
-    #query = query.order \-create_date .limit 100
-    offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
-    if offset => query = query.offset offset
-    (e,t,n) <- ds.runQuery query, _
-    if e => return r500 res, e
-    if !t or !t.length => return r404 res
-    if t.length > 100 => t = t.splice 0,100
-    next = if t.length < 100 => -1 else (t.length + offset) 
-    res.json {next, data: t.map(->it.data)}
-
   ..post \/pic, backend.multi.parser, upload # upload new pic
 
   ..get \/pic/:id, (req, res) -> # get single pic info
@@ -270,6 +252,24 @@ backend.app
     res.render \event/create.jade, {context: {event: req.{}event}}
   ..get \/e/:event/, (req, res) ->
     res.render \index.jade, {context: {event: req.event}}
+
+  ..get \/e/:event/pic, (req, res) -> # get event-specific pic list
+    query = ds.createQuery <[pic]>
+    event = req.params.event
+    if event => query = query.filter "event =", event
+    # TODO patch h9n and h10n
+    if !(event == "h9n" or event == "h10n") =>
+      query = query.filter "org =", (req.{}org.oid or "www")
+    # TODO dunno why order not work. check it in newer gcloud-node
+    #query = query.order \-create_date .limit 100
+    offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
+    if offset => query = query.offset offset
+    (e,t,n) <- ds.runQuery query, _
+    if e => return r500 res, e
+    if !t or !t.length => return r404 res
+    if t.length > 100 => t = t.splice 0,100
+    next = if t.length < 100 => -1 else (t.length + offset) 
+    res.json {next, data: t.map(->it.data)}
 
 org.init backend
 

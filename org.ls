@@ -40,7 +40,7 @@ module.exports = do
       (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
       if e or !t => return aux.r500 res, "failed to query org"
       if t.length => return aux.r400 res
-      (e,k) <- ds.save {key: ds.key(\org, null), data}, _
+      (e,k) <- ds.save {key: ds.key([\org, null]), data}, _
       (b) <- read-img req.files.banner.path, res, _
       (e) <- storage.write \img, "org/b/#oid", b, _
       if e => return aux.r500 res, "failed to write img to storage: #e"
@@ -70,7 +70,7 @@ module.exports = do
       olddata = t.0.data
       if req.user.username != olddata.owner => return aux.r403 res
       # TODO validation
-      (e,k) <- ds.save {key: ds.key(\org, key), data}, _
+      (e,k) <- ds.save {key: ds.key([\org, key]), data}, _
       res.send!
       backend.multi.clean req, res
 

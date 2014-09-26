@@ -94,19 +94,19 @@ fav = (value) -> (req, res) ->
     if e => return r500 res, "update pic fav: #e"
     backend.update-user req
     r200 res
-  if value => ds.save {key: ds.key(\fav, "#{req.user.username}/#pid"), data: {username: req.user.username, pic: pid}}, cb
-  else => ds.delete ds.key(\fav, "#{req.user.username}/#pid"), cb
+  if value => ds.save {key: ds.key([\fav, "#{req.user.username}/#pid"]), data: {username: req.user.username, pic: pid}}, cb
+  else => ds.delete ds.key([\fav, "#{req.user.username}/#pid"]), cb
 
 upload = (req, res) ->
   #TODO validation, preventing SQL injection
   if !req.files.image or !req.body.license => return res.status 400 .send!
   id = req.body.id = storage.id req.body
   payload = backend.clean req.body{id,author,desc,tag,license,event,org}
-  if req.{}event.name and !payload.event => payload.event = req.event.oid
-  if req.{}org.name and !payload.org => payload.org  req.org.name
+  if req.{}event.oid and !payload.event => payload.event = req.event.oid
+  if !payload.org => payload.org = if req.{}org.oid => that else "www"
   payload.fav = 0
   payload.create_date = new Date!
-  (e,k) <~ ds.save { key: ds.key(\pic, null), data: payload }, _
+  (e,k) <~ ds.save { key: ds.key([\pic, null]), data: payload }, _
   if e => r500 res, "failed to add pic"
   # need guessing file type
   (e,img) <- lwip.open req.files.image.path, \jpg, _
@@ -138,7 +138,8 @@ pic
   ..get \/pic, (req, res) -> # get all site pic list
     # TODO need pagination
     query = ds.createQuery <[pic]> 
-    #if req.{}event.name => query = query.filter "event =", req.event.oid
+    if req.{}event.oid => query = query.filter "event =", req.event.oid
+    query = query.filter "org =", (req.{}org.oid or "www")
     query = query.order \-create_date .limit 100
     offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
     if offset => query = query.offset offset
@@ -190,7 +191,7 @@ pic
     req.body.owner = req.user.username
     # TODO check if org exists
     if !req.body.org => req.body.org = org
-    (e,k) <- ds.save {key: ds.key(\event,null), data: req.body}, _
+    (e,k) <- ds.save {key: ds.key([\event,null]), data: req.body}, _
     if e => return r500 res, "failed to insert event information"
     res.send!
     backend.multi.clean req, res

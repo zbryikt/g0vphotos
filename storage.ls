@@ -15,7 +15,7 @@ init = ->
   <[raw medium thumb img]>map ->
     config = {bucketName: "#it.g0v.photos"}
     if fs.exists-sync KEYFILE => config = config <<< {keyFilename: KEYFILE}
-    bucket[it] = new storage.Bucket config
+    bucket[it] = new storage.bucket config
 init!
 # do we really need this to prevent credential expire?
 setTimeout init, 60 * 5

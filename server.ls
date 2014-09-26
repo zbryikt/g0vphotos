@@ -50,7 +50,7 @@ event-store = do
     for it in t => 
       @data.{}[it.data.org][it.data.oid || it.data.event] = it.data
   get: (req, cb) ->
-    org = if req.org => that.oid else null
+    org = if req.org => that.oid else "www"
     ret = /^\/e\/([^/]+)\/?/.exec(req.url)
     event = if ret => ret.1 else null
     if !event => return cb null, "", {}
@@ -175,7 +175,7 @@ pic
     if !req.user => return r400 res, "login required"
     if !req.files.image or !/^[a-zA-Z0-9]{3,11}/.exec(req.body.event) => return r500 res, "incorrect data"
     if !req.body.name or !req.body.desc => return r500 res, "incorrect data"
-    org = if req.org => that.oid else "none"
+    org = if req.org and req.org.oid => req.org.oid else "www"
     (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("oid =", req.body.oid).filter("org =", org)), _
     if e => return r500 res, "failed to query event"
     if t and t.length => return r400 res
@@ -188,6 +188,7 @@ pic
     if e => return r500 res, "failed to write img to storage: #e"
     req.body.create_date = new Date!
     req.body.owner = req.user.username
+    # TODO check if org exists
     if !req.body.org => req.body.org = org
     (e,k) <- ds.save {key: ds.key(\event,null), data: req.body}, _
     if e => return r500 res, "failed to insert event information"
@@ -237,7 +238,7 @@ pic
 
 backend.app
   ..get \/global, aux.type.json, (req, res) ->
-    org = if req.org => that.oid else null
+    org = if req.org => that.oid else "www"
     ret = [v for k,v of event-store.data[org]]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
@@ -252,7 +253,7 @@ backend.app
   ..get \/org/create/, backend.needlogin (req, res) -> res.render \org/create.jade, {context: {org: {}}}
   ..get \/org/detail/, (req, res) -> res.render \org/detail.jade
   ..get \/org/edit/, backend.needlogin (req, res) -> res.render \org/create.jade
-  ..get \/e/create/, backend.needlogin (req, res) -> res.render \event/create.jade
+  ..get \/event/create/, backend.needlogin (req, res) -> res.render \event/create.jade
   ..get \/e/:event/edit/, backend.needlogin (req, res) ->
     res.render \event/create.jade, {context: {event: req.{}event}}
   ..get \/e/:event/, (req, res) ->

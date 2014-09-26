@@ -23,7 +23,7 @@ angular.module \main
       $scope.uploading = true
       fd = new FormData!
       image = $(\#setimage).0
-      <[name desc oid detail org]>.map -> fd.append it, $scope.set[it]
+      <[name desc oid detail org]>.map -> if $scope.set[it] => fd.append it, $scope.set[it]
       fd.append \image, image.files.0
       $http do
         url: if $scope.oid => "/s/event/#{$scope.oid}" else \/s/event/new/
@@ -32,7 +32,7 @@ angular.module \main
         transformRequest: angular.identity
         headers: "Content-Type": undefined
       .success (d) -> 
-        window.location.href = "//#{$scope.set.org}.g0v.photos/e/#{$scope.set.oid}"
+        window.location.href = "//#{if $scope.set.org => that+"." else ""}g0v.photos/e/#{$scope.set.oid}"
       .error (e) -> 
         $scope.uploading = false
         console.error e

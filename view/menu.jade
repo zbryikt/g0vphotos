@@ -16,7 +16,7 @@
       i.glyphicon.glyphicon-chevron-down
     ul.dropdown-menu
       li(ng-repeat="e in events"): a(href="//{{e.org}}.g0v.photos/e/{{e.oid}}") {{e.name}}
-  a.item(href="/e/create/") 建立活動
+  a.item(href="/event/create/") 建立活動
   a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
   a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
     

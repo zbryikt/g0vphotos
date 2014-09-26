@@ -135,21 +135,32 @@ backend.router.user
   ..delete \/fav/:id, fav false
 
 pic
-  ..get \/pic, (req, res) -> # get all site pic list
-    # TODO need pagination
-    query = ds.createQuery <[pic]> 
-    if req.{}event.oid => query = query.filter "event =", req.event.oid
-    query = query.filter "org =", (req.{}org.oid or "www")
-    query = query.order \-create_date .limit 100
+  ..get \/pic/, (req, res) -> # get all site pic list
+    query = ds.createQuery <[pic]> .order \-create_date .limit 100
     offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
     if offset => query = query.offset offset
     (e,t,n) <- ds.runQuery query, _
     if e => return r500 res, e
     if !t or !t.length => return r404 res
-    if !n => return res.json { data: t.map(->it.data)}
     next = if t.length < 100 => -1 else (t.length + offset) 
-    if req.{}event.name => t = t.filter -> it.data.event == req.event.oid
-    if req.{}org.name => t = t.filter -> it.data.org == req.org.oid
+    res.json {next, data: t.map(->it.data)}
+
+  ..get \/pic/:event, (req, res) -> # get event-specific pic list
+    query = ds.createQuery <[pic]>
+    event = req.params.event
+    if event => query = query.filter "event =", event
+    # TODO patch h9n and h10n
+    if !(event == "h9n" or event == "h10n") =>
+      query = query.filter "org =", (req.{}org.oid or "www")
+    # TODO dunno why order not work. check it in newer gcloud-node
+    #query = query.order \-create_date .limit 100
+    offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
+    if offset => query = query.offset offset
+    (e,t,n) <- ds.runQuery query, _
+    if e => return r500 res, e
+    if !t or !t.length => return r404 res
+    if t.length > 100 => t = t.splice 0,100
+    next = if t.length < 100 => -1 else (t.length + offset) 
     res.json {next, data: t.map(->it.data)}
 
   ..post \/pic, backend.multi.parser, upload # upload new pic

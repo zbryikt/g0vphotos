@@ -3,14 +3,14 @@ block head
   script(type="text/javascript",src="/js/stream.js")
 block body
   #content-nomargin(ng-controller="stream")
-    #banner(ng-if="event")
+    #banner(ng-if="event.oid")
       .bk(ng-class="bkno",ng-attr-style="background-image: url(//img.g0v.photos/event/{{event.oid}})")
       #headline(ng-class="[{'active':hlActive},bkno]",style="background:none;overflow: hidden")
         .headline-bk(ng-attr-style="background-image: url(//img.g0v.photos/event/{{event.oid}});-webkit-filter:blur(10px)")
         .headline-text
           .title(ng-class="{'active':hlActive}") {{event.name}}
           .subtitle(ng-class="{'active':hlActive}") {{event.desc}}
-    #banner(ng-if="!event")
+    #banner(ng-if="!event.oid")
       .bk(ng-class="bkno")
       #headline(ng-class="[{'active':hlActive},bkno]")
         .title(ng-class="{'active':hlActive}") 自己的活動自己拍

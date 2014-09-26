@@ -35,7 +35,7 @@ org-store = do
   get: (req, cb) ->
     part = req.headers.host.split \.
     org = if part.length > 2 => part.0 else ""
-    if !org => return cb null, "", {}
+    if !org or org=="www" => return cb null, "", {}
     if @data[org] => return cb null, org, @data[org]
     (e,t,n) <~ ds.runQuery (ds.createQuery <[org]> .filter "oid =", org), _
     if e or !t or t.length==0 => return cb true, null, {}

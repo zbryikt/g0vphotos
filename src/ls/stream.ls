@@ -60,7 +60,9 @@ angular.module \main
             return $interval.cancel blah
           $scope.list.push(d.splice 0,1 .0)
         , 100
-      .error (e) -> console.error e
+      .error (e) ->
+        $scope.downloading = false
+        console.error e
 
     dup = (canvas) ->
       ret = document.createElement(\canvas) <<< {width: canvas.width, height: canvas.height}

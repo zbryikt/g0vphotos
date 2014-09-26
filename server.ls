@@ -51,11 +51,11 @@ event-store = do
       @data.{}[it.data.org][it.data.oid || it.data.event] = it.data
   get: (req, cb) ->
     org = if req.org => that.oid else null
-    ret = /\/e\/([^/]+)\//.exec(req.url)
+    ret = /^\/e\/([^/]+)\/?/.exec(req.url)
     event = if ret => ret.1 else null
     if !event => return cb null, "", {}
     if @data[event] => return cb null, event, @data[event]
-    q = ds.createQuery <[event]> .filter("event =", event)filter("org =", org)
+    q = ds.createQuery <[event]> .filter("oid =", event)filter("org =", org)
     (e,t,n) <~ ds.runQuery q, _
     if e or !t or t.length==0 => return cb true, null, {}
     @data.{}[org][event] = obj = t.0.data
@@ -175,8 +175,8 @@ pic
     if !req.user => return r400 res, "login required"
     if !req.files.image or !/^[a-zA-Z0-9]{3,11}/.exec(req.body.event) => return r500 res, "incorrect data"
     if !req.body.name or !req.body.desc => return r500 res, "incorrect data"
-    org = if req.org => that.oid else null
-    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("event =", req.body.event).filter("org =",org)), _
+    org = if req.org => that.oid else "none"
+    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("oid =", req.body.oid).filter("org =", org)), _
     if e => return r500 res, "failed to query event"
     if t and t.length => return r400 res
     # TODO need guessing file type
@@ -184,7 +184,7 @@ pic
     if e => return r500 res, "failed to read img file"
     (e,b) <- img.toBuffer \jpg, _
     if e => return r500 res, "failed to get img buffer"
-    (e) <- storage.write \img, "event/#{req.body.event}", b, _
+    (e) <- storage.write \img, "event/#{req.body.oid}", b, _
     if e => return r500 res, "failed to write img to storage: #e"
     req.body.create_date = new Date!
     req.body.owner = req.user.username
@@ -205,8 +205,8 @@ pic
 
   ..put \/event/:id, backend.multi.parser, (req, res) -> 
     if !req.user => return r400 res, "login required"
-    org = if req.org => that.name else null
-    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("event =", req.params.id).filter("org =", org)), _
+    org = if req.org => that.oid else null
+    (e,t,n) <- ds.runQuery (ds.createQuery <[event]> .filter("oid =", req.params.id).filter("org =", org)), _
     if e or !t or !t.length => return r404 res
     t = t.0
     if t.data.owner != req.user.username => return r403 res, "only owner can edit event"
@@ -237,7 +237,7 @@ pic
 
 backend.app
   ..get \/global, aux.type.json, (req, res) ->
-    org = if req.org => that.name else null
+    org = if req.org => that.oid else null
     ret = [v for k,v of event-store.data[org]]
     ret.sort (a,b) -> if a.create_date > b.create_date => 1 else if a.create_date < b.create_date => -1 else 0
     if ret.length > 6 => ret = ret.splice(0,6)
@@ -249,10 +249,12 @@ backend.app
     (err, event) <- event-store.get req, _
     if err => return r404 res
     res.render \index.jade, {context: {event: req.event, org: req.org}}
-  ..get \/event/create/, (req, res) -> res.render \event/create.jade
-  ..get \/event/edit/, (req, res) -> res.render \event.jade, {event: req.{}event.data}
-  ..get \/org/create/, (req, res) -> res.render \org/create.jade
+  ..get \/org/create/, backend.needlogin (req, res) -> res.render \org/create.jade, {context: {org: {}}}
   ..get \/org/detail/, (req, res) -> res.render \org/detail.jade
+  ..get \/org/edit/, backend.needlogin (req, res) -> res.render \org/create.jade
+  ..get \/e/create/, backend.needlogin (req, res) -> res.render \event/create.jade
+  ..get \/e/:event/edit/, backend.needlogin (req, res) ->
+    res.render \event/create.jade, {context: {event: req.{}event}}
   ..get \/e/:event/, (req, res) ->
     res.render \index.jade, {context: {event: req.event}}
 

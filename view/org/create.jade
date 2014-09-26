@@ -19,7 +19,7 @@ block body
       .form-group(ng-class="{'has-error':fix('oid')}")
         label.col-sm-2.control-label.big 組織短名
         .col-sm-9
-          input.form-control(type="text",name="oid",ng-model="org.oid",placeholder="例如: hackath10n",required)
+          input.form-control(type="text",name="oid",ng-model="org.oid",placeholder="例如: hackath10n",required,ng-disabled="edit")
           span: small * 只能使用英文字母或數字
 
       .form-group

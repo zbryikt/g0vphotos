@@ -4,6 +4,7 @@ angular.module \main
     if context.event =>
       $scope.oid = context.event.oid
       $scope.set <<< context.event
+    console.log context
     $scope.need-fix = false
     $scope.fix = (name) -> 
       if $scope.need-fix and $scope.newsetform.{}[name].$invalid => "has-error" else ""
@@ -22,16 +23,16 @@ angular.module \main
       $scope.uploading = true
       fd = new FormData!
       image = $(\#setimage).0
-      <[name desc oid org]>.map -> fd.append it, $scope.set[it]
+      <[name desc oid detail org]>.map -> fd.append it, $scope.set[it]
       fd.append \image, image.files.0
       $http do
-        url: if $scope.event => "/s/event/#{$scope.oid}" else \/s/event/new/
-        method: if $scope.event => \PUT else \POST
+        url: if $scope.oid => "/s/event/#{$scope.oid}" else \/s/event/new/
+        method: if $scope.oid => \PUT else \POST
         data: fd
         transformRequest: angular.identity
         headers: "Content-Type": undefined
       .success (d) -> 
-        window.location.href = "//#{$scope.set.org}.g0v.photos/#{$scope.set.oid}"
+        window.location.href = "//#{$scope.set.org}.g0v.photos/e/#{$scope.set.oid}"
       .error (e) -> 
         $scope.uploading = false
         console.error e

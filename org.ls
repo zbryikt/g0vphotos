@@ -2,7 +2,6 @@ require! <[lwip ./storage]>
 require! aux: './backend/aux'
 
 read-img = (file, res, cb) ->
-  console.log file
   (e,img) <- lwip.open file, \jpg, _
   if e => return aux.r500 res, "failed to read img file"
   (e,b) <- img.toBuffer \jpg, _
@@ -31,9 +30,11 @@ module.exports = do
       res.json t.map -> it.data
 
     api.post \/org/, backend.multi.parser, (req, res) ->
+      if !req.user => return aux.r400 res, "login required"
       # TODO validation
       data = req.body
       oid = data.oid
+      data.owner = req.user.username
       if !req.files.banner => return aux.r500 res, "need banner image"
       if !req.files.avatar => return aux.r500 res, "need avatar image"
       (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
@@ -58,11 +59,18 @@ module.exports = do
       res.json t.0.data
 
     api.put \/org/:id/, backend.multi.parser, (req, res) ->
-      key = req.params.id
-      if !key => return aux.r404 res
-      # TODO validation
+      if !req.user => return aux.r400 res, "login required"
+      oid = req.params.id
       data = req.body
-      (e,k) <- ds.save ds.key(\org, key), {data}, _
+      data.oid = oid
+      if !oid => return aux.r404 res
+      (e,t,n) <- ds.runQuery (ds.createQuery <[org]> .filter "oid =", oid), _
+      if e or !t => return aux.r500 res, "failed to query org"
+      if !t.length => return aux.r400 res
+      olddata = t.0.data
+      if req.user.username != olddata.owner => return aux.r403 res
+      # TODO validation
+      (e,k) <- ds.save {key: ds.key(\org, key), data}, _
       res.send!
       backend.multi.clean req, res
 

@@ -1,11 +1,11 @@
 angular.module \main
   ..controller \org.detail, <[$scope $http context global]> ++ ($scope, $http, context, global) ->
-    console.log context
     $scope.org = context.org
   ..controller \org, <[$scope $http context stateIndicator]> ++ ($scope, $http, context, stateIndicator) ->
-    console.log \ok
     $scope.org = {}
-    if context.org => $scope.org <<< context.org
+    if context.org => 
+      $scope.org <<< context.org
+    if context.org.oid => $scope.edit = true
 
     $scope.need-fix = false
     $scope.fix = (name) -> 
@@ -28,12 +28,12 @@ angular.module \main
       fd = new FormData!
       banner = $(\#orgBanner).0
       avatar = $(\#orgAvatar).0
-      <[name desc oid]>.map -> fd.append it, $scope.org[it]
+      <[name desc oid url social]>.map -> fd.append it, $scope.org[it]
       fd.append \banner, banner.files.0
       fd.append \avatar, avatar.files.0
       $http do
-        url: if context.org => "/d/org/#{$scope.org.oid}" else \/d/org/
-        method: if context.org => \PUT else \POST
+        url: if $scope.edit => "/d/org/#{$scope.org.oid}" else \/d/org/
+        method: if $scope.edit => \PUT else \POST
         data: fd
         transformRequest: angular.identity
         headers: "Content-Type": undefined

@@ -244,6 +244,7 @@ backend.app
     (err, event) <- event-store.get req, _
     if err => return r404 res
     res.render \index.jade, {context: {event: req.event, org: req.org}}
+  ..get \/org/, backend.needlogin (req, res) -> res.render \org/list.jade
   ..get \/org/create/, backend.needlogin (req, res) -> res.render \org/create.jade, {context: {org: {}}}
   ..get \/org/detail/, (req, res) -> res.render \org/detail.jade
   ..get \/org/edit/, backend.needlogin (req, res) -> res.render \org/create.jade
@@ -276,4 +277,5 @@ org.init backend
 backend.start ({db, server, cols})->
   ds := backend.ds
   org.setds ds
+  org-store.latest!
   event-store.latest!

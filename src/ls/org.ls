@@ -1,11 +1,12 @@
 angular.module \main
   ..controller \org.detail, <[$scope $http context global]> ++ ($scope, $http, context, global) ->
     $scope.org = context.org
-  ..controller \org, <[$scope $http context stateIndicator]> ++ ($scope, $http, context, stateIndicator) ->
+  ..controller \org, <[$scope $http context global stateIndicator]> ++ ($scope, $http, context, global, stateIndicator) ->
     $scope.org = {}
-    if context.org => 
-      $scope.org <<< context.org
-    if context.org.oid => $scope.edit = true
+    console.log context
+    if context.org => $scope.org <<< context.org
+    if context.orgs => $scope.orgs = context.orgs
+    if context.{}org.oid => $scope.edit = true
 
     $scope.need-fix = false
     $scope.fix = (name) -> 

@@ -1,0 +1,27 @@
+extends /base
+block head
+  script(type="text/javascript",src="/js/org.js")
+block body
+  include /menu.jade
+  #content(ng-controller="org")
+    .list-group
+      .list-group-item(ng-repeat="(k,v) in orgs")
+        .media
+          a.pull-left(href="#")
+            img(ng-attr-src="http://img.g0v.photos/org/a/{{k}}",style="width:64px;height:64px")
+          .media-body
+            h4
+              | {{v.name}}  
+              small / {{v.oid}}
+            | {{v.desc}}
+            br
+            .links
+              span(ng-if="v.url")
+                i.glyphicon.glyphicon-link
+                |  
+                a(ng-attr-href="v.url") {{v.url}}
+              span
+                i.glyphicon.glyphicon-picture
+                |  
+                a(ng-attr-href="//{{v.oid}}.g0v.photos") 照片串流
+

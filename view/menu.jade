@@ -21,12 +21,12 @@
   a.item(href="/event/create/") 建立活動
   a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
   a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
-    
+
   .pull-right
     a.item(href="/u/auth/facebook",ng-show="!user") 臉書登入
     .dropdown.profile.item(ng-show="user")
       a.dropdown-toggle(href="#",data-toggle="dropdown")
-        img(ng-attr-src="http://graph.facebook.com/{{user.detail.id}}/picture",ng-if="user")
+        img.avatar(ng-attr-src="http://graph.facebook.com/{{user.detail.id}}/picture",ng-if="user")
         | {{user.displayname}} 
         i.glyphicon.glyphicon-chevron-down
       ul.dropdown-menu
@@ -35,6 +35,7 @@
         li: a(ng-show="user && user.username==org.owner",href="/org/{{org.oid}}/edit") 編輯組織
         li: a(ng-click="logout()") 臉書登出
     a.item(href="#",ng-click="gotop()") 回頁首
+
   a.item.logo(href="#"): img(src="/img/logo.gif")
 br(style="clear:both")
 #output

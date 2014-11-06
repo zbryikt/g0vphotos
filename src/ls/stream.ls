@@ -1,6 +1,5 @@
 angular.module \main
   ..controller \stream, <[$scope $interval $timeout $http context global]> ++ ($scope, $interval, $timeout, $http, context, global) ->
-    console.log ">>>", context
     $scope <<< do
       user: context.user or null
       org: context.org or null
@@ -42,8 +41,9 @@ angular.module \main
     $scope.$watch 'cc', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.$watch 'author', (-> $scope.license = license $scope.cc, $scope.author) , true
     $scope.refresh = ->
-      $scope.downloading = true
+      $scope.uploading = false
       if $scope.page.next == -1 => return
+      $scope.downloading = true
       url = if $scope.{}event.oid => "/e/#{$scope.event.oid}/pic" else "/s/pic"
       $http do
         url: "#url#{if $scope.page.next => '?next='+$scope.page.next else ''}"
@@ -124,22 +124,24 @@ angular.module \main
       fd.append \license, license($scope.cc, $scope.author)
       fd.append \image, new Blob([$scope.img.raw],{type:"application/octet-stream"})
       $http do
-        url: \/s/pic/
+        url: if $scope.event.oid => "/s/event/#{$scope.event.oid}" else \/s/pic/
         method: \POST
         data: fd
         transformRequest: angular.identity
         headers: "Content-Type": undefined
       .success (d) -> 
-        console.log d
+        console.log "pic posted: ", d
+        window.location.reload! # workaround
         finish true
       .error (e) -> 
-        console.log e
+        console.log "pic post failed: ", e
         finish false
 
     $scope.$watch 'customauthor' -> if !$scope.user or it => $scope.author = ""
       else $scope.author = $scope.user.name
-    $scope.$watch 'user' -> if !it or $scope.customauthor => $scope.author = ""
-      else $scope.author = $scope.user.name
+    $scope.$watch 'user' -> 
+      if !it or $scope.customauthor => $scope.author = ""
+      else $scope.author = $scope.user.name or $scope.user.displayname
     , true
 
     $(window).resize -> $(\#share-popover)removeClass \show

@@ -18,7 +18,8 @@
       li(ng-repeat="e in events")
         a(ng-show="e.org=='www'",href="//g0v.photos/e/{{e.oid}}") {{e.name}}
         a(ng-show="e.org!='www'",href="//{{e.org}}.g0v.photos/e/{{e.oid}}") {{e.name}}
-  a.item(href="/event/create/") 建立活動
+  //-暫時藏起來
+  //-a.item(href="/event/create/") 建立活動
   a.item(ng-click="filterfav(true)",ng-show="user && !showfav") 我的最愛
   a.item(ng-click="filterfav(false)",ng-show="showfav") 全部顯示
 
@@ -30,7 +31,7 @@
         | {{user.displayname}} 
         i.glyphicon.glyphicon-chevron-down
       ul.dropdown-menu
-        li: a 設定
+        //-li: a 設定
         li: a(ng-show="user && user.username==event.owner",href="/e/{{event.oid}}/edit") 編輯活動
         li: a(ng-show="user && user.username==org.owner",href="/org/{{org.oid}}/edit") 編輯組織
         li: a(ng-click="logout()") 臉書登出

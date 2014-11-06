@@ -49,10 +49,12 @@ event-store = do
     if e or !t => return
     for it in t => 
       @data.{}[it.data.org][it.data.oid || it.data.event] = it.data
+  # 舉辦活動時，利用這個來設定預設的事件名
+  default: (org) -> if org=="www" => "summit" else null # null
   get: (req, cb) ->
     org = if req.org => that.oid else "www"
     ret = /^\/e\/([^/]+)\/?/.exec(req.url)
-    event = if ret => ret.1 else null
+    event = if ret => ret.1 else @default org
     if !event => return cb null, "", {}
     if @data[event] => return cb null, event, @data[event]
     q = ds.createQuery <[event]> .filter("oid =", event)filter("org =", org)
@@ -101,7 +103,7 @@ upload = (req, res) ->
   #TODO validation, preventing SQL injection
   if !req.files.image or !req.body.license => return res.status 400 .send!
   id = req.body.id = storage.id req.body
-  payload = backend.clean req.body{id,author,desc,tag,license,event,org}
+  payload = aux.clean req.body{id,author,desc,tag,license,event,org}
   if req.{}event.oid and !payload.event => payload.event = req.event.oid
   if !payload.org => payload.org = if req.{}org.oid => that else "www"
   payload.fav = 0
@@ -189,7 +191,7 @@ pic
     res.send!
     backend.multi.clean req, res
 
-  ..post \/event/:id, (req, res) -> 
+  ..post \/event/:id, backend.multi.parser, (req, res) -> 
     req.body.event = req.params.id
     upload req, res
 
@@ -266,6 +268,7 @@ backend.app
     offset = if !isNaN(req.query.next) => parseInt(req.query.next) else 0
     if offset => query = query.offset offset
     (e,t,n) <- ds.runQuery query, _
+    #console.log e, t, (req.{}.oid or "www"), event
     if e => return r500 res, e
     if !t or !t.length => return r404 res
     if t.length > 100 => t = t.splice 0,100
